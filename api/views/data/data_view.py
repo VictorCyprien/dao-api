@@ -21,7 +21,7 @@ logger = Logger()
 
 @data_blp.route('/items')
 class ItemsDataView(MethodView):
-    @data_blp.doc(operationId='GetData')
+    @data_blp.doc(operationId='GetItems')
     @data_blp.arguments(QueryParamsSchema, location="query")
     @data_blp.response(400, schema=PagingError, description="BadRequest")
     @data_blp.response(200, schema=ItemsResponseSchema, description="OK")
@@ -62,7 +62,7 @@ class ItemsDataView(MethodView):
 
 @data_blp.route('/summary')
 class SummaryDataView(MethodView):
-    @data_blp.doc(operationId='GetData')
+    @data_blp.doc(operationId='GetSummary')
     @data_blp.arguments(QueryParamsSchema, location="query")
     @data_blp.response(400, schema=PagingError, description="BadRequest")
     @data_blp.response(200, schema=SummaryResponseSchema, description="OK")

@@ -207,7 +207,7 @@
         "tags": [
           "data"
         ],
-        "operationId": "GetData"
+        "operationId": "GetItems"
       }
     },
     "/data/summary": {
@@ -270,7 +270,7 @@
         "tags": [
           "data"
         ],
-        "operationId": "GetData"
+        "operationId": "GetSummary"
       }
     }
   },
