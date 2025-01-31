@@ -64,6 +64,7 @@ class InputCreateUserSchema(Schema):
 
 
 class InputUpdateUserSchema(Schema):
+    username = fields.String(metadata={"description": "New Username of the user"})
     email = fields.String(metadata={"description": "New Email of the user"})
     discord_username = fields.String(metadata={"description": "New Discord username of the user"})
     wallet_address = fields.String(metadata={"description": "New Wallet address of the user"})

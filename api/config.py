@@ -32,6 +32,15 @@ class Config:
         self.API_VERSION = env.str('CI_COMMIT_REF_NAME', "dev")
         self.OPENAPI_VERSION = "3.0.2"
 
+
+    @property
+    def mongodb_settings(self):
+        return {
+            'host': f'{self.MONGODB_URI}/{self.MONGODB_DATABASE}',
+            'db': self.MONGODB_DATABASE,
+            'connect': self.MONGODB_CONNECT,
+        }
+
     @property
     def logger_config(self):
         return {
@@ -61,6 +70,10 @@ class Config:
     @property
     def json(self):
         return {key: self.__getattribute__(key) for key in self.__dir__() if not key.startswith('_') and key.isupper()}
+
+    def validate(self):
+        if not self.MONGODB_URI:
+            raise ValueError("Mongo URI is not defined")
 
 
 config = Config()

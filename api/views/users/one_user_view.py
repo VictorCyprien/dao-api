@@ -26,7 +26,7 @@ class OneUserView(MethodView):
         try:
             user = User.get_by_id(id=user_id)
         except DoesNotExist:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND.value)
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
 
         return {
             "user": user
@@ -43,14 +43,14 @@ class OneUserView(MethodView):
         try:
             user = User.get_by_id(id=user_id)
         except DoesNotExist:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND.value)
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         user.update(input_dict)
 
         try:
             user.save()
         except ValidationError:
-            raise BadRequest(ErrorHandler.USER_UPDATE.value)
+            raise BadRequest(ErrorHandler.USER_UPDATE)
 
         return {
             "action": "updated",
