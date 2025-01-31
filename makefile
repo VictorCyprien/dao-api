@@ -1,3 +1,7 @@
+.PHONY: all requirements tests
+
+all: requirements
+
 run:
 	export FLASK_APP=run; export FLASK_ENV=development; flask run --no-debugger --host=0.0.0.0 --port=8081;
 
