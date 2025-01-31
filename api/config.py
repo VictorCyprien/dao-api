@@ -13,6 +13,20 @@ class Config:
         self.FLASK_ENV = env.str('FLASK_ENV', 'dev')
         self.JSON_SORT_KEYS = True
 
+        # MONGODB
+        self.MONGODB_URI = env.str('MONGODB_URI', 'mongodb://localhost:27017')
+        self.MONGODB_DATABASE = env.str('MONGODB_DATABASE', 'dao-users')
+        self.MONGODB_CONNECT = False
+        self.MONGODB_USERNAME = env.str("MONGODB_USERNAME", "root")
+        self.MONGODB_PASSWORD = env.str("MONGODB_PASSWORD", "example")
+
+        # REDIS
+        self.REDIS_URI = env.str('REDIS_URI', "localhost")
+        self.REDIS_PORT = env.int('REDIS_PORT', 6379)
+
+        # PASSWORD CUSTOM SALT
+        self.SECURITY_PASSWORD_SALT = env.str('SECURITY_PASSWORD_SALT', "672B2BB59D2E432E8F3FB10E23B8AECC")
+
         # OPENAPI
         self.API_TITLE = self.SERVICE_NAME
         self.API_VERSION = env.str('CI_COMMIT_REF_NAME', "dev")
