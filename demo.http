@@ -1,0 +1,23 @@
+@URL=http://localhost:8081
+
+###
+POST {{URL}}/users
+Content-Type: application/json
+
+{
+    "userId": "123",
+    "communityId": "123",
+    "subdomain": "babywen",
+    "questId": "123",
+    "requestId": "123",
+    "accounts": {
+        "discord": {
+            "id": "123",
+            "handle": "charadreemurr3571"
+        },
+        "twitter": {
+            "id": "123",
+            "username": "VicCrypto1331"
+        }
+    }
+}
