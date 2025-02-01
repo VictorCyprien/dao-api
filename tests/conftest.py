@@ -1,4 +1,3 @@
-
 from typing import Iterator
 from flask import Flask
 from flask.testing import FlaskClient
@@ -22,6 +21,8 @@ def app(request) -> Iterator[Flask]:
     config.MONGODB_CONNECT = False
 
     config.SECURITY_PASSWORD_SALT = "123456"
+    config.JWT_ACCESS_TOKEN_EXPIRES = 60
+    config.JWT_SECRET_KEY = "test_secret_key"
 
     from mongoengine import connect
     connect('mydatabase', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
@@ -86,3 +87,14 @@ def mock_save_user_document():
     User.save.side_effect = ValidationError
     yield User.save
     User.save = _original
+
+
+@pytest.fixture
+def sayori_logged_in(client, sayori):
+    login_data = {
+        "email": sayori.email,
+        "password": "my_password"
+    }
+    response = client.post("/auth/login", json=login_data)
+    token = response.json["token"]
+    yield token
