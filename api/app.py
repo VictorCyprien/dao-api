@@ -3,8 +3,23 @@ import json
 from flask import Flask, request, jsonify, g
 from flask_smorest import Api
 
+from flask_mongoengine import MongoEngine
+
 from .config import Config
 from helpers.logging_file import Logger
+
+
+
+def connect_to_mongo(config: Config, app: Flask):
+    # Configure mongo client
+    app.config['MONGODB_SETTINGS'] = {
+        "db": config.MONGODB_DATABASE,
+        "host": config.MONGODB_URI,
+        "username": config.MONGODB_USERNAME,
+        "password": config.MONGODB_PASSWORD
+    }
+    MongoEngine(app)
+
 
 
 def create_flask_app(config: Config) -> Flask:
@@ -55,6 +70,9 @@ def create_flask_app(config: Config) -> Flask:
     
 
     rest_api = Api(app)
+
+    from .views.users import users_blp
+    rest_api.register_blueprint(users_blp)
 
     from .views.data import data_blp
     rest_api.register_blueprint(data_blp)

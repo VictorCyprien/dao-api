@@ -1,3 +1,4 @@
+from typing import Dict
 import logging
 from colorama import Fore, Style, init
 
@@ -28,6 +29,8 @@ class Logger:
         
         def format(self, record):
             log_color = Logger.LOG_COLORS.get(record.levelno, Fore.WHITE)
+            if isinstance(record.msg, Dict):
+                record.msg = str(record.msg)
             record.msg = log_color + record.msg + Style.RESET_ALL
             return super().format(record)
 

@@ -1,0 +1,551 @@
+{
+  "paths": {
+    "/users/": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Infos of new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputCreateUser"
+              }
+            }
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ],
+        "operationId": "CreateUser"
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Get one user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get an existing user",
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetUser"
+      },
+      "put": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Update one user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputUpdateUser"
+              }
+            }
+          }
+        },
+        "summary": "Update an existing user",
+        "tags": [
+          "users"
+        ],
+        "operationId": "UpdateUser"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    "/data/items": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_start",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_end",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get data",
+        "tags": [
+          "data"
+        ],
+        "operationId": "GetItems"
+      }
+    },
+    "/data/summary": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_start",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_end",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get data",
+        "tags": [
+          "data"
+        ],
+        "operationId": "GetSummary"
+      }
+    }
+  },
+  "info": {
+    "title": "DAO-API",
+    "version": "dev"
+  },
+  "tags": [
+    {
+      "name": "users",
+      "description": "Manage Users"
+    },
+    {
+      "name": "data",
+      "description": "Data handler"
+    }
+  ],
+  "openapi": "3.0.2",
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors",
+            "additionalProperties": {}
+          }
+        }
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "previous_page": {
+            "type": "integer"
+          },
+          "next_page": {
+            "type": "integer"
+          }
+        }
+      },
+      "InputCreateUser": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user"
+          },
+          "discord_username": {
+            "type": "string",
+            "description": "Discord username of the user"
+          },
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          },
+          "github_username": {
+            "type": "string",
+            "description": "Github username of the user"
+          }
+        },
+        "description": "Input informations need to create user."
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "description": "Unique user identifier"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user"
+          },
+          "discord_username": {
+            "type": "string",
+            "description": "Discord username of the user"
+          },
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          },
+          "github_username": {
+            "type": "string",
+            "description": "Github username of the user"
+          }
+        },
+        "description": "User informations."
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "description": "Create/Update a user."
+      },
+      "PagingError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error status"
+          }
+        },
+        "description": "Informations about the error"
+      },
+      "InputUpdateUser": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "New Username of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "New Email of the user"
+          },
+          "discord_username": {
+            "type": "string",
+            "description": "New Discord username of the user"
+          },
+          "wallet_address": {
+            "type": "string",
+            "description": "New Wallet address of the user"
+          },
+          "github_username": {
+            "type": "string",
+            "description": "New Github username of the user"
+          }
+        },
+        "description": "New user information"
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "cid": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "source": {
+            "description": "Source field that can be either a string (for items) or a dict (for summary)"
+          },
+          "title": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "string"
+          },
+          "date": {
+            "type": "integer"
+          },
+          "metadata": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "source",
+          "text",
+          "type"
+        ],
+        "description": "Informations about the data from SQLite"
+      },
+      "ItemsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          }
+        },
+        "description": "Items response schema"
+      },
+      "SummaryResponse": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          }
+        },
+        "description": "Summary response schema"
+      }
+    },
+    "responses": {
+      "UNPROCESSABLE_ENTITY": {
+        "description": "Unprocessable Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
