@@ -1,5 +1,7 @@
 @URL=http://localhost:8081
 
+@TOKEN=""
+
 ###
 POST {{URL}}/users
 Content-Type: application/json
@@ -12,3 +14,20 @@ Content-Type: application/json
     "wallet_address": "8D1234567890",
     "github_username": "CharaDreemurr"
 }
+
+
+###
+POST {{URL}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "charadreemurr3571@gmail.com",
+    "password": "password"
+}
+
+
+###
+POST {{URL}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
