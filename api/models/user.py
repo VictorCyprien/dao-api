@@ -1,7 +1,11 @@
 from mongoengine import Document, fields
 from mongoengine.errors import ValidationError
 
+import bcrypt
+
 from datetime import datetime
+
+from api.config import config
 
 
 class User(Document):
@@ -15,6 +19,10 @@ class User(Document):
 
     email = fields.StringField(required=True, unique=True)
     """ Email of the user
+    """
+
+    password = fields.StringField(required=True)
+    """ Password of the user
     """
 
     discord_username = fields.StringField(required=True, unique=True)
@@ -38,6 +46,7 @@ class User(Document):
         user.user_id = User.generate_user_id()
         user.username = input_data["username"]
         user.email = input_data["email"]
+        user.password = User.hash_password(input_data["password"])
         user.discord_username = input_data["discord_username"]
         user.wallet_address = input_data["wallet_address"]
         user.github_username = input_data["github_username"]
@@ -49,6 +58,7 @@ class User(Document):
         """
         username = input_data.get("username", None)
         email = input_data.get("email", None)
+        password = input_data.get("password", None)
         discord_username = input_data.get("discord_username", None)
         wallet_address = input_data.get("wallet_address", None)
         github_username = input_data.get("github_username", None)
@@ -57,6 +67,8 @@ class User(Document):
             self.username = username
         if email is not None:
             self.email = email
+        if password is not None:
+            self.password = User.hash_password(password)
         if discord_username is not None:
             self.discord_username = discord_username
         if wallet_address is not None:
@@ -96,3 +108,41 @@ class User(Document):
             user_id = random.randint(1, max_int)
 
         return user_id
+    
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """Hash a password using bcrypt
+        
+        Args:
+            password: The plain text password to hash
+            
+        Returns:
+            str: The hashed password
+        """
+        # Convert password to bytes and generate salt
+        password_bytes = password.encode('utf-8')
+        salt = bcrypt.gensalt(rounds=12)
+        
+        # Hash password with salt
+        hashed = bcrypt.hashpw(password_bytes, salt)
+        
+        # Return string representation
+        return hashed.decode('utf-8')
+
+    @staticmethod
+    def check_password(password: str, hashed_password: str) -> bool:
+        """Check a password against a hashed password
+        
+        Args:
+            password: The plain text password to check
+            hashed_password: The hashed password to check against
+            
+        Returns:
+            bool: True if the password is correct, False otherwise
+        """
+        # Convert password to bytes
+        password_bytes = password.encode('utf-8')
+        # Convert hashed password to bytes
+        hashed_password_bytes = hashed_password.encode('utf-8')
+        # Check if the password is correct
+        return bcrypt.checkpw(password_bytes, hashed_password_bytes)
