@@ -7,6 +7,7 @@ Content-Type: application/json
 {
     "username": "Chara",
     "email": "charadreemurr3571@gmail.com",
+    "password": "password",
     "discord_username": "charadreemurr3571",
     "wallet_address": "8D1234567890",
     "github_username": "CharaDreemurr"
