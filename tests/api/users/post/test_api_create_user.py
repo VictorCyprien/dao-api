@@ -11,6 +11,7 @@ def test_create_user(client: Flask):
     data = {
         "username": "Chara",
         "email": "charadreemurr3571@gmail.com",
+        "password": "my_password",
         "discord_username": "charadreemurr3571",
         "wallet_address": "8D1234567890",
         "github_username": "CharaDreemurr"
@@ -33,10 +34,11 @@ def test_create_user(client: Flask):
     }
 
     user_id = data['user']['user_id']
-    user = User.objects().get(user_id=user_id)
+    user: User = User.objects().get(user_id=user_id)
     assert user.user_id == ANY
     assert user.username == "Chara"
     assert user.email == "charadreemurr3571@gmail.com"
+    assert User.check_password("my_password", user.password)
     assert user.discord_username == "charadreemurr3571"
     assert user.wallet_address == "8D1234567890"
     assert user.github_username == "CharaDreemurr"
@@ -64,6 +66,7 @@ def test_create_email_already_used(client: Flask, victor: User):
     data = {
         'discord_username': 'victor#1234',
         'email': 'victor@example.com',
+        'password': 'my_password',
         'github_username': 'victor',
         'username': 'Victor',
         'wallet_address': '0x1234567890'
@@ -85,6 +88,7 @@ def test_create_discord_username_already_used(client: Flask, victor: User):
         'discord_username': 'victor#1234',
         'email': 'victor2@example.com',
         'github_username': 'victor',
+        'password': 'my_password',
         'username': 'Victor',
         'wallet_address': '0x1234567890'
     }
@@ -105,6 +109,7 @@ def test_create_github_username_already_used(client: Flask, victor: User):
         'discord_username': 'victor2#1234',
         'email': 'victor3@example.com',
         'github_username': 'victor',
+        'password': 'my_password',
         'username': 'Victor',
         'wallet_address': '0x123456789a0'
     }
@@ -125,6 +130,7 @@ def test_create_wallet_address_already_used(client: Flask, victor: User):
         'discord_username': 'victor3#1234',
         'email': 'victor4@example.com',
         'github_username': 'victor2',
+        'password': 'my_password',
         'username': 'Victor',
         'wallet_address': '0x1234567890'
     }

@@ -46,6 +46,7 @@ def victor(app) -> Iterator[User]:
     user_dict = {
         "username": "Victor",
         "email": "victor@example.com",
+        "password": "my_password",
         "discord_username": "victor#1234",
         "wallet_address": "0x1234567890",
         "github_username": "victor",
@@ -62,6 +63,7 @@ def sayori(app) -> Iterator[User]:
     user_dict = {
         "username": "Sayori",
         "email": "sayori@example.com",
+        "password": "my_password",
         "discord_username": "sayori#1234",
         "wallet_address": "0x1234567891",
         "github_username": "sayori",
