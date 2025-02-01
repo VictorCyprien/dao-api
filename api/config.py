@@ -13,6 +13,10 @@ class Config:
         self.FLASK_ENV = env.str('FLASK_ENV', 'dev')
         self.JSON_SORT_KEYS = True
 
+        # FLASK JWT
+        self.JWT_SECRET_KEY = env.str('JWT_SECRET_KEY', None)
+        self.JWT_ACCESS_TOKEN_EXPIRES = env.int('JWT_ACCESS_TOKEN_EXPIRES', None)
+
         # MONGODB
         self.MONGODB_URI = env.str('MONGODB_URI', 'mongodb://localhost:27017')
         self.MONGODB_DATABASE = env.str('MONGODB_DATABASE', 'dao-users')
