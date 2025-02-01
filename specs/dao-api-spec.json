@@ -1,5 +1,86 @@
 {
   "paths": {
+    "/auth/login": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Log the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginParams"
+              }
+            }
+          }
+        },
+        "summary": "Login the user",
+        "tags": [
+          "auth"
+        ],
+        "operationId": "Login"
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Logout the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Logout the user",
+        "tags": [
+          "auth"
+        ],
+        "operationId": "Logout"
+      }
+    },
     "/users/": {
       "post": {
         "responses": {
@@ -280,6 +361,10 @@
   },
   "tags": [
     {
+      "name": "auth",
+      "description": "Auth handler"
+    },
+    {
       "name": "users",
       "description": "Manage Users"
     },
@@ -339,6 +424,66 @@
           }
         }
       },
+      "LoginParams": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email of the login"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the login"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "description": "Login details"
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "msg": {
+            "type": "string",
+            "description": "Message of login"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token of the user"
+          }
+        },
+        "description": "Token of the user"
+      },
+      "PagingError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error status"
+          }
+        },
+        "description": "Informations about the error"
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "msg": {
+            "type": "string",
+            "description": "Message of logout"
+          }
+        },
+        "description": "Logout details"
+      },
       "InputCreateUser": {
         "type": "object",
         "properties": {
@@ -349,6 +494,10 @@
           "email": {
             "type": "string",
             "description": "Email of the user"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user"
           },
           "discord_username": {
             "type": "string",
@@ -407,24 +556,6 @@
         },
         "description": "Create/Update a user."
       },
-      "PagingError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "description": "Error status code"
-          },
-          "message": {
-            "type": "string",
-            "description": "Error message"
-          },
-          "status": {
-            "type": "string",
-            "description": "Error status"
-          }
-        },
-        "description": "Informations about the error"
-      },
       "InputUpdateUser": {
         "type": "object",
         "properties": {
@@ -435,6 +566,10 @@
           "email": {
             "type": "string",
             "description": "New Email of the user"
+          },
+          "password": {
+            "type": "string",
+            "description": "New Password of the user"
           },
           "discord_username": {
             "type": "string",
