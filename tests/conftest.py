@@ -90,6 +90,17 @@ def mock_save_user_document():
 
 
 @pytest.fixture
+def victor_logged_in(client, victor):
+    login_data = {
+        "email": victor.email,
+        "password": "my_password"
+    }
+    response = client.post("/auth/login", json=login_data)
+    token = response.json["token"]
+    yield token
+
+
+@pytest.fixture
 def sayori_logged_in(client, sayori):
     login_data = {
         "email": sayori.email,
