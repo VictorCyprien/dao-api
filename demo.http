@@ -1,6 +1,7 @@
 @URL=http://localhost:8081
 
-@TOKEN=""
+@TOKEN=
+
 
 ###
 POST {{URL}}/users
@@ -29,5 +30,15 @@ Content-Type: application/json
 ###
 POST {{URL}}/auth/logout
 Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+
+###
+GET {{URL}}/users/4767045800791484551
+Authorization: Bearer {{TOKEN}}
+
+
+###
+GET {{URL}}/users/4041456094629714805
 Authorization: Bearer {{TOKEN}}
 
