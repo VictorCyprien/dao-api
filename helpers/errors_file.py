@@ -60,3 +60,4 @@ class ErrorHandler():
     BAD_AUTH_TOKEN = "The token is present but incorrect"
     INVALID_EMAIL = "This email is invalid"
     INVALID_PASSWORD = "This password is invalid"
+    INVALID_DATE_FORMAT = "The date format is invalid"
