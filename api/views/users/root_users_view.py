@@ -26,6 +26,10 @@ class RootUsersView(UserViewHandler):
     @users_blp.response(201, schema=UserResponseSchema, description="Infos of new user")
     def post(self, input_data: dict):
         """Create a new user"""
+        # Check if email is valid
+        if not User.is_valid_email(input_data['email']):
+            raise BadRequest(ErrorHandler.INVALID_EMAIL)
+
         # Check if email, discord username, wallet address or github username are already used
         try:
             self.check_user_exists(input_data=input_data)
