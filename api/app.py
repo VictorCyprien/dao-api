@@ -1,4 +1,5 @@
 import json
+import subprocess
 
 from flask import Flask, request, jsonify, g
 from flask_smorest import Api
@@ -6,10 +7,10 @@ from flask_mongoengine import MongoEngine
 from flask_jwt_extended import JWTManager
 
 import redis
+from rq import Queue
 
 from .config import Config
 from helpers.logging_file import Logger
-
 
 
 def connect_to_mongo(config: Config, app: Flask):
@@ -69,12 +70,15 @@ def create_flask_app(config: Config) -> Flask:
         db = getattr(g, '_database', None)
         if db is not None:
             db.close()
+
+    # Add Redis
+    redis_client = redis.StrictRedis(
+        host=config.REDIS_URI, port=config.REDIS_PORT, db=0, decode_responses=True
+    )
     
     # Set token auth and redis blacklist
     jwt = JWTManager(app)
-    jwt_redis_blocklist = redis.StrictRedis(
-        host=config.REDIS_URI, port=config.REDIS_PORT, db=0, decode_responses=True
-    )
+    jwt_redis_blocklist = redis_client
 
     @jwt.token_in_blocklist_loader
     def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
@@ -100,8 +104,20 @@ def create_flask_app(config: Config) -> Flask:
     
     app.extensions['jwt_redis_blocklist'] = jwt_redis_blocklist
 
+    # Add Redis Queue
+    app.queue = Queue(connection=redis_client)
+
+    # Create Redis worker scheduler with subprocess
+    worker_process = subprocess.Popen([
+        'rq', 'worker',
+        '--name', config.SERVICE_NAME,
+        '--with-scheduler',
+    ])
+
+    # Add REST API
     rest_api = Api(app)
 
+    # Add Blueprints
     from .views.auth import auth_blp
     rest_api.register_blueprint(auth_blp)
 
