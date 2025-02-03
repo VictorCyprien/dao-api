@@ -1,6 +1,5 @@
 from flask.app import Flask
 from rich import print
-from mongoengine.errors import ValidationError, NotUniqueError
 
 from unittest.mock import ANY
 
@@ -52,12 +51,8 @@ def test_create_user_empty_data(client: Flask):
     data = res.json
     print(data)
     assert data == {
-        'code': 422, 
-        'errors': {
-            'json': {
-                '_schema': ['The email cannot be null'],
-            }
-        },
+        'code': 422,
+        'errors': {'json': {'_schema': ['Invalid payload']}},
         'status': 'Unprocessable Entity'
     }
 
@@ -81,6 +76,28 @@ def test_create_email_already_used(client: Flask, victor: User):
         'message': 'This email is already used !', 
         'status': 'Bad Request'
     }
+
+
+def test_create_user_invalid_email(client: Flask):
+    data = {
+        'discord_username': 'chara#1234',
+        'email': 'invalid_email',
+        'github_username': 'chara',
+        'password': 'my_password', 
+        'username': 'Chara',
+        'wallet_address': '0x1234567890'
+    }
+
+    res = client.post("/users/", json=data)
+    assert res.status_code == 400
+    data = res.json
+    print(data)
+    assert data == {
+        'code': 400,
+        'message': 'This email is invalid',
+        'status': 'Bad Request'
+    }
+
 
 
 def test_create_discord_username_already_used(client: Flask, victor: User):

@@ -109,6 +109,28 @@ class User(Document):
 
         return user_id
     
+
+    @staticmethod
+    def is_valid_email(email: str) -> bool:
+        """Check if an email address is valid
+        
+        Args:
+            email: The email address to validate
+            
+        Returns:
+            bool: True if email is valid, False otherwise
+        """
+        import re
+        
+        # Regular expression pattern for email validation
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        
+        # Check if email matches pattern
+        if re.match(pattern, email):
+            return True
+        return False
+
+    
     @staticmethod
     def hash_password(password: str) -> str:
         """Hash a password using bcrypt

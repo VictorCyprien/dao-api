@@ -1,4 +1,6 @@
 apispec==6.8.1
+async-timeout==5.0.1
+bcrypt==4.2.1
 blinker==1.9.0
 click==8.1.8
 colorama==0.4.6
@@ -8,6 +10,7 @@ email_validator==2.2.0
 environs==14.1.0
 exceptiongroup==1.2.2
 Flask==2.2.5
+Flask-JWT-Extended==4.7.1
 flask-mongoengine==1.0.0
 flask-smorest==0.42.3
 Flask-WTF==1.2.2
@@ -28,12 +31,14 @@ packaging==24.2
 passlib==1.7.4
 pluggy==1.5.0
 Pygments==2.19.1
+PyJWT==2.9.0
 pymongo==4.11
 pytest==8.3.4
 pytest-cov==6.0.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2025.1
+redis==5.2.1
 rich==13.9.4
 sentinels==1.0.0
 six==1.17.0
