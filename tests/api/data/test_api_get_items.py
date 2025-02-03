@@ -75,3 +75,4 @@ def test_get_items_not_logged(client: Flask, victor: User):
         'message': "Not Authenticated",
         'status': 'Unauthorized',
     }
+
