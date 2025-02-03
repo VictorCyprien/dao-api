@@ -1,7 +1,4 @@
-from marshmallow import Schema, fields, validates_schema, ValidationError, post_dump
-from marshmallow.validate import Range
-
-from ..models.user import User
+from marshmallow import Schema, fields, validates_schema, ValidationError
 
 
 class UserSchema(Schema):
@@ -47,16 +44,9 @@ class InputCreateUserSchema(Schema):
         wallet_address: str = data.get("wallet_address", None)
         github_username: str = data.get("github_username", None)
 
-        if not email:
-            raise ValidationError("The email cannot be null")
-        if not password:
-            raise ValidationError("The password cannot be null")
-        if not discord_username:
-            raise ValidationError("The discord username cannot be null")
-        if not wallet_address:
-            raise ValidationError("The wallet address cannot be null")
-        if not github_username:
-            raise ValidationError("The github username cannot be null")
+        required_fields = [email, password, discord_username, wallet_address, github_username]
+        if any(not field for field in required_fields):
+            raise ValidationError("Invalid payload")
 
 
     class Meta:
