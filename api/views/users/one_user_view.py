@@ -5,6 +5,8 @@ from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from mongoengine.errors import DoesNotExist, ValidationError
 
+from helpers.redis_queue_file import RedisQueue
+
 from .users_blp import users_blp
 from ...models.user import User
 
@@ -72,6 +74,11 @@ class OneUserView(MethodView):
             user.save()
         except ValidationError:
             raise BadRequest(ErrorHandler.USER_UPDATE)
+        
+        # Send email to user to check if it's real
+        redis_queue = RedisQueue()
+        redis_queue.enqueue(user.send_email_to_user)
+
 
         return {
             "action": "updated",
