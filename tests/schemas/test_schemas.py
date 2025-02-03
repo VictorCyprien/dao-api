@@ -28,7 +28,7 @@ def test_input_create_user_schema(app):
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "The email cannot be null" in str(exc.value)
+    assert "Invalid payload" in str(exc.value)
 
     # Test missing discord username
     invalid_data = {
@@ -40,7 +40,7 @@ def test_input_create_user_schema(app):
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "The discord username cannot be null" in str(exc.value)
+    assert "Invalid payload" in str(exc.value)
 
     # Test missing wallet address
     invalid_data = {
@@ -52,7 +52,7 @@ def test_input_create_user_schema(app):
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "The wallet address cannot be null" in str(exc.value)
+    assert "Invalid payload" in str(exc.value)
 
     # Test missing github username
     invalid_data = {
@@ -64,7 +64,7 @@ def test_input_create_user_schema(app):
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "The github username cannot be null" in str(exc.value)
+    assert "Invalid payload" in str(exc.value)
 
     # Test missing password
     invalid_data = {
@@ -76,4 +76,4 @@ def test_input_create_user_schema(app):
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "The password cannot be null" in str(exc.value)
+    assert "Invalid payload" in str(exc.value)

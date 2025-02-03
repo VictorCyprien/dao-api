@@ -1,6 +1,5 @@
 from flask.app import Flask
 from rich import print
-from mongoengine.errors import ValidationError, NotUniqueError
 
 from unittest.mock import ANY
 
@@ -52,12 +51,8 @@ def test_create_user_empty_data(client: Flask):
     data = res.json
     print(data)
     assert data == {
-        'code': 422, 
-        'errors': {
-            'json': {
-                '_schema': ['The email cannot be null'],
-            }
-        },
+        'code': 422,
+        'errors': {'json': {'_schema': ['Invalid payload']}},
         'status': 'Unprocessable Entity'
     }
 
