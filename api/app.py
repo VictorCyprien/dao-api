@@ -107,13 +107,6 @@ def create_flask_app(config: Config) -> Flask:
     # Add Redis Queue
     app.queue = Queue(connection=redis_client)
 
-    # Create Redis worker scheduler with subprocess
-    worker_process = subprocess.Popen([
-        'rq', 'worker',
-        '--name', config.SERVICE_NAME,
-        '--with-scheduler',
-    ])
-
     # Add REST API
     rest_api = Api(app)
 
