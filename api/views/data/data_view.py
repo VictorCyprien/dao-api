@@ -1,6 +1,8 @@
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
 
+from ast import literal_eval
+
 from datetime import datetime, timedelta
 
 from helpers.errors_file import BadRequest, ErrorHandler
@@ -46,24 +48,11 @@ class ItemsDataView(MethodView):
         
         query = f"SELECT * FROM items WHERE date >= {timestamp_date_start} AND date < {timestamp_date_end + (24 * 60 * 60)}"
         if source is not None:
-            query += f" AND source = '{source}'" 
-
-        print(query)   
+            query += f" AND source = '{source}'"  
 
         data = query_db(query)
         # Convert list of tuples to list of dicts
         data = [dict(zip(['id', 'cid', 'type', 'source', 'title', 'text', 'link', 'topics', 'date', 'metadata'], row)) for row in data]
-
-        # Convert source field from string to dict if it looks like a dict
-        for item in data:
-            source = item['source']
-            if isinstance(source, str) and source.startswith('{') or source.startswith('[') and source.endswith('}') or source.endswith(']'):
-                try:
-                    import ast
-                    item['source'] = ast.literal_eval(source)
-                except:
-                    # Keep as string if conversion fails
-                    pass
         
         return {
             "data": data
@@ -84,9 +73,16 @@ class SummaryDataView(MethodView):
         date_start = input_data.get('date_start')
         date_end = input_data.get('date_end')
         source = input_data.get('source', None)
+
+        try:
+            start_date = datetime.strptime(date_start, "%Y-%m-%d")
+        except ValueError:
+            raise BadRequest(f"{ErrorHandler.INVALID_DATE_FORMAT} for date_start")
         
-        start_date = datetime.strptime(date_start, "%Y-%m-%d")
-        end_date = datetime.strptime(date_end, "%Y-%m-%d")
+        try:
+            end_date = datetime.strptime(date_end, "%Y-%m-%d")
+        except ValueError:
+            raise BadRequest(f"{ErrorHandler.INVALID_DATE_FORMAT} for date_end")
         nb_days = (end_date - start_date).days
         data = []
         for i in range(nb_days):
@@ -104,8 +100,7 @@ class SummaryDataView(MethodView):
                     source = summary['source']
                     if isinstance(source, str) and (source.startswith('{') or source.startswith('[')) and (source.endswith('}') or source.endswith(']')):
                         try:
-                            import ast
-                            summary['source'] = ast.literal_eval(source)
+                            summary['source'] = literal_eval(source)
                         except:
                             # Keep as string if conversion fails
                             pass
