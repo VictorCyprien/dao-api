@@ -77,6 +77,22 @@ def test_user_update_not_logged(client: Flask, victor: User):
     }
 
 
+def test_put_one_user_not_authorized(client: Flask, victor: User, sayori: User, victor_logged_in: str):
+    data_put = {
+        "username": "Sayori 2",
+    }
+
+    res = client.put(f"/users/{sayori.user_id}", headers={"Authorization": f"Bearer {victor_logged_in}"}, json=data_put)
+    assert res.status_code == 404
+    data = res.json
+    print(data)
+    assert data == {
+        'code': 404, 
+        'message': "This user doesn't exist !",
+        'status': 'Not Found',
+    }
+
+
 def test_user_update_error_during_save(client: Flask, victor: User, victor_logged_in: str, mock_save_user_document):
     data_put = {
         "username": "VicCrypto",
