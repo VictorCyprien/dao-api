@@ -6,7 +6,7 @@ from unittest.mock import ANY
 from api.models.user import User
 
 
-def test_create_user(client: Flask):
+def test_create_user(client: Flask, mock_redis_queue):
     data = {
         "username": "Chara",
         "email": "charadreemurr3571@gmail.com",
@@ -41,6 +41,8 @@ def test_create_user(client: Flask):
     assert user.discord_username == "charadreemurr3571"
     assert user.wallet_address == "8D1234567890"
     assert user.github_username == "CharaDreemurr"
+
+    mock_redis_queue.assert_called_once()
 
     user.delete()
 

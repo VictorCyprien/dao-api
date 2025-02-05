@@ -76,8 +76,9 @@ class OneUserView(MethodView):
             raise BadRequest(ErrorHandler.USER_UPDATE)
         
         # Send email to user to check if it's real
-        redis_queue = RedisQueue()
-        redis_queue.enqueue(user.send_email_to_user)
+        if input_dict.get('email', None) is not None:
+            redis_queue = RedisQueue()
+            redis_queue.enqueue(user.send_email_to_user)
 
 
         return {

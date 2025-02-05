@@ -1,4 +1,4 @@
-import smtplib
+from smtplib import SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -38,7 +38,7 @@ def send_email(recipient_email: str, subject: str, body: str) -> bool:
     message.attach(MIMEText(body, "plain"))
 
     # Create SMTP session
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
+    with SMTP(smtp_server, smtp_port) as server:
         if smtp_server != "localhost":
             server.starttls()
             server.login(smtp_username, smtp_password)
