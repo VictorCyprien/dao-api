@@ -165,3 +165,7 @@ cookies.json
 data.json
 accounts_data.json
 .DS_Store
+.coveragec
+
+cov.xml
+report.xml
