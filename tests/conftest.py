@@ -90,6 +90,15 @@ def mock_save_user_document():
 
 
 @pytest.fixture
+def mock_redis_queue():
+    from helpers.redis_queue_file import RedisQueue
+    _original = RedisQueue.enqueue
+    RedisQueue.enqueue = Mock()
+    yield RedisQueue.enqueue
+    RedisQueue.enqueue = _original
+
+
+@pytest.fixture
 def victor_logged_in(client, victor):
     login_data = {
         "email": victor.email,

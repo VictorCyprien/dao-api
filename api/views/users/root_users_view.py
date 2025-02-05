@@ -1,6 +1,8 @@
 from flask.views import MethodView
 from mongoengine.errors import NotUniqueError, DoesNotExist
 
+from helpers.redis_queue_file import RedisQueue
+
 from .users_blp import users_blp
 from ...models.user import User
 
@@ -38,6 +40,11 @@ class RootUsersView(UserViewHandler):
 
         # Create user
         user = User.create(input_data=input_data)
+
+        # Send email to user to check if it's real
+        redis_queue = RedisQueue()
+        redis_queue.enqueue(user.send_email_to_user)
+
         # Save user
         user.save()
 

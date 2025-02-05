@@ -5,6 +5,7 @@ blinker==1.9.0
 click==8.1.8
 colorama==0.4.6
 coverage==7.6.10
+crontab==1.0.1
 dnspython==2.7.0
 email_validator==2.2.0
 environs==14.1.0
@@ -40,6 +41,8 @@ python-dotenv==1.0.1
 pytz==2025.1
 redis==5.2.1
 rich==13.9.4
+rq==2.1.0
+rq-scheduler==0.14.0
 sentinels==1.0.0
 six==1.17.0
 tomli==2.2.1

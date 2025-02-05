@@ -28,6 +28,12 @@ class Config:
         self.REDIS_URI = env.str('REDIS_URI', "localhost")
         self.REDIS_PORT = env.int('REDIS_PORT', 6379)
 
+        # SMTP
+        self.SMTP_SERVER = env.str('SMTP_SERVER', "localhost")
+        self.SMTP_PORT = env.int('SMTP_PORT', 1025)
+        self.SMTP_USERNAME = env.str('SMTP_USERNAME', "noreply@dao.io")
+        self.SMTP_PASSWORD = env.str('SMTP_PASSWORD', "example")
+
         # PASSWORD CUSTOM SALT
         self.SECURITY_PASSWORD_SALT = env.str('SECURITY_PASSWORD_SALT', "672B2BB59D2E432E8F3FB10E23B8AECC")
 

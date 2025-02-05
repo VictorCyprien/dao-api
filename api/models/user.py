@@ -3,9 +3,12 @@ from mongoengine.errors import ValidationError
 
 import bcrypt
 
-from datetime import datetime
+from helpers.logging_file import Logger
+from helpers.smtp_file import send_email
 
-from api.config import config
+
+logger = Logger()
+
 
 
 class User(Document):
@@ -19,6 +22,10 @@ class User(Document):
 
     email = fields.StringField(required=True, unique=True)
     """ Email of the user
+    """
+
+    email_verified = fields.BooleanField(default=False)
+    """ Is the email verified
     """
 
     password = fields.StringField(required=True)
@@ -46,6 +53,7 @@ class User(Document):
         user.user_id = User.generate_user_id()
         user.username = input_data["username"]
         user.email = input_data["email"]
+        user.email_verified = False
         user.password = User.hash_password(input_data["password"])
         user.discord_username = input_data["discord_username"]
         user.wallet_address = input_data["wallet_address"]
@@ -67,6 +75,7 @@ class User(Document):
             self.username = username
         if email is not None:
             self.email = email
+            self.email_verified = False
         if password is not None:
             self.password = User.hash_password(password)
         if discord_username is not None:
@@ -129,6 +138,20 @@ class User(Document):
         if re.match(pattern, email):
             return True
         return False
+    
+
+    def send_email_to_user(self):
+        """ Send an email to the user to check if it's real
+        """
+        logger.info(f"Sending email to {self.email}...")
+        subject = "Welcome to DAO.io"
+        msg_to_send = "Welcome to DAO.io"
+
+        try:
+            send_email(self.email, subject, msg_to_send)
+        except Exception:
+            logger.error(f"Failed to send email to {self.email}")
+            raise
 
     
     @staticmethod
