@@ -10,7 +10,8 @@ required = [
     "pytz",
     "gunicorn",
     "environs",
-    "passlib"
+    "passlib",
+    "redis"
 ]
 
 VERSION = "2025.1.0"
