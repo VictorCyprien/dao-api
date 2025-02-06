@@ -7,6 +7,7 @@ from flask_mongoengine import MongoEngine
 from flask_jwt_extended import JWTManager
 
 import redis
+from redis import StrictRedis
 from rq import Queue
 
 from .config import Config
@@ -23,6 +24,43 @@ def connect_to_mongo(config: Config, app: Flask):
     }
     MongoEngine(app)
     
+
+def setup_redis(config: Config):
+    return redis.StrictRedis(
+        host=config.REDIS_URI, 
+        port=config.REDIS_PORT, 
+        db=0, 
+        decode_responses=True
+    )
+
+
+def setup_jwt(app: Flask, redis_client: StrictRedis):
+    jwt = JWTManager(app)
+    jwt_redis_blocklist = redis_client
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+        jti = jwt_payload["jti"]
+        token_in_redis = jwt_redis_blocklist.get(jti)
+        return token_in_redis is not None
+
+    @jwt.expired_token_loader
+    def my_expired_token_callback(jwt_header, jwt_payload):
+        return jsonify(code=401, message="Token expired", status="Unauthorized"), 401
+
+    @jwt.unauthorized_loader
+    def my_missing_token_callback(callback):
+        return jsonify(code=401, message="Not Authenticated", status="Unauthorized"), 401
+    
+    @jwt.invalid_token_loader
+    def my_invalid_token(callback):
+        return jsonify(code=401, message="Invalid token", status="Unauthorized"), 401
+    
+    @jwt.revoked_token_loader
+    def my_missing_token_callback(jwt_header, jwt_payload):
+        return jsonify(code=401, message="Not Authenticated", status="Unauthorized"), 401
+    
+    return jwt_redis_blocklist
 
 
 def create_flask_app(config: Config) -> Flask:
@@ -72,36 +110,10 @@ def create_flask_app(config: Config) -> Flask:
             db.close()
 
     # Add Redis
-    redis_client = redis.StrictRedis(
-        host=config.REDIS_URI, port=config.REDIS_PORT, db=0, decode_responses=True
-    )
+    redis_client = setup_redis(config)
     
     # Set token auth and redis blacklist
-    jwt = JWTManager(app)
-    jwt_redis_blocklist = redis_client
-
-    @jwt.token_in_blocklist_loader
-    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
-        jti = jwt_payload["jti"]
-        token_in_redis = jwt_redis_blocklist.get(jti)
-        return token_in_redis is not None
-
-    @jwt.expired_token_loader
-    def my_expired_token_callback(jwt_header, jwt_payload):
-        return jsonify(code=401, message="Token expired", status="Unauthorized"), 401
-
-    @jwt.unauthorized_loader
-    def my_missing_token_callback(callback):
-        return jsonify(code=401, message="Not Authenticated", status="Unauthorized"), 401
-    
-    @jwt.invalid_token_loader
-    def my_invalid_token(callback):
-        return jsonify(code=401, message="Invalid token", status="Unauthorized"), 401
-    
-    @jwt.revoked_token_loader
-    def my_missing_token_callback(jwt_header, jwt_payload):
-        return jsonify(code=401, message="Not Authenticated", status="Unauthorized"), 401
-    
+    jwt_redis_blocklist = setup_jwt(app, redis_client)
     app.extensions['jwt_redis_blocklist'] = jwt_redis_blocklist
 
     # Add Redis Queue
