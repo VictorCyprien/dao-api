@@ -44,3 +44,16 @@ def send_email(recipient_email: str, subject: str, body: str) -> bool:
             server.login(smtp_username, smtp_password)
         server.send_message(message)
 
+
+
+def generate_email_verification_token(user_id: int) -> str:
+    """Generate a verification token for email verification
+    
+    Args:
+        user_id: ID of the user to generate token for
+        
+    Returns:
+        str: Generated verification token
+    """
+    # TODO : Add Redis client to store token
+    pass
