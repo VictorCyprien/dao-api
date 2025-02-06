@@ -89,7 +89,7 @@ def mock_save_user_document():
 
 @pytest.fixture
 def mock_redis_queue():
-    from helpers.redis_queue_file import RedisQueue
+    from helpers.redis_file import RedisQueue
     _original = RedisQueue.enqueue
     RedisQueue.enqueue = Mock()
     yield RedisQueue.enqueue

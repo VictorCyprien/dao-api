@@ -5,7 +5,7 @@ from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from mongoengine.errors import DoesNotExist, ValidationError
 
-from helpers.redis_queue_file import RedisQueue
+from helpers.redis_file import RedisQueue
 
 from .users_blp import users_blp
 from ...models.user import User

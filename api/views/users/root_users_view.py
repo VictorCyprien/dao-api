@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from mongoengine.errors import NotUniqueError, DoesNotExist
 
-from helpers.redis_queue_file import RedisQueue
+from helpers.redis_file import RedisQueue
 
 from .users_blp import users_blp
 from ...models.user import User
