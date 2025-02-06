@@ -21,7 +21,6 @@ def test_user_update(client: Flask, victor: User, victor_logged_in: str, mock_re
             "email": "victor@example.com",
             "discord_username": "victor#1234",
             "wallet_address": "0x1234567890",
-            "github_username": "victor",
             "user_id": ANY        
         }
     }
@@ -46,7 +45,6 @@ def test_user_update_email(client: Flask, victor: User, victor_logged_in: str, m
             "email": "viccrypto13@gmail.com",
             "discord_username": "victor#1234",
             "wallet_address": "0x1234567890",
-            "github_username": "victor",
             "user_id": ANY        
         }
     }
@@ -72,7 +70,6 @@ def test_user_update_password(client: Flask, victor: User, victor_logged_in: str
             "email": "victor@example.com",
             "discord_username": "victor#1234",
             "wallet_address": "0x1234567890",
-            "github_username": "victor",
             "user_id": ANY        
         }
     }
@@ -97,7 +94,6 @@ def test_user_update_no_payload(client: Flask, victor: User, victor_logged_in: s
             "email": "victor@example.com",
             "discord_username": "victor#1234",
             "wallet_address": "0x1234567890",
-            "github_username": "victor",
             "user_id": ANY        
         }
     }

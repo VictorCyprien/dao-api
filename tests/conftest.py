@@ -50,7 +50,6 @@ def victor(app) -> Iterator[User]:
         "password": "my_password",
         "discord_username": "victor#1234",
         "wallet_address": "0x1234567890",
-        "github_username": "victor",
     }
     with freezegun.freeze_time(creation_date):
         user = User.create(user_dict)
@@ -67,7 +66,6 @@ def sayori(app) -> Iterator[User]:
         "password": "my_password",
         "discord_username": "sayori#1234",
         "wallet_address": "0x1234567891",
-        "github_username": "sayori",
     }
     with freezegun.freeze_time(creation_date):
         user = User.create(user_dict)

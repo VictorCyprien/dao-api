@@ -14,7 +14,6 @@ def test_get_one_user(client: Flask, victor: User, victor_logged_in: str):
         'user': {
             'discord_username': 'victor#1234',
             'email': 'victor@example.com',
-            'github_username': 'victor',
             'user_id': ANY,
             'username': 'Victor',
             'wallet_address': '0x1234567890'

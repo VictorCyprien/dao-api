@@ -506,10 +506,6 @@
           "wallet_address": {
             "type": "string",
             "description": "Wallet address of the user"
-          },
-          "github_username": {
-            "type": "string",
-            "description": "Github username of the user"
           }
         },
         "description": "Input informations need to create user."
@@ -536,10 +532,6 @@
           "wallet_address": {
             "type": "string",
             "description": "Wallet address of the user"
-          },
-          "github_username": {
-            "type": "string",
-            "description": "Github username of the user"
           }
         },
         "description": "User informations."
@@ -578,10 +570,6 @@
           "wallet_address": {
             "type": "string",
             "description": "New Wallet address of the user"
-          },
-          "github_username": {
-            "type": "string",
-            "description": "New Github username of the user"
           }
         },
         "description": "New user information"

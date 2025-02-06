@@ -14,7 +14,3 @@ class UserViewHandler(MethodView):
         # Check if wallet address is already used
         if User.objects(wallet_address=input_data["wallet_address"]):
             raise BadRequest(ErrorHandler.USER_WALLET_ADDRESS_ALREADY_USED)
-        
-        # Check if github username is already used
-        if User.objects(github_username=input_data["github_username"]):
-            raise BadRequest(ErrorHandler.USER_GITHUB_USERNAME_ALREADY_USED)

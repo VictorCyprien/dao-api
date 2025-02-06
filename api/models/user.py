@@ -40,10 +40,6 @@ class User(Document):
     """ Wallet address of the user
     """
 
-    github_username = fields.StringField(required=True, unique=True)
-    """ Github username of the user
-    """
-
 
     @classmethod
     def create(cls, input_data: dict) -> "User":
@@ -57,7 +53,6 @@ class User(Document):
         user.password = User.hash_password(input_data["password"])
         user.discord_username = input_data["discord_username"]
         user.wallet_address = input_data["wallet_address"]
-        user.github_username = input_data["github_username"]
         return user
 
     
@@ -69,7 +64,6 @@ class User(Document):
         password = input_data.get("password", None)
         discord_username = input_data.get("discord_username", None)
         wallet_address = input_data.get("wallet_address", None)
-        github_username = input_data.get("github_username", None)
 
         if username is not None:
             self.username = username
@@ -82,8 +76,6 @@ class User(Document):
             self.discord_username = discord_username
         if wallet_address is not None:
             self.wallet_address = wallet_address
-        if github_username is not None:
-            self.github_username = github_username
 
 
     @classmethod

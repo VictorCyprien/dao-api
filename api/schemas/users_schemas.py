@@ -10,7 +10,6 @@ class UserSchema(Schema):
     email = fields.String(metadata={"description": "Email of the user"})
     discord_username = fields.String(metadata={"description": "Discord username of the user"})
     wallet_address = fields.String(metadata={"description": "Wallet address of the user"})
-    github_username = fields.String(metadata={"description": "Github username of the user"})
 
 
     class Meta:
@@ -34,7 +33,6 @@ class InputCreateUserSchema(Schema):
     password = fields.String(metadata={"description": "Password of the user"})
     discord_username = fields.String(metadata={"description": "Discord username of the user"})
     wallet_address = fields.String(metadata={"description": "Wallet address of the user"})
-    github_username = fields.String(metadata={"description": "Github username of the user"})
 
     @validates_schema
     def validation_payload(self, data, **kwargs):
@@ -42,9 +40,8 @@ class InputCreateUserSchema(Schema):
         password: str = data.get("password", None)
         discord_username: str = data.get("discord_username", None)
         wallet_address: str = data.get("wallet_address", None)
-        github_username: str = data.get("github_username", None)
 
-        required_fields = [email, password, discord_username, wallet_address, github_username]
+        required_fields = [email, password, discord_username, wallet_address]
         if any(not field for field in required_fields):
             raise ValidationError("Invalid payload")
 
@@ -60,7 +57,6 @@ class InputUpdateUserSchema(Schema):
     password = fields.String(metadata={"description": "New Password of the user"})
     discord_username = fields.String(metadata={"description": "New Discord username of the user"})
     wallet_address = fields.String(metadata={"description": "New Wallet address of the user"})
-    github_username = fields.String(metadata={"description": "New Github username of the user"})
 
 
     class Meta:

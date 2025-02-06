@@ -5,13 +5,11 @@ def test_model_update_user(app, victor: User):
         "email": "vicvic@gmail.com",
         "discord_username": "vicvic#4321",
         "wallet_address": "0x12345654789",
-        "github_username": "vic"
     }
 
     assert victor.email == "victor@example.com"
     assert victor.discord_username == "victor#1234"
     assert victor.wallet_address == "0x1234567890"
-    assert victor.github_username == "victor"
 
     victor.update(input_data=data_update)
     victor.save()
@@ -20,5 +18,4 @@ def test_model_update_user(app, victor: User):
     assert victor.email == "vicvic@gmail.com" and victor.email != "victor@example.com"
     assert victor.discord_username == "vicvic#4321" and victor.discord_username != "victor#1234"
     assert victor.wallet_address == "0x12345654789" and victor.wallet_address != "0x1234567890"
-    assert victor.github_username == "vic" and victor.github_username != "victor"
 
