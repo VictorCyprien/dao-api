@@ -1,16 +1,17 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
+  postgres:
+    image: postgres:latest
+    container_name: postgres
     ports:
-      - "127.0.0.1:27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - "127.0.0.1:5432:5432"
     volumes:
-      - mongodb_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: example
+    restart: always
 
   redis:
     image: redis:latest
@@ -31,6 +32,6 @@ services:
       - redis_dashboard_volume_data:/db
 
 volumes:
-  mongodb_data:
+  postgres_data:
   redis_data:
   redis_dashboard_volume_data:
