@@ -17,12 +17,10 @@ class Config:
         self.JWT_SECRET_KEY = env.str('JWT_SECRET_KEY', None)
         self.JWT_ACCESS_TOKEN_EXPIRES = env.int('JWT_ACCESS_TOKEN_EXPIRES', None)
 
-        # MONGODB
-        self.MONGODB_URI = env.str('MONGODB_URI', 'mongodb://localhost:27017')
-        self.MONGODB_DATABASE = env.str('MONGODB_DATABASE', 'dao-users')
-        self.MONGODB_CONNECT = False
-        self.MONGODB_USERNAME = env.str("MONGODB_USERNAME", "root")
-        self.MONGODB_PASSWORD = env.str("MONGODB_PASSWORD", "example")
+        # POSTGRESQL
+        self.POSTGRESQL_URI = env.str('POSTGRESQL_URI', 'localhost')
+        self.POSTGRESQL_USERNAME = env.str("POSTGRESQL_USERNAME", "root")
+        self.POSTGRESQL_PASSWORD = env.str("POSTGRESQL_PASSWORD", "example")
 
         # REDIS
         self.REDIS_URI = env.str('REDIS_URI', "localhost")
@@ -82,8 +80,8 @@ class Config:
         return {key: self.__getattribute__(key) for key in self.__dir__() if not key.startswith('_') and key.isupper()}
 
     def validate(self):
-        if not self.MONGODB_URI:
-            raise ValueError("Mongo URI is not defined")
+        if not self.POSTGRESQL_URI:
+            raise ValueError("POSTGRESQL URI is not defined")
 
 
 config = Config()

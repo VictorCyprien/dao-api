@@ -1,7 +1,7 @@
-from flask.views import MethodView
-from mongoengine.errors import NotUniqueError, DoesNotExist
+from flask import current_app
+from flask_sqlalchemy import SQLAlchemy
 
-from helpers.redis_file import RedisQueue
+from sqlalchemy.exc import IntegrityError
 
 from .users_blp import users_blp
 from ...models.user import User
@@ -28,25 +28,29 @@ class RootUsersView(UserViewHandler):
     @users_blp.response(201, schema=UserResponseSchema, description="Infos of new user")
     def post(self, input_data: dict):
         """Create a new user"""
+        db: SQLAlchemy = current_app.db
+        
         # Check if email is valid
         if not User.is_valid_email(input_data['email']):
             raise BadRequest(ErrorHandler.INVALID_EMAIL)
 
         # Check if email, discord username, wallet address or github username are already used
         try:
-            self.check_user_exists(input_data=input_data)
+            self.check_user_exists(input_data=input_data, session=db.session)
         except BadRequest as error:
             raise error
 
         # Create user
         user = User.create(input_data=input_data)
 
-        # Send email to user to check if it's real
-        redis_queue = RedisQueue()
-        redis_queue.enqueue(user.send_email_to_user)
-
         # Save user
-        user.save()
+        db.session.add(user)
+
+        try:
+            db.session.commit()
+        except IntegrityError as error:
+            logger.error(f"Error creating user: {error}")
+            raise BadRequest(ErrorHandler.USER_CREATE)
 
         return {
             'action': 'created',

@@ -1,6 +1,7 @@
+from flask import current_app
 from flask.views import MethodView
 from flask_jwt_extended import create_access_token
-from mongoengine.errors import DoesNotExist
+from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 
 from .auth_blp import auth_blp
@@ -37,10 +38,9 @@ class LoginAuthView(MethodView):
         if not User.is_valid_email(email):
             raise Unauthorized(ErrorHandler.BAD_CREDENTIALS)
 
-        try:
-            user: User = User.objects.get(email=email)
-        except DoesNotExist as exc:
-            logger.debug(f"Unauthenticated user: {exc}")
+        db: SQLAlchemy = current_app.db
+        user = db.session.query(User).filter(User.email == email).first()
+        if user is None:
             raise Unauthorized(ErrorHandler.BAD_CREDENTIALS)
             
         if not user.check_password(password=password, hashed_password=user.password):
@@ -52,7 +52,6 @@ class LoginAuthView(MethodView):
             expires_delta=timedelta(minutes=config.JWT_ACCESS_TOKEN_EXPIRES)
         )
 
-        user.save()
         return {
             "msg": "Logged",
             "token": token

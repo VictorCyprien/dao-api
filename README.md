@@ -63,3 +63,48 @@ To run the tests, you can use the following command :
 make tests (with coverage)
 make testsx (without coverage)
 ```
+
+## Project structure
+
+```bash
+.
+├── api
+│   ├── app.py
+│   ├── config.py
+│   ├── main.py
+│   ├── models
+│   │   └── user.py
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── auth_schemas.py
+│   │   ├── communs_schemas.py
+│   │   ├── data_schemas.py
+│   │   └── users_schemas.py
+│   └── views
+│       ├── __init__.py
+│       ├── auth
+│       │   ├── __init__.py
+│       │   ├── auth_blp.py
+│       │   ├── login_view.py
+│       │   └── logout_view.py
+│       ├── data
+│       │   ├── __init__.py
+│       │   ├── data_blp.py
+│       │   └── data_view.py
+│       └── users
+│           ├── __init__.py
+│           ├── one_user_view.py
+│           ├── root_users_view.py
+│           ├── user_view_handler.py
+│           └── users_blp.py
+├── helpers
+│   ├── errors_file.py
+│   ├── logging_file.py
+│   ├── redis_file.py
+│   ├── smtp_file.py
+│   └── sqlite_file.py
+├── run.py
+├── setup.py
+├── specs
+└── wsgi.py
+```

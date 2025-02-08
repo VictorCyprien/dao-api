@@ -11,7 +11,7 @@ def test_model_create_user(app):
         "wallet_address": "0x1234567890",
     }
 
-    user = User().create(input_data=user_data)
+    user = User.create(input_data=user_data)
     
     assert user.user_id == ANY
     assert user.username == "John Doe"

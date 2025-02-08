@@ -1,6 +1,8 @@
-from mongoengine import Document, fields
-from mongoengine.errors import ValidationError
+from api import Base
 
+from sqlalchemy import BigInteger, String, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.exc import IntegrityError
 import bcrypt
 
 from helpers.logging_file import Logger
@@ -10,34 +12,36 @@ from helpers.smtp_file import send_email
 logger = Logger()
 
 
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
 
-class User(Document):
-    user_id: int = fields.IntField(db_field="user_id", min_value=0, required=True, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     """ ID of the User
     """
 
-    username = fields.StringField(required=True, unique=True)
+    username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     """ Username of the user
     """
 
-    email = fields.StringField(required=True, unique=True)
+    email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     """ Email of the user
     """
 
-    email_verified = fields.BooleanField(default=False)
-    """ Is the email verified
-    """
-
-    password = fields.StringField(required=True)
+    password: Mapped[str] = mapped_column(String, nullable=False)
     """ Password of the user
     """
 
-    discord_username = fields.StringField(required=True, unique=True)
+    discord_username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     """ Discord username of the user
     """
 
-    wallet_address = fields.StringField(required=True, unique=True)
+    wallet_address: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     """ Wallet address of the user
+    """
+
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    """ Is the email verified
     """
 
 
@@ -45,14 +49,15 @@ class User(Document):
     def create(cls, input_data: dict) -> "User":
         """ Create a new user instance
         """
-        user = User()
-        user.user_id = User.generate_user_id()
-        user.username = input_data["username"]
-        user.email = input_data["email"]
-        user.email_verified = False
-        user.password = User.hash_password(input_data["password"])
-        user.discord_username = input_data["discord_username"]
-        user.wallet_address = input_data["wallet_address"]
+        user = User(
+            user_id=User.generate_user_id(),
+            username=input_data["username"],
+            email=input_data["email"],
+            email_verified=False,
+            password=User.hash_password(input_data["password"]),
+            discord_username=input_data["discord_username"],
+            wallet_address=input_data["wallet_address"]
+        )
         return user
 
     
@@ -63,7 +68,6 @@ class User(Document):
         email = input_data.get("email", None)
         password = input_data.get("password", None)
         discord_username = input_data.get("discord_username", None)
-        wallet_address = input_data.get("wallet_address", None)
 
         if username is not None:
             self.username = username
@@ -74,21 +78,13 @@ class User(Document):
             self.password = User.hash_password(password)
         if discord_username is not None:
             self.discord_username = discord_username
-        if wallet_address is not None:
-            self.wallet_address = wallet_address
 
 
     @classmethod
-    def get_by_id(cls, id: int) -> "User":
+    def get_by_id(cls, id: int, session: Session) -> "User":
         """ User getter with a ID
         """
-        try:
-            user_id = int(id)
-        except ValueError:
-            raise ValidationError('The user ID should be an int')
-        _query = User.objects(user_id=user_id)
-        user = _query.get()
-        return user
+        return session.query(User).filter(User.user_id == id).first()
     
 
     @classmethod
@@ -102,13 +98,7 @@ class User(Document):
         max_int = sys.maxsize
 
         # Generate random ID between 1 and max_int
-        user_id = random.randint(1, max_int)
-
-        # Keep generating if ID already exists
-        while User.objects(user_id=user_id):
-            user_id = random.randint(1, max_int)
-
-        return user_id
+        return random.randint(1, max_int)
     
 
     @staticmethod
@@ -165,6 +155,7 @@ class User(Document):
         
         # Return string representation
         return hashed.decode('utf-8')
+
 
     @staticmethod
     def check_password(password: str, hashed_password: str) -> bool:

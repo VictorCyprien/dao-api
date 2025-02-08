@@ -1,11 +1,12 @@
 from flask.app import Flask
+from flask_sqlalchemy import SQLAlchemy
 from rich import print
 
 from unittest.mock import ANY
 
 from api.models.user import User
 
-def test_user_update(client: Flask, victor: User, victor_logged_in: str, mock_redis_queue):
+def test_user_update(client: Flask, victor: User, victor_logged_in: str):
     data_put = {
         "username": "VicCrypto",
     }
@@ -25,10 +26,8 @@ def test_user_update(client: Flask, victor: User, victor_logged_in: str, mock_re
         }
     }
 
-    mock_redis_queue.assert_not_called()
 
-
-def test_user_update_email(client: Flask, victor: User, victor_logged_in: str, mock_redis_queue):
+def test_user_update_email(client: Flask, victor: User, victor_logged_in: str):
     data_put = {
         "username": "VicCrypto",
         "email": "viccrypto13@gmail.com",
@@ -49,10 +48,8 @@ def test_user_update_email(client: Flask, victor: User, victor_logged_in: str, m
         }
     }
 
-    mock_redis_queue.assert_called_once()
 
-
-def test_user_update_password(client: Flask, victor: User, victor_logged_in: str, mock_redis_queue):
+def test_user_update_password(client: Flask, victor: User, victor_logged_in: str, db: SQLAlchemy):
     old_password = victor.password
     data_put = {
         "username": "VicCrypto",
@@ -74,13 +71,29 @@ def test_user_update_password(client: Flask, victor: User, victor_logged_in: str
         }
     }
 
-    victor.reload()
+    db.session.refresh(victor)
 
     # Check if the password is updated
     assert User.check_password(password="my_new_password", hashed_password=victor.password)
     assert not User.check_password(password=old_password, hashed_password=victor.password)
-    mock_redis_queue.assert_not_called()
 
+
+def test_user_update_wallet_address(client: Flask, victor: User, victor_logged_in: str):
+    data_put = {
+        "username": "VicCrypto",
+        "wallet_address": "0x1234567890",
+    }
+
+    res = client.put(f"/users/{victor.user_id}", json=data_put, headers={"Authorization": f"Bearer {victor_logged_in}"})
+    assert res.status_code == 422
+    data = res.json
+    print(data)
+    assert data == {
+        'code': 422,
+        'errors': {'json': {'wallet_address': ['Unknown field.']}},
+        'status': 'Unprocessable Entity'
+    }
+    
 
 def test_user_update_no_payload(client: Flask, victor: User, victor_logged_in: str):
     res = client.put(f"/users/{victor.user_id}", json={}, headers={"Authorization": f"Bearer {victor_logged_in}"})
@@ -146,20 +159,3 @@ def test_put_one_user_not_authorized(client: Flask, victor: User, sayori: User, 
         'status': 'Not Found',
     }
 
-
-def test_user_update_error_during_save(client: Flask, victor: User, victor_logged_in: str, mock_save_user_document):
-    data_put = {
-        "username": "VicCrypto",
-    }
-
-    res = client.put(f"/users/{victor.user_id}", json=data_put, headers={"Authorization": f"Bearer {victor_logged_in}"})
-    assert res.status_code == 400
-    data = res.json
-    print(data)
-    assert data == {
-        'code': 400, 
-        'message': 'Unable to update the user', 
-        'status': 'Bad Request'
-    }
-
-    mock_save_user_document.assert_called()

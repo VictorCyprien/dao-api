@@ -1,11 +1,12 @@
 from typing import Dict
 
+from flask import current_app
 from flask.views import MethodView
 
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from mongoengine.errors import DoesNotExist, ValidationError
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
-from helpers.redis_file import RedisQueue
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from .users_blp import users_blp
 from ...models.user import User
@@ -33,11 +34,11 @@ class OneUserView(MethodView):
     @jwt_required(fresh=True)
     def get(self, user_id: int):
         """Get an existing user"""
-        auth_user = User.get_by_id(get_jwt_identity())
+        db: SQLAlchemy = current_app.db
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         
-        try:
-            user = User.get_by_id(id=user_id)
-        except DoesNotExist:
+        user = User.get_by_id(id=user_id, session=db.session)
+        if user is None:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         # We raise a NotFound if the user is not the same as the authenticated user
@@ -57,11 +58,11 @@ class OneUserView(MethodView):
     @jwt_required(fresh=True)
     def put(self, input_dict: Dict, user_id: int):
         """Update an existing user"""
-        auth_user = User.get_by_id(get_jwt_identity())
+        db: SQLAlchemy = current_app.db
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         
-        try:
-            user = User.get_by_id(id=user_id)
-        except DoesNotExist:
+        user = User.get_by_id(id=user_id, session=db.session)
+        if user is None:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         # We raise a NotFound if the user is not the same as the authenticated user
@@ -71,18 +72,12 @@ class OneUserView(MethodView):
         user.update(input_dict)
 
         try:
-            user.save()
-        except ValidationError:
+            db.session.commit()
+        except IntegrityError as error:
+            logger.error(f"Error updating user: {error}")
             raise BadRequest(ErrorHandler.USER_UPDATE)
-        
-        # Send email to user to check if it's real
-        if input_dict.get('email', None) is not None:
-            redis_queue = RedisQueue()
-            redis_queue.enqueue(user.send_email_to_user)
-
 
         return {
             "action": "updated",
             "user": user
         }
-

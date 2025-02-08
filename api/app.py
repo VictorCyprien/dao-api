@@ -1,29 +1,30 @@
 import json
-import subprocess
 
 from flask import Flask, request, jsonify, g
 from flask_smorest import Api
-from flask_mongoengine import MongoEngine
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
 import redis
 from redis import StrictRedis
 from rq import Queue
 
+from . import Base
 from .config import Config
+
 from helpers.logging_file import Logger
 
 
-def connect_to_mongo(config: Config, app: Flask):
-    # Configure mongo client
-    app.config['MONGODB_SETTINGS'] = {
-        "db": config.MONGODB_DATABASE,
-        "host": config.MONGODB_URI,
-        "username": config.MONGODB_USERNAME,
-        "password": config.MONGODB_PASSWORD
-    }
-    MongoEngine(app)
-    
+def setup_db(app: Flask, config: Config):
+    db = SQLAlchemy(model_class=Base)
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{config.POSTGRESQL_USERNAME}:{config.POSTGRESQL_PASSWORD}@{config.POSTGRESQL_URI}"
+    app.db = db
+    db.init_app(app)
+
+    from .models.user import User
+    with app.app_context():
+        db.create_all()
+
 
 def setup_redis(config: Config):
     return redis.StrictRedis(

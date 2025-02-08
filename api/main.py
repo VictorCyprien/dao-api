@@ -8,8 +8,8 @@ from .config import config
 config.validate()
 
 # Initialize flask app
-from .app import create_flask_app, connect_to_mongo
+from .app import create_flask_app, setup_db
 app = create_flask_app(config)
 
-# Connect to mongo
-connect_to_mongo(config, app)
+# Connect to postgrey
+setup_db(app, config)
