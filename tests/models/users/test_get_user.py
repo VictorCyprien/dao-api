@@ -1,22 +1,19 @@
+from flask_sqlalchemy import SQLAlchemy
 import pytest
-from datetime import datetime
-import pytz
-from mongoengine.errors import DoesNotExist, ValidationError
+from sqlalchemy.exc import IntegrityError
 
 from api.models.user import User
 
-def test_model_get_user(app, victor: User, sayori: User):
-    search = User.get_by_id(victor.user_id)
+def test_model_get_user(app, victor: User, sayori: User, db: SQLAlchemy):
+    search = User.get_by_id(victor.user_id, db.session)
     assert search == victor
 
-    search = User.get_by_id(sayori.user_id)
+    search = User.get_by_id(sayori.user_id, db.session)
     assert search == sayori
 
-    with pytest.raises(DoesNotExist):
-        User.get_by_id(124)
+    assert User.get_by_id(124, db.session) is None
 
 
-def test_model_get_user_wrong_id_format(app):
-    with pytest.raises(ValidationError):
-        User.get_by_id("MY_ID")
+def test_model_get_user_wrong_id_format(app, db: SQLAlchemy):
+    assert User.get_by_id("MY_ID", db.session) is None
 

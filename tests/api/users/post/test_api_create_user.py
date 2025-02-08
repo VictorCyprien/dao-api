@@ -1,4 +1,5 @@
 from flask.app import Flask
+from flask_sqlalchemy import SQLAlchemy
 from rich import print
 
 from unittest.mock import ANY
@@ -6,7 +7,7 @@ from unittest.mock import ANY
 from api.models.user import User
 
 
-def test_create_user(client: Flask, mock_redis_queue):
+def test_create_user(client: Flask, db: SQLAlchemy):
     data = {
         "username": "Chara",
         "email": "charadreemurr3571@gmail.com",
@@ -31,7 +32,7 @@ def test_create_user(client: Flask, mock_redis_queue):
     }
 
     user_id = data['user']['user_id']
-    user: User = User.objects().get(user_id=user_id)
+    user: User = User.get_by_id(id=user_id, session=db.session)
     assert user.user_id == ANY
     assert user.username == "Chara"
     assert user.email == "charadreemurr3571@gmail.com"
@@ -39,9 +40,8 @@ def test_create_user(client: Flask, mock_redis_queue):
     assert user.discord_username == "charadreemurr3571"
     assert user.wallet_address == "8D1234567890"
 
-    mock_redis_queue.assert_called_once()
-
-    user.delete()
+    db.session.delete(user)
+    db.session.commit()
 
 
 def test_create_user_empty_data(client: Flask):
