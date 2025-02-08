@@ -51,3 +51,6 @@ testsx:
 
 clean:
 	rm -R venv
+
+tree:
+	tree -P "*.py" -I "venv|tests|__pycache__|dao_api.egg-info" --noreport
