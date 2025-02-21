@@ -9,7 +9,7 @@ from api.models.community import Community
 from api.models.user import User
 from api.schemas.pod_schemas import PODSchema
 from api.schemas.communs_schemas import PagingError
-from api.views.pod.pod_blp import pod_blp
+from api.views.pods.pod_blp import pod_blp
 
 from helpers.errors_file import ErrorHandler, NotFound, Unauthorized
 

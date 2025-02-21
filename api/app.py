@@ -130,6 +130,12 @@ def create_flask_app(config: Config) -> Flask:
     from .views.users import users_blp
     rest_api.register_blueprint(users_blp)
 
+    from .views.communities import communities_blp
+    rest_api.register_blueprint(communities_blp)
+
+    from .views.pods import pod_blp
+    rest_api.register_blueprint(pod_blp)
+
     from .views.data import data_blp
     rest_api.register_blueprint(data_blp)
 

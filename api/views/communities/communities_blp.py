@@ -1,8 +1,8 @@
 from flask_smorest import Blueprint
 
 communities_blp = Blueprint(
-    'Communities', 
-    'communities', 
+    name='communities',
+    import_name=__name__,
     url_prefix='/communities',
     description='Operations on communities'
 )
