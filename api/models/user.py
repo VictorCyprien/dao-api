@@ -1,13 +1,12 @@
 from api import Base
 
 from sqlalchemy import BigInteger, String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 from sqlalchemy.exc import IntegrityError
 import bcrypt
 
 from helpers.logging_file import Logger
 from helpers.smtp_file import send_email
-
 
 logger = Logger()
 
@@ -43,6 +42,16 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     """ Is the email verified
     """
+
+    # Add these relationship definitions
+    administered_communities = relationship('Community', secondary='community_admins', back_populates='admins')
+    """ Communities that the user is an admin of """
+
+    member_communities = relationship('Community', secondary='community_members', back_populates='members')
+    """ Communities that the user is a member of """
+
+    participating_pods = relationship('POD', secondary='pod_participants', back_populates='participants')
+    """ PODs that the user is a participant of """
 
 
     @classmethod
