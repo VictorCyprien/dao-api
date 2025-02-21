@@ -14,7 +14,8 @@ from pytest_postgresql.janitor import DatabaseJanitor
 
 from api import Base
 from api.models.user import User
-
+from api.models.community import Community
+from api.models.pod import POD
 
 from environs import Env
 
@@ -129,3 +130,40 @@ def sayori_logged_in(client, sayori):
     response = client.post("/auth/login", json=login_data)
     token = response.json["token"]
     yield token
+
+
+@pytest.fixture
+def community(app, victor, db: SQLAlchemy):
+    community_data = {
+        "name": "Test Community",
+        "description": "A test community",
+        "owner_id": victor.user_id
+    }
+    with app.app_context():
+        current_victor = db.session.merge(victor)
+        with freezegun.freeze_time(creation_date):
+            community = Community.create(community_data)
+            community.admins.append(current_victor)
+            community.members.append(current_victor)
+            db.session.add(community)
+            db.session.commit()
+        yield community
+        db.session.delete(community)
+        db.session.commit()
+
+
+@pytest.fixture
+def pod(app, community, db: SQLAlchemy):
+    pod_data = {
+        "name": "Backend Learning Group",
+        "description": "Learn backend development with Python and Flask",
+        "community_id": community.community_id
+    }
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            pod = POD.create(input_data=pod_data)
+            db.session.add(pod)
+            db.session.commit()
+        yield pod
+        db.session.delete(pod)
+        db.session.commit()
