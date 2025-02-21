@@ -1,11 +1,12 @@
-from api import Base
 from sqlalchemy import BigInteger, String, DateTime, ForeignKey, Boolean, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
+
 import random
 import sys
-from datetime import datetime
 
+from datetime import datetime, timezone
 
+from api import Base
 
 # Association table for POD participants
 pod_participants = Table(
@@ -15,7 +16,6 @@ pod_participants = Table(
     Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
-
 
 class POD(Base):
     __tablename__ = "pod"
@@ -36,7 +36,7 @@ class POD(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     """ Whether the POD is active """
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     """ Timestamp of when the POD was created """
 
     # Relationships
@@ -88,7 +88,12 @@ class POD(Base):
     @classmethod
     def get_by_id(cls, id: int, session: Session) -> "POD":
         """ POD getter with an ID """
-        return session.query(POD).filter(POD.pod_id == id).first()
+        return session.query(cls).filter(cls.pod_id == id).first()
+    
+    @classmethod
+    def get_community_pods(cls, community_id: int, session: Session):
+        """Get all PODs for a community using session"""
+        return session.query(cls).filter_by(community_id=community_id).all()
 
     @classmethod
     def generate_pod_id(cls) -> int:

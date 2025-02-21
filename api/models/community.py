@@ -1,9 +1,11 @@
-from api import Base
-from sqlalchemy import BigInteger, String, Boolean, ForeignKey, Table, Column
-from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
+from typing import List
 import random
 import sys
 
+from sqlalchemy import BigInteger, String, Boolean, ForeignKey, Table, Column
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
+
+from api import Base
 
 # Association tables for many-to-many relationships
 community_admins = Table(
@@ -62,11 +64,6 @@ class Community(Base):
             owner_id=input_data["owner_id"],
             is_active=True
         )
-        
-        # Add owner as both admin and member
-        if "owner" in input_data:
-            community.admins.append(input_data["owner"])
-            community.members.append(input_data["owner"])
             
         return community
     
@@ -122,6 +119,11 @@ class Community(Base):
     def get_by_id(cls, id: int, session: Session) -> "Community":
         """ Community getter with an ID """
         return session.query(Community).filter(Community.community_id == id).first()
+    
+    @classmethod
+    def get_all(cls, session: Session) -> List["Community"]:
+        """ Get all communities """
+        return session.query(Community).all()
 
     @classmethod
     def generate_community_id(cls) -> int:
