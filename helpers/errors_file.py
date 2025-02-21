@@ -60,3 +60,11 @@ class ErrorHandler():
     INVALID_EMAIL = "This email is invalid"
     INVALID_PASSWORD = "This password is invalid"
     INVALID_DATE_FORMAT = "The date format is invalid"
+    COMMUNITY_NOT_FOUND = "This community doesn't exist !"
+    COMMUNITY_MEMBERSHIP_NOT_FOUND = "This community membership doesn't exist !"
+    COMMUNITY_MEMBERSHIP_ALREADY_EXISTS = "This community membership already exists !"
+    USER_NOT_ADMIN = "You are not an admin of this community !"
+    USER_NOT_OWNER = "You are not the owner of this community !"
+    USER_NOT_MEMBER = "This user is not a member of this community !"
+    POD_NOT_FOUND = "This POD doesn't exist !"
+    
