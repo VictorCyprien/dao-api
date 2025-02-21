@@ -20,7 +20,6 @@ class OneCommunityView(MethodView):
     def get(self, community_id: int):
         """Get a specific community"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         community = Community.get_by_id(community_id, db.session)
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
@@ -30,7 +29,7 @@ class OneCommunityView(MethodView):
     @communities_blp.response(404, PagingError)
     @communities_blp.response(403, PagingError)
     @communities_blp.response(400, PagingError)
-    @communities_blp.response(201, CommunitySchema)
+    @communities_blp.response(200, CommunitySchema)
     @jwt_required()
     def put(self, update_data, community_id):
         """Update a community"""
@@ -41,8 +40,8 @@ class OneCommunityView(MethodView):
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
-        if community.owner_id != auth_user and auth_user not in [admin.user_id for admin in community.admins]:
-            raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
+        if community.owner_id != auth_user.user_id or auth_user not in community.admins:
+            raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
         try:
             community.update(update_data)
@@ -68,7 +67,7 @@ class OneCommunityView(MethodView):
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
-        if community.owner_id != auth_user:
+        if community.owner_id != auth_user.user_id:
             raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
             
         try:

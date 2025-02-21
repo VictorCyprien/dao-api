@@ -30,15 +30,11 @@ class CommunityMembershipView(MethodView):
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
-        if community.owner_id != auth_user and auth_user not in [admin.user_id for admin in community.admins]:
+        if community.owner_id != auth_user.user_id and auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
-        user = User.get_by_id(membership_data["user_id"], db.session)
-        if not user:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
         try:
-            if community.add_member(user):
+            if community.add_member(auth_user):
                 db.session.commit()
                 return community
             abort(400, message=ErrorHandler.COMMUNITY_MEMBERSHIP_ALREADY_EXISTS)
@@ -62,18 +58,79 @@ class CommunityMembershipView(MethodView):
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
-        if community.owner_id != auth_user and auth_user not in [admin.user_id for admin in community.admins]:
+        if community.owner_id != auth_user.user_id and auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
-        user = User.get_by_id(membership_data["user_id"], db.session)
+        try:
+            if community.remove_member(auth_user):
+                db.session.commit()
+                return community
+            abort(400, message=ErrorHandler.USER_NOT_MEMBER)
+        except Exception as e:
+            db.session.rollback()
+            abort(400, message=str(e))
+
+
+@communities_blp.route("/<int:community_id>/admins")
+class CommunityAdminView(MethodView):
+    @jwt_required()
+    @communities_blp.arguments(CommunityMembershipSchema)
+    @communities_blp.response(404, PagingError)
+    @communities_blp.response(403, PagingError)
+    @communities_blp.response(400, PagingError)
+    @communities_blp.response(200, CommunitySchema)
+    def post(self, admin_data, community_id):
+        """Add an admin to the community"""
+        db: SQLAlchemy = current_app.db
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        community = Community.get_by_id(community_id, db.session)
+        
+        if not community:
+            raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
+            
+        if community.owner_id != auth_user.user_id:
+            raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
+            
+        user = User.get_by_id(admin_data["user_id"], db.session)
         if not user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
             
         try:
-            if community.remove_member(user):
+            if community.add_admin(user):
                 db.session.commit()
                 return community
-            abort(400, message=ErrorHandler.USER_NOT_MEMBER)
+            abort(400, message=ErrorHandler.COMMUNITY_ADMIN_ALREADY_EXISTS)
+        except Exception as e:
+            db.session.rollback()
+            abort(400, message=str(e))
+
+    @jwt_required()
+    @communities_blp.arguments(CommunityMembershipSchema)
+    @communities_blp.response(404, PagingError)
+    @communities_blp.response(403, PagingError)
+    @communities_blp.response(400, PagingError)
+    @communities_blp.response(200, CommunitySchema)
+    def delete(self, admin_data, community_id):
+        """Remove an admin from the community"""
+        db: SQLAlchemy = current_app.db
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        community = Community.get_by_id(community_id, db.session)
+        
+        if not community:
+            raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
+            
+        if community.owner_id != auth_user.user_id:
+            raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
+            
+        user = User.get_by_id(admin_data["user_id"], db.session)
+        if not user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
+            
+        try:
+            if community.remove_admin(user):
+                db.session.commit()
+                return community
+            abort(400, message=ErrorHandler.USER_NOT_ADMIN)
         except Exception as e:
             db.session.rollback()
             abort(400, message=str(e))
