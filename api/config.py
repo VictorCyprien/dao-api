@@ -21,6 +21,7 @@ class Config:
         self.POSTGRESQL_URI = env.str('POSTGRESQL_URI', 'localhost')
         self.POSTGRESQL_USERNAME = env.str("POSTGRESQL_USERNAME", "root")
         self.POSTGRESQL_PASSWORD = env.str("POSTGRESQL_PASSWORD", "example")
+        self.POSTGRESQL_DB = env.str("POSTGRESQL_DB", "dao")
 
         # REDIS
         self.REDIS_URI = env.str('REDIS_URI', "localhost")

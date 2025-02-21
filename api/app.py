@@ -17,7 +17,7 @@ from helpers.logging_file import Logger
 
 def setup_db(app: Flask, config: Config):
     db = SQLAlchemy(model_class=Base)
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{config.POSTGRESQL_USERNAME}:{config.POSTGRESQL_PASSWORD}@{config.POSTGRESQL_URI}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{config.POSTGRESQL_USERNAME}:{config.POSTGRESQL_PASSWORD}@{config.POSTGRESQL_URI}/{config.POSTGRESQL_DB}"
     app.db = db
     db.init_app(app)
 
