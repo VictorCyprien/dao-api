@@ -12,3 +12,6 @@ class PODUpdateSchema(Schema):
     name = fields.Str()
     description = fields.Str()
     is_active = fields.Bool() 
+
+class PODMembershipSchema(Schema):
+    user_id = fields.Int(required=True)
