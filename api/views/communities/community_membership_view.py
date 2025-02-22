@@ -10,7 +10,7 @@ from api.schemas.community_schemas import CommunitySchema, CommunityMembershipSc
 from api.schemas.communs_schemas import PagingError
 from api.views.communities.communities_blp import communities_blp
 
-from helpers.errors_file import ErrorHandler, NotFound, Unauthorized
+from helpers.errors_file import ErrorHandler, NotFound, Unauthorized, BadRequest
 
 
 @communities_blp.route("/<int:community_id>/members")
@@ -26,21 +26,22 @@ class CommunityMembershipView(MethodView):
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
         community = Community.get_by_id(community_id, db.session)
+        target_user = User.get_by_id(membership_data["user_id"], db.session)
+
+        if not target_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
         if community.owner_id != auth_user.user_id and auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
-            
-        try:
-            if community.add_member(auth_user):
-                db.session.commit()
-                return community
-            abort(400, message=ErrorHandler.COMMUNITY_MEMBERSHIP_ALREADY_EXISTS)
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
+
+        if not community.add_member(target_user):
+            raise BadRequest(ErrorHandler.COMMUNITY_MEMBERSHIP_ALREADY_EXISTS)
+        
+        db.session.commit()
+        return community
 
 
     @jwt_required()
@@ -54,6 +55,10 @@ class CommunityMembershipView(MethodView):
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
         community = Community.get_by_id(community_id, db.session)
+        target_user = User.get_by_id(membership_data["user_id"], db.session)
+
+        if not target_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
@@ -61,14 +66,11 @@ class CommunityMembershipView(MethodView):
         if community.owner_id != auth_user.user_id and auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
-        try:
-            if community.remove_member(auth_user):
-                db.session.commit()
-                return community
-            abort(400, message=ErrorHandler.USER_NOT_MEMBER)
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
+        if not community.remove_member(target_user):
+            raise BadRequest(ErrorHandler.USER_NOT_MEMBER)
+        
+        db.session.commit()
+        return community
 
 
 @communities_blp.route("/<int:community_id>/admins")
@@ -84,25 +86,23 @@ class CommunityAdminView(MethodView):
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
         community = Community.get_by_id(community_id, db.session)
+        target_user = User.get_by_id(admin_data["user_id"], db.session)
+
+        if not target_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
         if community.owner_id != auth_user.user_id:
             raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
-            
-        user = User.get_by_id(admin_data["user_id"], db.session)
-        if not user:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
-        try:
-            if community.add_admin(user):
-                db.session.commit()
-                return community
-            abort(400, message=ErrorHandler.COMMUNITY_ADMIN_ALREADY_EXISTS)
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
+        
+        if not community.add_admin(target_user):
+            raise BadRequest(ErrorHandler.COMMUNITY_ADMIN_ALREADY_EXISTS)
+        
+        db.session.commit()
+        return community
+
 
     @jwt_required()
     @communities_blp.arguments(CommunityMembershipSchema)
@@ -115,23 +115,22 @@ class CommunityAdminView(MethodView):
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
         community = Community.get_by_id(community_id, db.session)
+        target_user = User.get_by_id(admin_data["user_id"], db.session)
+
+        if not target_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
+        
+        if auth_user not in community.members:
+            raise Unauthorized(ErrorHandler.USER_NOT_MEMBER)
             
         if community.owner_id != auth_user.user_id:
             raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
             
-        user = User.get_by_id(admin_data["user_id"], db.session)
-        if not user:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
-        try:
-            if community.remove_admin(user):
-                db.session.commit()
-                return community
-            abort(400, message=ErrorHandler.USER_NOT_ADMIN)
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
-
+        if not community.remove_admin(target_user):
+            raise BadRequest(ErrorHandler.COMMUNITY_NOT_ADMIN)
+        
+        db.session.commit()
+        return community

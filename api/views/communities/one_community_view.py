@@ -51,12 +51,11 @@ class OneCommunityView(MethodView):
             db.session.rollback()
             abort(400, message=str(e))
 
-            
-    @communities_blp.arguments(CommunityMembershipSchema)
+
     @communities_blp.response(404, PagingError)
     @communities_blp.response(403, PagingError)
     @communities_blp.response(400, PagingError)
-    @communities_blp.response(204)
+    @communities_blp.response(200)
     @jwt_required()
     def delete(self, community_id: int):
         """Delete a community"""

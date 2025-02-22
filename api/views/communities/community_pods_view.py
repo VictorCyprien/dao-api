@@ -12,7 +12,7 @@ from api.schemas.communs_schemas import PagingError
 from api.schemas.users_schemas import UserSchema
 from api.views.communities.communities_blp import communities_blp
 
-from helpers.errors_file import ErrorHandler, NotFound, Unauthorized
+from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 
 
 @communities_blp.route("<int:community_id>/pods")
@@ -42,15 +42,14 @@ class RootPODView(MethodView):
     def post(self, pod_data, community_id):
         """Create a new POD in a community"""
         db: SQLAlchemy = current_app.db
-        current_user_id = get_jwt_identity()
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         
         community = Community.get_by_id(community_id, db.session)
         if not community:
             raise NotFound(ErrorHandler.COMMUNITY_NOT_FOUND)
             
-        # Check if user is admin or owner
-        if (community.owner_id != current_user_id and 
-            current_user_id not in [admin.user_id for admin in community.admins]):
+        # Check if user is admin
+        if auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
         try:
@@ -130,7 +129,7 @@ class PODView(MethodView):
         if not pod or pod.community_id != community_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         
-        if community.owner_id != auth_user.user_id:
+        if community.owner_id != auth_user.user_id and auth_user not in community.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_OWNER)
         
         try:
@@ -189,14 +188,11 @@ class PODMembersView(MethodView):
         if not pod or pod.community_id != community_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         
-        try:
-            if pod.add_participant(target_user):
-                db.session.commit()
-                return pod
-            abort(400, message="User is already a participant")
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
+        if not pod.add_participant(target_user):
+            raise BadRequest(ErrorHandler.USER_ALREADY_IN_POD)
+        
+        db.session.commit()
+        return pod
 
 
     @jwt_required()
@@ -228,13 +224,9 @@ class PODMembersView(MethodView):
         pod = POD.get_by_id(pod_id, db.session)
         if not pod or pod.community_id != community_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
-        
-        try:
-            if pod.remove_participant(target_user):
-                db.session.commit()
-                return pod
-            abort(400, message="User is not a participant")
-        except Exception as e:
-            db.session.rollback()
-            abort(400, message=str(e))
 
+        if not pod.remove_participant(target_user):
+            raise BadRequest(ErrorHandler.USER_NOT_IN_POD)
+        
+        db.session.commit()
+        return pod
