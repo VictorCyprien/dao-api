@@ -100,6 +100,25 @@ def sayori(app: Flask, db: SQLAlchemy) -> Iterator[User]:
         db.session.commit()
 
 
+@pytest.fixture(scope='function')
+def natsuki(app: Flask, db: SQLAlchemy) -> Iterator[User]:
+    user_dict = {
+        "username": "Natsuki",
+        "email": "natsuki@example.com",
+        "password": "my_password",
+        "discord_username": "natsuki#1234",
+        "wallet_address": "0x1234567892",
+    }
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            user = User.create(user_dict)
+            db.session.add(user)
+            db.session.commit()
+        yield user
+        db.session.delete(user)
+        db.session.commit()
+
+
 #### MOCKS ####
 @pytest.fixture
 def mock_redis_queue():
@@ -125,6 +144,17 @@ def victor_logged_in(client, victor):
 def sayori_logged_in(client, sayori):
     login_data = {
         "email": sayori.email,
+        "password": "my_password"
+    }
+    response = client.post("/auth/login", json=login_data)
+    token = response.json["token"]
+    yield token
+
+
+@pytest.fixture
+def natsuki_logged_in(client, natsuki):
+    login_data = {
+        "email": natsuki.email,
         "password": "my_password"
     }
     response = client.post("/auth/login", json=login_data)
