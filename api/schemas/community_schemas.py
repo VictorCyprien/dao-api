@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 class UserBasicSchema(Schema):
     """Basic user information for nested relationships"""
@@ -15,8 +15,8 @@ class CommunitySchema(Schema):
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)
 
 class CommunityUpdateSchema(Schema):
-    name = fields.Str()
-    description = fields.Str()
+    name = fields.Str(validate=validate.Length(min=1))
+    description = fields.Str(validate=validate.Length(min=1))
     is_active = fields.Bool()
 
 class CommunityMembershipSchema(Schema):

@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 class PODSchema(Schema):
     pod_id = fields.Int(dump_only=True)
@@ -9,9 +9,9 @@ class PODSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
 
 class PODUpdateSchema(Schema):
-    name = fields.Str()
-    description = fields.Str()
-    is_active = fields.Bool() 
+    name = fields.Str(validate=validate.Length(min=1))
+    description = fields.Str(validate=validate.Length(min=1))
+    is_active = fields.Bool()
 
 class PODMembershipSchema(Schema):
     user_id = fields.Int(required=True)
