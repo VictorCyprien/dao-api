@@ -268,6 +268,16 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
@@ -325,8 +335,8 @@
           "422": {
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -386,11 +396,8 @@
       },
       "delete": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK"
           },
           "400": {
             "description": "Bad Request",
@@ -424,16 +431,6 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CommunityMembership"
-              }
-            }
           }
         },
         "summary": "Delete a community",
@@ -594,7 +591,148 @@
         }
       ]
     },
-    "/pods/community/{community_id}/pods": {
+    "/communities/{community_id}/admins": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Community"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityMembership"
+              }
+            }
+          }
+        },
+        "summary": "Add an admin to the community",
+        "tags": [
+          "communities"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Community"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityMembership"
+              }
+            }
+          }
+        },
+        "summary": "Remove an admin from the community",
+        "tags": [
+          "communities"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "community_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    "/communities/{community_id}/pods": {
       "get": {
         "responses": {
           "200": {
@@ -626,7 +764,7 @@
         },
         "summary": "List all PODs in a community",
         "tags": [
-          "pods"
+          "communities"
         ]
       },
       "post": {
@@ -690,7 +828,7 @@
         },
         "summary": "Create a new POD in a community",
         "tags": [
-          "pods"
+          "communities"
         ]
       },
       "parameters": [
@@ -705,7 +843,7 @@
         }
       ]
     },
-    "/pods/community/{community_id}/pods/{pod_id}/participants": {
+    "/communities/{community_id}/pods/{pod_id}": {
       "get": {
         "responses": {
           "200": {
@@ -713,10 +851,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
-                  }
+                  "$ref": "#/components/schemas/POD"
                 }
               }
             }
@@ -735,13 +870,16 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get all participants of a POD",
+        "summary": "Get a POD",
         "tags": [
-          "pods"
+          "communities"
         ]
       },
-      "post": {
+      "put": {
         "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -786,9 +924,19 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Join a POD as a participant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PODUpdate"
+              }
+            }
+          }
+        },
+        "summary": "Update a POD",
         "tags": [
-          "pods"
+          "communities"
         ]
       },
       "delete": {
@@ -837,9 +985,193 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
+        "summary": "Delete a POD",
+        "tags": [
+          "communities"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "community_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    "/communities/{community_id}/pods/{pod_id}/members": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all participants of a POD",
+        "tags": [
+          "communities"
+        ]
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/POD"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PODMembership"
+              }
+            }
+          }
+        },
+        "summary": "Join a POD as a participant",
+        "tags": [
+          "communities"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/POD"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PODMembership"
+              }
+            }
+          }
+        },
         "summary": "Leave a POD",
         "tags": [
-          "pods"
+          "communities"
         ]
       },
       "parameters": [
@@ -1006,10 +1338,6 @@
     {
       "name": "communities",
       "description": "Operations on communities"
-    },
-    {
-      "name": "pods",
-      "description": "Operations on PODs"
     },
     {
       "name": "data",
@@ -1268,10 +1596,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "is_active": {
             "type": "boolean"
@@ -1319,6 +1649,33 @@
           "community_id",
           "description",
           "name"
+        ]
+      },
+      "PODUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PODMembership": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id"
         ]
       },
       "Item": {
