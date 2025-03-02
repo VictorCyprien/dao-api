@@ -169,5 +169,5 @@ accounts_data.json
 
 cov.xml
 report.xml
-.cursor/rules/backend.mdc
+.cursor/
 .specstory/
