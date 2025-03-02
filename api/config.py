@@ -17,6 +17,9 @@ class Config:
         self.JWT_SECRET_KEY = env.str('JWT_SECRET_KEY', None)
         self.JWT_ACCESS_TOKEN_EXPIRES = env.int('JWT_ACCESS_TOKEN_EXPIRES', None)
 
+        # FLASK CORS
+        self.CORS_ALLOWED_ORIGINS = env.str('CORS_ALLOWED_ORIGINS', "*")
+
         # POSTGRESQL
         self.POSTGRESQL_URI = env.str('POSTGRESQL_URI', 'localhost')
         self.POSTGRESQL_USERNAME = env.str("POSTGRESQL_USERNAME", "root")

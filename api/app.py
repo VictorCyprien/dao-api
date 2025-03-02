@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, g
 from flask_smorest import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-
+from flask_cors import CORS
 import redis
 from redis import StrictRedis
 from rq import Queue
@@ -64,14 +64,30 @@ def setup_jwt(app: Flask, redis_client: StrictRedis):
     return jwt_redis_blocklist
 
 
+def setup_cors(app: Flask, config: Config):
+    # Get allowed origins from config or use a default
+    allowed_origins = config.CORS_ALLOWED_ORIGINS if hasattr(config, 'CORS_ALLOWED_ORIGINS') else "*"
+    
+    # Setup CORS with specific configuration
+    cors = CORS(
+        app,
+        resources={r"/*": {"origins": allowed_origins}},
+        supports_credentials=True,
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
+    return cors
+
+
 def create_flask_app(config: Config) -> Flask:
     # Create the Flask App
     app = Flask(__name__)
     app.logger = Logger()
 
+    # Initialize CORS
+    setup_cors(app, config)
+
     """ Log each API/APP request
     """
-
     @app.before_request
     def before_request():
         """ Log every requests """
