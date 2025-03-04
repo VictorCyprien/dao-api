@@ -2,7 +2,7 @@ from marshmallow import Schema, fields, validate
 
 class PODSchema(Schema):
     pod_id = fields.Int(dump_only=True)
-    community_id = fields.Int(required=True)
+    dao_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     is_active = fields.Bool(dump_only=True)

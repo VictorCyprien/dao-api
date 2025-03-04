@@ -43,15 +43,21 @@ class User(Base):
     """ Is the email verified
     """
 
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    """ Whether the user is active """
+
     # Add these relationship definitions
-    administered_communities = relationship('Community', secondary='community_admins', back_populates='admins')
-    """ Communities that the user is an admin of """
+    administered_daos = relationship('DAO', secondary='dao_admins', back_populates='admins')
+    """ DAOs that the user is an admin of """
 
-    member_communities = relationship('Community', secondary='community_members', back_populates='members')
-    """ Communities that the user is a member of """
+    member_daos = relationship('DAO', secondary='dao_members', back_populates='members')
+    """ DAOs that the user is a member of """
 
-    participating_pods = relationship('POD', secondary='pod_participants', back_populates='participants')
-    """ PODs that the user is a participant of """
+    administered_pods = relationship('POD', secondary='pod_admins', back_populates='admins')
+    """ PODs that the user is an admin of """
+
+    member_pods = relationship('POD', secondary='pod_members', back_populates='members')
+    """ PODs that the user is a member of """
 
 
     @classmethod

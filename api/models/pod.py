@@ -1,5 +1,6 @@
 from sqlalchemy import BigInteger, String, DateTime, ForeignKey, Boolean, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
+from typing import List
 
 import random
 import sys
@@ -8,9 +9,18 @@ from datetime import datetime, timezone
 
 from api import Base
 
-# Association table for POD participants
-pod_participants = Table(
-    'pod_participants',
+# Association table for POD admins
+pod_admins = Table(
+    'pod_admins',
+    Base.metadata,
+    Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    extend_existing=True
+)
+
+# Association table for POD members
+pod_members = Table(
+    'pod_members',
     Base.metadata,
     Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
     Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
@@ -24,14 +34,14 @@ class POD(Base):
     pod_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     """ ID of the POD """
 
-    community_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('communities.community_id', ondelete='CASCADE'), nullable=False)
-    """ ID of the community this POD belongs to """
-
     name: Mapped[str] = mapped_column(String, nullable=False)
-    """ Name of the POD group """
+    """ Name of the POD """
 
     description: Mapped[str] = mapped_column(String, nullable=False)
-    """ Description of what needs to be learned """
+    """ Description of the POD """
+
+    dao_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
+    """ ID of the DAO this POD belongs to """
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     """ Whether the POD is active """
@@ -40,20 +50,23 @@ class POD(Base):
     """ Timestamp of when the POD was created """
 
     # Relationships
-    community = relationship('Community', back_populates='pods')
-    """ Community that the POD belongs to """
-
-    participants = relationship('User', secondary=pod_participants, back_populates='participating_pods')
-    """ Participants of the POD """
+    admins = relationship('User', secondary=pod_admins, back_populates='administered_pods')
+    """ Administrators of the POD """
+    
+    members = relationship('User', secondary=pod_members, back_populates='member_pods')
+    """ Members of the POD """
+    
+    dao = relationship('DAO', back_populates='pods')
+    """ DAO that the POD belongs to """
 
     @classmethod
     def create(cls, input_data: dict) -> "POD":
         """ Create a new POD instance """
         pod = POD(
             pod_id=cls.generate_pod_id(),
-            community_id=input_data["community_id"],
             name=input_data["name"],
             description=input_data["description"],
+            dao_id=input_data["dao_id"],
             is_active=True
         )
         return pod
@@ -71,31 +84,54 @@ class POD(Base):
         if is_active is not None:
             self.is_active = is_active
 
-    def add_participant(self, user) -> bool:
-        """ Add a user as participant if they're not already """
-        if user not in self.participants:
-            self.participants.append(user)
+    def add_admin(self, user) -> bool:
+        """ Add a user as admin if they're not already """
+        if user not in self.admins:
+            self.admins.append(user)
+            if user not in self.members:
+                self.members.append(user)
             return True
         return False
 
-    def remove_participant(self, user) -> bool:
-        """ Remove a user from participants """
-        if user in self.participants:
-            self.participants.remove(user)
+    def remove_admin(self, user) -> bool:
+        """ Remove a user from admins """
+        if user in self.admins:
+            self.admins.remove(user)
+            return True
+        return False
+
+    def add_member(self, user) -> bool:
+        """ Add a user as member if they're not already """
+        if user not in self.members:
+            self.members.append(user)
+            return True
+        return False
+
+    def remove_member(self, user) -> bool:
+        """ Remove a user from members """
+        if user in self.members:
+            if user in self.admins:
+                self.admins.remove(user)
+            self.members.remove(user)
             return True
         return False
 
     @classmethod
     def get_by_id(cls, id: int, session: Session) -> "POD":
         """ POD getter with an ID """
-        return session.query(cls).filter(cls.pod_id == id).first()
+        return session.query(POD).filter(POD.pod_id == id).first()
     
     @classmethod
-    def get_community_pods(cls, community_id: int, session: Session):
-        """Get all PODs for a community using session"""
-        return session.query(cls).filter_by(community_id=community_id).all()
-
+    def get_all(cls, session: Session) -> List["POD"]:
+        """ Get all PODs """
+        return session.query(cls).all()
+    
+    @classmethod
+    def get_dao_pods(cls, dao_id: int, session: Session):
+        """Get all PODs for a DAO using session"""
+        return session.query(cls).filter_by(dao_id=dao_id).all()
+    
     @classmethod
     def generate_pod_id(cls) -> int:
-        """ Generate a random POD ID """
+        """ Generate a random pod_id """
         return random.randint(1, sys.maxsize)
