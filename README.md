@@ -13,6 +13,7 @@ It also provides data about ai-news project.
 - Redis for task queueing
 - Redis Insight dashboard for monitoring
 - OpenAPI documentation
+- Optional authentication disabling for development/testing
 
 ## Prerequisites
 
@@ -49,6 +50,43 @@ docker-compose up -d
 gunicorn wsgi:app
 ```
 
+## Configuration Options
+
+The following environment variables can be set to configure the API:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| SERVICE_NAME | The name of the service | "" |
+| FLASK_ENV | Flask environment (dev, prod) | "dev" |
+| JWT_SECRET_KEY | Secret key for JWT tokens | None |
+| JWT_ACCESS_TOKEN_EXPIRES | Expiration time for JWT tokens in seconds | None |
+| AUTH_DISABLED | Disable authentication requirements (for development) | False |
+| CORS_ALLOWED_ORIGINS | CORS allowed origins | "*" |
+| POSTGRESQL_URI | PostgreSQL URI | "localhost" |
+| POSTGRESQL_USERNAME | PostgreSQL username | "root" |
+| POSTGRESQL_PASSWORD | PostgreSQL password | "example" |
+| POSTGRESQL_DB | PostgreSQL database name | "dao" |
+| REDIS_URI | Redis URI | "localhost" |
+| REDIS_PORT | Redis port | 6379 |
+
+### Disabling Authentication
+
+For development or testing purposes, you can disable authentication by setting the `AUTH_DISABLED` environment variable to `True`:
+
+```bash
+# Linux/macOS
+export AUTH_DISABLED=True
+python run.py
+
+# Windows
+set AUTH_DISABLED=True
+python run.py
+```
+
+This will bypass all JWT authentication requirements in the API, allowing you to test endpoints without needing to authenticate.
+
+> ⚠️ **Warning**: Do not use this option in production environments.
+
 ## API Documentation
 
 You can find the API documentation in the `specs` folder.
@@ -82,7 +120,7 @@ make testsx (without coverage)
 │   ├── main.py
 │   ├── models
 │   │   ├── __init__.py
-│   │   ├── community.py
+│   │   ├── dao.py
 │   │   ├── pod.py
 │   │   └── user.py
 │   ├── schemas
@@ -90,9 +128,11 @@ make testsx (without coverage)
 │   │   ├── auth_schemas.py
 │   │   ├── community_schemas.py
 │   │   ├── communs_schemas.py
+│   │   ├── dao_schemas.py
 │   │   ├── data_schemas.py
 │   │   ├── pod_schemas.py
 │   │   └── users_schemas.py
+│   ├── utils.py
 │   └── views
 │       ├── __init__.py
 │       ├── auth
@@ -100,13 +140,13 @@ make testsx (without coverage)
 │       │   ├── auth_blp.py
 │       │   ├── login_view.py
 │       │   └── logout_view.py
-│       ├── communities
+│       ├── daos
 │       │   ├── __init__.py
-│       │   ├── communities_blp.py
-│       │   ├── community_membership_view.py
-│       │   ├── community_pods_view.py
-│       │   ├── one_community_view.py
-│       │   └── root_communities_view.py
+│       │   ├── dao_membership_view.py
+│       │   ├── dao_pods_view.py
+│       │   ├── daos_blp.py
+│       │   ├── one_dao_view.py
+│       │   └── root_daos_view.py
 │       ├── data
 │       │   ├── __init__.py
 │       │   ├── data_blp.py
@@ -139,20 +179,20 @@ make testsx (without coverage)
 │   │   ├── auth
 │   │   │   ├── test_api_login.py
 │   │   │   └── test_api_logout.py
-│   │   ├── communities
+│   │   ├── daos
 │   │   │   ├── delete
-│   │   │   │   ├── test_delete_community.py
+│   │   │   │   ├── test_delete_dao.py
 │   │   │   │   ├── test_remove_admin.py
 │   │   │   │   └── test_remove_members.py
 │   │   │   ├── get
-│   │   │   │   ├── test_get_communities.py
-│   │   │   │   └── test_get_community.py
+│   │   │   │   ├── test_get_dao.py
+│   │   │   │   └── test_get_daos.py
 │   │   │   ├── post
 │   │   │   │   ├── test_add_admin.py
 │   │   │   │   ├── test_add_member.py
-│   │   │   │   └── test_create_community.py
+│   │   │   │   └── test_create_dao.py
 │   │   │   └── put
-│   │   │       └── test_update_community.py
+│   │   │       └── test_update_dao.py
 │   │   ├── data
 │   │   │   ├── test_api_get_items.py
 │   │   │   └── test_api_get_summary.py
@@ -180,8 +220,9 @@ make testsx (without coverage)
 │   ├── email
 │   │   └── test_send_email.py
 │   ├── models
-│   │   ├── communities
-│   │   │   └── test_create_community_model.py
+│   │   ├── daos
+│   │   │   ├── test_create_community_model.py
+│   │   │   └── test_create_dao_model.py
 │   │   ├── pods
 │   │   │   ├── test_create_pod_model.py
 │   │   │   └── test_update_pod_model.py
