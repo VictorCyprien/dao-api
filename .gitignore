@@ -171,3 +171,8 @@ cov.xml
 report.xml
 .cursor/
 .specstory/
+dao_data.sql
+dao_schema.sql
+dao.sqlite
+cov.xml
+pg_to_sqlite.py
