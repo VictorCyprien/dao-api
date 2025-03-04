@@ -17,7 +17,7 @@ build_schemas:
 
 build_sdk:
 	make build_schemas
-	openapi-generator generate -i specs/dao-api-spec.yaml -g typescript-angular -o ../dao-mini-app/src/core/modules/dao-api
+	openapi-generator generate -i specs/dao-api-spec.yaml -g typescript -o ../dao-webapp/src/core/modules/dao-api
 
 clean:
 	@echo
