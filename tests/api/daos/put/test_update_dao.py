@@ -1,12 +1,12 @@
 from flask.app import Flask
-from api.models.community import Community
+from api.models.dao import DAO
 from api.models.user import User
 
-def test_update_community(client: Flask, victor: User, victor_logged_in: str, community: Community):
+def test_update_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
     res = client.put(
-        f"/communities/{community.community_id}",
+        f"/daos/{dao.dao_id}",
         json={
-            "name": "Updated Community",
+            "name": "Updated DAO",
             "description": "Updated description"
         },
         headers={"Authorization": f"Bearer {victor_logged_in}"}
@@ -14,10 +14,10 @@ def test_update_community(client: Flask, victor: User, victor_logged_in: str, co
     assert res.status_code == 200
     data = res.json
     assert data == {
-        'community_id': community.community_id,
-        'name': community.name,
-        'description': community.description,
-        'owner_id': community.owner_id,
+        'dao_id': dao.dao_id,
+        'name': dao.name,
+        'description': dao.description,
+        'owner_id': dao.owner_id,
         'is_active': True,
         'admins': [
             {
@@ -33,9 +33,9 @@ def test_update_community(client: Flask, victor: User, victor_logged_in: str, co
         ]
     }
 
-def test_unauthorized_community_update(client: Flask, victor: User, sayori: User, sayori_logged_in: str, community: Community):
+def test_unauthorized_dao_update(client: Flask, victor: User, sayori: User, sayori_logged_in: str, dao: DAO):
     res = client.put(
-        f"/communities/{community.community_id}",
+        f"/daos/{dao.dao_id}",
         json={
             "name": "Unauthorized Update",
             "description": "Should fail"
@@ -44,11 +44,11 @@ def test_unauthorized_community_update(client: Flask, victor: User, sayori: User
     )
     assert res.status_code == 401
 
-def test_update_community_not_found(client: Flask, victor: User, victor_logged_in: str, community: Community):
+def test_update_dao_not_found(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
     res = client.put(
-        f"/communities/999999",
+        f"/daos/999999",
         json={
-            "name": "Updated Community",
+            "name": "Updated DAO",
             "description": "Updated description"
         },
         headers={"Authorization": f"Bearer {victor_logged_in}"}

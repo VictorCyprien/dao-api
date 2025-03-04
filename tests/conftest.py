@@ -14,7 +14,7 @@ from pytest_postgresql.janitor import DatabaseJanitor
 
 from api import Base
 from api.models.user import User
-from api.models.community import Community
+from api.models.dao import DAO
 from api.models.pod import POD
 
 from environs import Env
@@ -31,6 +31,7 @@ def app(request) -> Iterator[Flask]:
     config.SECURITY_PASSWORD_SALT = "123456"
     config.JWT_ACCESS_TOKEN_EXPIRES = 60
     config.JWT_SECRET_KEY = "test_secret_key"
+    config.AUTH_DISABLED = False
 
     from api.app import create_flask_app
     _app = create_flask_app(config=config)
@@ -158,36 +159,36 @@ def natsuki_logged_in(client, natsuki):
         "password": "my_password"
     }
     response = client.post("/auth/login", json=login_data)
-    token = response.json["token"]
+    token = response.json['token']
     yield token
 
 
 @pytest.fixture
-def community(app, victor, db: SQLAlchemy):
-    community_data = {
-        "name": "Test Community",
-        "description": "A test community",
+def dao(app, victor, db: SQLAlchemy):
+    dao_data = {
+        "name": "Test DAO",
+        "description": "A test DAO",
         "owner_id": victor.user_id
     }
     with app.app_context():
         current_victor = db.session.merge(victor)
         with freezegun.freeze_time(creation_date):
-            community = Community.create(community_data)
-            community.admins.append(current_victor)
-            community.members.append(current_victor)
-            db.session.add(community)
+            dao = DAO.create(dao_data)
+            dao.admins.append(current_victor)
+            dao.members.append(current_victor)
+            db.session.add(dao)
             db.session.commit()
-        yield community
-        db.session.delete(community)
+        yield dao
+        db.session.delete(dao)
         db.session.commit()
 
 
 @pytest.fixture
-def pod(app, community, db: SQLAlchemy):
+def pod(app, dao, db: SQLAlchemy):
     pod_data = {
         "name": "Backend Learning Group",
         "description": "Learn backend development with Python and Flask",
-        "community_id": community.community_id
+        "dao_id": dao.dao_id
     }
     with app.app_context():
         with freezegun.freeze_time(creation_date):
@@ -197,3 +198,4 @@ def pod(app, community, db: SQLAlchemy):
         yield pod
         db.session.delete(pod)
         db.session.commit()
+

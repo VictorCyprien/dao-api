@@ -1,16 +1,16 @@
 from flask.app import Flask
-from api.models.community import Community
+from api.models.dao import DAO
 from api.models.user import User
 from api.models.pod import POD
 
-def test_update_pod(client: Flask, victor: User, victor_logged_in: str, community: Community, pod: POD):
+def test_update_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO, pod: POD):
     """Test updating a POD"""
     update_data = {
         "name": "Updated POD",
         "description": "Updated description"
     }
     res = client.put(
-        f"/communities/{community.community_id}/pods/{pod.pod_id}",
+        f"/daos/{dao.dao_id}/pods/{pod.pod_id}",
         json=update_data,
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )

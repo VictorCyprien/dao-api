@@ -1,19 +1,19 @@
 from flask.app import Flask
-from api.models.community import Community
+from api.models.dao import DAO
 from api.models.user import User
 
-def test_get_community(client: Flask, victor: User, victor_logged_in: str, community: Community):
+def test_get_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
     res = client.get(
-        f"/communities/{community.community_id}",
+        f"/daos/{dao.dao_id}",
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
     assert res.status_code == 200
     data = res.json
     assert data == {
-        'community_id': community.community_id,
-        'name': community.name,
-        'description': community.description,
-        'owner_id': community.owner_id,
+        'dao_id': dao.dao_id,
+        'name': dao.name,
+        'description': dao.description,
+        'owner_id': dao.owner_id,
         'is_active': True,
         'admins': [
             {
@@ -29,9 +29,9 @@ def test_get_community(client: Flask, victor: User, victor_logged_in: str, commu
         ]
     }
 
-def test_get_community_not_found(client: Flask, victor: User, victor_logged_in: str):
+def test_get_dao_not_found(client: Flask, victor: User, victor_logged_in: str):
     res = client.get(
-        f"/communities/999999",
+        f"/daos/999999",
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
     assert res.status_code == 404
