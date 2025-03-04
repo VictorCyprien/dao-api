@@ -228,7 +228,7 @@
         }
       ]
     },
-    "/communities/": {
+    "/daos/": {
       "get": {
         "responses": {
           "200": {
@@ -238,7 +238,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Community"
+                    "$ref": "#/components/schemas/DAO"
                   }
                 }
               }
@@ -248,9 +248,9 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "List all communities",
+        "summary": "List all DAOs",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "post": {
@@ -263,7 +263,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -287,18 +287,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Community"
+                "$ref": "#/components/schemas/DAO"
               }
             }
           }
         },
-        "summary": "Create a new community",
+        "summary": "Create a new DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       }
     },
-    "/communities/{community_id}": {
+    "/daos/{dao_id}": {
       "get": {
         "responses": {
           "200": {
@@ -306,7 +306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -325,9 +325,9 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get a specific community",
+        "summary": "Get a DAO by ID",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "put": {
@@ -340,7 +340,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -384,14 +384,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommunityUpdate"
+                "$ref": "#/components/schemas/DAOUpdate"
               }
             }
           }
         },
-        "summary": "Update a community",
+        "summary": "Update a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "delete": {
@@ -433,15 +433,15 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Delete a community",
+        "summary": "Delete a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -450,7 +450,7 @@
         }
       ]
     },
-    "/communities/{community_id}/members": {
+    "/daos/{dao_id}/members": {
       "post": {
         "responses": {
           "422": {
@@ -461,7 +461,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -505,14 +505,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommunityMembership"
+                "$ref": "#/components/schemas/DAOMembership"
               }
             }
           }
         },
-        "summary": "Add a member to the community",
+        "summary": "Add a member to a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "delete": {
@@ -525,7 +525,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -569,20 +569,20 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommunityMembership"
+                "$ref": "#/components/schemas/DAOMembership"
               }
             }
           }
         },
-        "summary": "Remove a member from the community",
+        "summary": "Remove a member from a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -591,7 +591,7 @@
         }
       ]
     },
-    "/communities/{community_id}/admins": {
+    "/daos/{dao_id}/admins": {
       "post": {
         "responses": {
           "422": {
@@ -602,7 +602,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -646,14 +646,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommunityMembership"
+                "$ref": "#/components/schemas/DAOMembership"
               }
             }
           }
         },
-        "summary": "Add an admin to the community",
+        "summary": "Add an admin to a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "delete": {
@@ -666,7 +666,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Community"
+                  "$ref": "#/components/schemas/DAO"
                 }
               }
             }
@@ -710,20 +710,20 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommunityMembership"
+                "$ref": "#/components/schemas/DAOMembership"
               }
             }
           }
         },
-        "summary": "Remove an admin from the community",
+        "summary": "Remove an admin from a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -732,7 +732,7 @@
         }
       ]
     },
-    "/communities/{community_id}/pods": {
+    "/daos/{dao_id}/pods": {
       "get": {
         "responses": {
           "200": {
@@ -762,9 +762,9 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "List all PODs in a community",
+        "summary": "Get all PODs for a DAO",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "post": {
@@ -826,15 +826,15 @@
             }
           }
         },
-        "summary": "Create a new POD in a community",
+        "summary": "Create a new POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -843,7 +843,7 @@
         }
       ]
     },
-    "/communities/{community_id}/pods/{pod_id}": {
+    "/daos/{dao_id}/pods/{pod_id}": {
       "get": {
         "responses": {
           "200": {
@@ -870,9 +870,9 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get a POD",
+        "summary": "Get a POD by ID",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "put": {
@@ -936,7 +936,7 @@
         },
         "summary": "Update a POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "delete": {
@@ -987,13 +987,13 @@
         },
         "summary": "Delete a POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -1011,7 +1011,7 @@
         }
       ]
     },
-    "/communities/{community_id}/pods/{pod_id}/members": {
+    "/daos/{dao_id}/pods/{pod_id}/members": {
       "get": {
         "responses": {
           "200": {
@@ -1041,9 +1041,9 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get all participants of a POD",
+        "summary": "Get all members of a POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "post": {
@@ -1105,9 +1105,9 @@
             }
           }
         },
-        "summary": "Join a POD as a participant",
+        "summary": "Add a member to a POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "delete": {
@@ -1169,15 +1169,15 @@
             }
           }
         },
-        "summary": "Leave a POD",
+        "summary": "Remove a member from a POD",
         "tags": [
-          "communities"
+          "daos"
         ]
       },
       "parameters": [
         {
           "in": "path",
-          "name": "community_id",
+          "name": "dao_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -1336,8 +1336,8 @@
       "description": "Manage Users"
     },
     {
-      "name": "communities",
-      "description": "Operations on communities"
+      "name": "daos",
+      "description": "Operations on DAOs"
     },
     {
       "name": "data",
@@ -1552,10 +1552,10 @@
           }
         }
       },
-      "Community": {
+      "DAO": {
         "type": "object",
         "properties": {
-          "community_id": {
+          "dao_id": {
             "type": "integer",
             "readOnly": true
           },
@@ -1592,7 +1592,7 @@
           "owner_id"
         ]
       },
-      "CommunityUpdate": {
+      "DAOUpdate": {
         "type": "object",
         "properties": {
           "name": {
@@ -1608,7 +1608,7 @@
           }
         }
       },
-      "CommunityMembership": {
+      "DAOMembership": {
         "type": "object",
         "properties": {
           "user_id": {
@@ -1626,7 +1626,7 @@
             "type": "integer",
             "readOnly": true
           },
-          "community_id": {
+          "dao_id": {
             "type": "integer"
           },
           "name": {
@@ -1646,7 +1646,7 @@
           }
         },
         "required": [
-          "community_id",
+          "dao_id",
           "description",
           "name"
         ]
