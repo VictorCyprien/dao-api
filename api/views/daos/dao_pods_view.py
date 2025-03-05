@@ -8,7 +8,7 @@ from api.utils import conditional_jwt_required
 from api.models.pod import POD
 from api.models.dao import DAO
 from api.models.user import User
-from api.schemas.pod_schemas import PODMembershipSchema, PODSchema, PODUpdateSchema
+from api.schemas.pod_schemas import PODMembershipSchema, PODSchema, PODUpdateSchema, PODUserWhoMadeRequestSchema
 from api.schemas.communs_schemas import PagingError
 from api.schemas.users_schemas import UserSchema
 from api.views.daos.daos_blp import blp as daos_blp
@@ -19,6 +19,7 @@ from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 @daos_blp.route("<int:dao_id>/pods")
 class RootPODView(MethodView):
     @conditional_jwt_required()
+    @daos_blp.arguments(PODUserWhoMadeRequestSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema(many=True))
     def get(self, pod_data: dict, dao_id: int):

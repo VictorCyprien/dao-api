@@ -17,4 +17,6 @@ class PODUpdateSchema(Schema):
 
 class PODMembershipSchema(Schema):
     user_id = fields.Int(required=True)
+
+class PODUserWhoMadeRequestSchema(Schema):
     user_who_made_request = fields.Int(required=True)
