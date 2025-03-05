@@ -1,13 +1,12 @@
 from api import Base
 
 from sqlalchemy import BigInteger, String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 from sqlalchemy.exc import IntegrityError
 import bcrypt
 
 from helpers.logging_file import Logger
 from helpers.smtp_file import send_email
-
 
 logger = Logger()
 
@@ -43,6 +42,22 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     """ Is the email verified
     """
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    """ Whether the user is active """
+
+    # Add these relationship definitions
+    administered_daos = relationship('DAO', secondary='dao_admins', back_populates='admins')
+    """ DAOs that the user is an admin of """
+
+    member_daos = relationship('DAO', secondary='dao_members', back_populates='members')
+    """ DAOs that the user is a member of """
+
+    administered_pods = relationship('POD', secondary='pod_admins', back_populates='admins')
+    """ PODs that the user is an admin of """
+
+    member_pods = relationship('POD', secondary='pod_members', back_populates='members')
+    """ PODs that the user is a member of """
 
 
     @classmethod

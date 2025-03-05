@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, g
 from flask_smorest import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-
+from flask_cors import CORS
 import redis
 from redis import StrictRedis
 from rq import Queue
@@ -17,7 +17,7 @@ from helpers.logging_file import Logger
 
 def setup_db(app: Flask, config: Config):
     db = SQLAlchemy(model_class=Base)
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{config.POSTGRESQL_USERNAME}:{config.POSTGRESQL_PASSWORD}@{config.POSTGRESQL_URI}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{config.POSTGRESQL_USERNAME}:{config.POSTGRESQL_PASSWORD}@{config.POSTGRESQL_URI}/{config.POSTGRESQL_DB}"
     app.db = db
     db.init_app(app)
 
@@ -64,14 +64,28 @@ def setup_jwt(app: Flask, redis_client: StrictRedis):
     return jwt_redis_blocklist
 
 
+def setup_cors(app: Flask, config: Config, allowed_origins: list):
+    # Setup CORS with specific configuration
+    cors = CORS(
+        app,
+        resources={r"/*": {"origins": allowed_origins}},
+        supports_credentials=True,
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
+    return cors
+
+
 def create_flask_app(config: Config) -> Flask:
     # Create the Flask App
     app = Flask(__name__)
     app.logger = Logger()
 
+    # Initialize CORS
+    allowed_origins = config.CORS_ALLOWED_ORIGINS if hasattr(config, 'CORS_ALLOWED_ORIGINS') else "*"
+    setup_cors(app, config, allowed_origins)
+
     """ Log each API/APP request
     """
-
     @app.before_request
     def before_request():
         """ Log every requests """
@@ -84,6 +98,13 @@ def create_flask_app(config: Config) -> Flask:
     def after_request(response):
         """ Log response status, after every request. """
         app.logger.info(f'--> Response status: {response.status}')
+        cors_origin = request.headers.get('Origin')
+        if allowed_origins == "*" or cors_origin in allowed_origins.split(','):
+            response.headers.add('Access-Control-Allow-Origin', cors_origin)
+
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
         #app.logger.debug(f'      Body: {response.json}')
         return response
 
@@ -129,6 +150,9 @@ def create_flask_app(config: Config) -> Flask:
 
     from .views.users import users_blp
     rest_api.register_blueprint(users_blp)
+
+    from .views.daos import daos_blp
+    rest_api.register_blueprint(daos_blp)
 
     from .views.data import data_blp
     rest_api.register_blueprint(data_blp)

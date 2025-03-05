@@ -14,6 +14,7 @@ def test_logout_no_token(client):
     """Test logout without token returns error"""
     response = client.post("/auth/logout")
 
+    print(response.json)
     assert response.status_code == 401
     assert "Not Authenticated" in response.json["message"]
 

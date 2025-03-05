@@ -169,4 +169,10 @@ accounts_data.json
 
 cov.xml
 report.xml
-.cursor/rules/backend.mdc
+.cursor/
+.specstory/
+dao_data.sql
+dao_schema.sql
+dao.sqlite
+cov.xml
+pg_to_sqlite.py

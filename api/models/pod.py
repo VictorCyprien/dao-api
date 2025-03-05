@@ -1,0 +1,137 @@
+from sqlalchemy import BigInteger, String, DateTime, ForeignKey, Boolean, Table, Column
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
+from typing import List
+
+import random
+import sys
+
+from datetime import datetime, timezone
+
+from api import Base
+
+# Association table for POD admins
+pod_admins = Table(
+    'pod_admins',
+    Base.metadata,
+    Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    extend_existing=True
+)
+
+# Association table for POD members
+pod_members = Table(
+    'pod_members',
+    Base.metadata,
+    Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    extend_existing=True
+)
+
+class POD(Base):
+    __tablename__ = "pod"
+    __table_args__ = {'extend_existing': True}
+
+    pod_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    """ ID of the POD """
+
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    """ Name of the POD """
+
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    """ Description of the POD """
+
+    dao_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
+    """ ID of the DAO this POD belongs to """
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    """ Whether the POD is active """
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    """ Timestamp of when the POD was created """
+
+    # Relationships
+    admins = relationship('User', secondary=pod_admins, back_populates='administered_pods')
+    """ Administrators of the POD """
+    
+    members = relationship('User', secondary=pod_members, back_populates='member_pods')
+    """ Members of the POD """
+    
+    dao = relationship('DAO', back_populates='pods')
+    """ DAO that the POD belongs to """
+
+    @classmethod
+    def create(cls, input_data: dict) -> "POD":
+        """ Create a new POD instance """
+        pod = POD(
+            pod_id=cls.generate_pod_id(),
+            name=input_data["name"],
+            description=input_data["description"],
+            dao_id=input_data["dao_id"],
+            is_active=True
+        )
+        return pod
+
+    def update(self, input_data: dict):
+        """ Update the current instance of a POD """
+        name = input_data.get("name", None)
+        description = input_data.get("description", None)
+        is_active = input_data.get("is_active", None)
+
+        if name is not None:
+            self.name = name
+        if description is not None:
+            self.description = description
+        if is_active is not None:
+            self.is_active = is_active
+
+    def add_admin(self, user) -> bool:
+        """ Add a user as admin if they're not already """
+        if user not in self.admins:
+            self.admins.append(user)
+            if user not in self.members:
+                self.members.append(user)
+            return True
+        return False
+
+    def remove_admin(self, user) -> bool:
+        """ Remove a user from admins """
+        if user in self.admins:
+            self.admins.remove(user)
+            return True
+        return False
+
+    def add_member(self, user) -> bool:
+        """ Add a user as member if they're not already """
+        if user not in self.members:
+            self.members.append(user)
+            return True
+        return False
+
+    def remove_member(self, user) -> bool:
+        """ Remove a user from members """
+        if user in self.members:
+            if user in self.admins:
+                self.admins.remove(user)
+            self.members.remove(user)
+            return True
+        return False
+
+    @classmethod
+    def get_by_id(cls, id: int, session: Session) -> "POD":
+        """ POD getter with an ID """
+        return session.query(POD).filter(POD.pod_id == id).first()
+    
+    @classmethod
+    def get_all(cls, session: Session) -> List["POD"]:
+        """ Get all PODs """
+        return session.query(cls).all()
+    
+    @classmethod
+    def get_dao_pods(cls, dao_id: int, session: Session):
+        """Get all PODs for a DAO using session"""
+        return session.query(cls).filter_by(dao_id=dao_id).all()
+    
+    @classmethod
+    def generate_pod_id(cls) -> int:
+        """ Generate a random pod_id """
+        return random.randint(1, sys.maxsize)

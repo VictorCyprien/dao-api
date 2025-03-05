@@ -14,7 +14,8 @@ from pytest_postgresql.janitor import DatabaseJanitor
 
 from api import Base
 from api.models.user import User
-
+from api.models.dao import DAO
+from api.models.pod import POD
 
 from environs import Env
 
@@ -30,6 +31,7 @@ def app(request) -> Iterator[Flask]:
     config.SECURITY_PASSWORD_SALT = "123456"
     config.JWT_ACCESS_TOKEN_EXPIRES = 60
     config.JWT_SECRET_KEY = "test_secret_key"
+    config.AUTH_DISABLED = False
 
     from api.app import create_flask_app
     _app = create_flask_app(config=config)
@@ -99,6 +101,25 @@ def sayori(app: Flask, db: SQLAlchemy) -> Iterator[User]:
         db.session.commit()
 
 
+@pytest.fixture(scope='function')
+def natsuki(app: Flask, db: SQLAlchemy) -> Iterator[User]:
+    user_dict = {
+        "username": "Natsuki",
+        "email": "natsuki@example.com",
+        "password": "my_password",
+        "discord_username": "natsuki#1234",
+        "wallet_address": "0x1234567892",
+    }
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            user = User.create(user_dict)
+            db.session.add(user)
+            db.session.commit()
+        yield user
+        db.session.delete(user)
+        db.session.commit()
+
+
 #### MOCKS ####
 @pytest.fixture
 def mock_redis_queue():
@@ -129,3 +150,52 @@ def sayori_logged_in(client, sayori):
     response = client.post("/auth/login", json=login_data)
     token = response.json["token"]
     yield token
+
+
+@pytest.fixture
+def natsuki_logged_in(client, natsuki):
+    login_data = {
+        "email": natsuki.email,
+        "password": "my_password"
+    }
+    response = client.post("/auth/login", json=login_data)
+    token = response.json['token']
+    yield token
+
+
+@pytest.fixture
+def dao(app, victor, db: SQLAlchemy):
+    dao_data = {
+        "name": "Test DAO",
+        "description": "A test DAO",
+        "owner_id": victor.user_id
+    }
+    with app.app_context():
+        current_victor = db.session.merge(victor)
+        with freezegun.freeze_time(creation_date):
+            dao = DAO.create(dao_data)
+            dao.admins.append(current_victor)
+            dao.members.append(current_victor)
+            db.session.add(dao)
+            db.session.commit()
+        yield dao
+        db.session.delete(dao)
+        db.session.commit()
+
+
+@pytest.fixture
+def pod(app, dao, db: SQLAlchemy):
+    pod_data = {
+        "name": "Backend Learning Group",
+        "description": "Learn backend development with Python and Flask",
+        "dao_id": dao.dao_id
+    }
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            pod = POD.create(input_data=pod_data)
+            db.session.add(pod)
+            db.session.commit()
+        yield pod
+        db.session.delete(pod)
+        db.session.commit()
+

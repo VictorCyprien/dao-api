@@ -17,7 +17,7 @@ build_schemas:
 
 build_sdk:
 	make build_schemas
-	openapi-generator generate -i specs/dao-api-spec.yaml -g typescript-angular -o ../dao-mini-app/src/core/modules/dao-api
+	openapi-generator generate -i specs/dao-api-spec.yaml -g typescript -o ../dao-webapp/src/core/modules/dao-api
 
 clean:
 	@echo
@@ -43,11 +43,11 @@ install:
 
 tests:
 	pytest --cov=api --cov-config=.coveragerc --cov-report=html:htmlcov --cov-report xml:cov.xml --cov-report=term \
-		-vv --doctest-modules --ignore-glob=./main.py --log-level=DEBUG --junitxml=report.xml ./ ./tests
+		-vv -W ignore::DeprecationWarning --doctest-modules --ignore-glob=./main.py --log-level=DEBUG --junitxml=report.xml ./ ./tests
 
 
 testsx:
-	pytest -x -vv --doctest-modules --ignore-glob=./api/main.py --log-level=DEBUG ./api ./tests
+	pytest -x -vv -W ignore::DeprecationWarning --doctest-modules --ignore-glob=./api/main.py --log-level=DEBUG ./api ./tests
 
 clean:
 	rm -R venv
