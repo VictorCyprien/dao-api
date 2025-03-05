@@ -121,6 +121,11 @@ class DAO(Base):
         return session.query(DAO).filter(DAO.dao_id == id).first()
     
     @classmethod
+    def get_by_name(cls, name: str, session: Session) -> "DAO":
+        """ DAO getter with a name """
+        return session.query(DAO).filter(DAO.name == name).first()
+    
+    @classmethod
     def get_all(cls, session: Session) -> List["DAO"]:
         """ Get all DAOs """
         return session.query(DAO).all()
