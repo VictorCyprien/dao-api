@@ -5,10 +5,15 @@ from api.models.pod import POD
 
 def test_delete_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO, pod: POD):
     """Test deleting a POD"""
+    membership_data = {
+        "user_id": victor.user_id
+    }
     res = client.delete(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}",
-        headers={"Authorization": f"Bearer {victor_logged_in}"}
+        headers={"Authorization": f"Bearer {victor_logged_in}"},
+        json=membership_data
     )
+    print(res.json)
     assert res.status_code == 200
     
     # Verify POD is deleted

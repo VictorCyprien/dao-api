@@ -3,11 +3,12 @@ from api.models.dao import DAO
 from api.models.user import User
 from api.models.pod import POD
 
-def test_update_pod_unauthorized(client: Flask, dao: DAO, pod: POD):
+def test_update_pod_unauthorized(client: Flask, victor: User, dao: DAO, pod: POD):
     """Test updating a POD without authentication"""
     update_data = {
         "name": "Updated POD",
-        "description": "Updated description"
+        "description": "Updated description",
+        "user_who_made_request": victor.user_id
     }
     res = client.put(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}",
@@ -19,7 +20,8 @@ def test_update_nonexistent_pod(client: Flask, victor: User, victor_logged_in: s
     """Test updating a POD that doesn't exist"""
     update_data = {
         "name": "Updated POD",
-        "description": "Updated description"
+        "description": "Updated description",
+        "user_who_made_request": victor.user_id
     }
     res = client.put(
         f"/daos/{dao.dao_id}/pods/999999",
@@ -32,7 +34,8 @@ def test_update_pod_invalid_data(client: Flask, victor: User, victor_logged_in: 
     """Test updating a POD with invalid data"""
     update_data = {
         "name": "",  # Empty name should be invalid
-        "description": "Updated description"
+        "description": "Updated description",
+        "user_who_made_request": victor.user_id
     }
     res = client.put(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}",
@@ -46,7 +49,8 @@ def test_update_pod_not_admin(client: Flask, sayori: User, sayori_logged_in: str
     """Test updating a POD without being an admin"""
     update_data = {
         "name": "Updated POD",
-        "description": "Updated description"
+        "description": "Updated description", 
+        "user_who_made_request": sayori.user_id
     }
     res = client.put(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}",
@@ -60,7 +64,8 @@ def test_update_pod_wrong_community(client: Flask, victor: User, victor_logged_i
     """Test updating a POD with wrong dao ID"""
     update_data = {
         "name": "Updated POD",
-        "description": "Updated description"
+        "description": "Updated description",
+        "user_who_made_request": victor.user_id
     }
     res = client.put(
         f"/daos/999999/pods/{pod.pod_id}",

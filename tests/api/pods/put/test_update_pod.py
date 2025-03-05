@@ -7,7 +7,8 @@ def test_update_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO
     """Test updating a POD"""
     update_data = {
         "name": "Updated POD",
-        "description": "Updated description"
+        "description": "Updated description",
+        "user_who_made_request": victor.user_id
     }
     res = client.put(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}",

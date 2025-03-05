@@ -7,7 +7,8 @@ def test_update_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO
         f"/daos/{dao.dao_id}",
         json={
             "name": "Updated DAO",
-            "description": "Updated description"
+            "description": "Updated description",
+            "user_who_made_request": victor.user_id
         },
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
@@ -38,7 +39,8 @@ def test_unauthorized_dao_update(client: Flask, victor: User, sayori: User, sayo
         f"/daos/{dao.dao_id}",
         json={
             "name": "Unauthorized Update",
-            "description": "Should fail"
+            "description": "Should fail",
+            "user_who_made_request": victor.user_id
         },
         headers={"Authorization": f"Bearer {sayori_logged_in}"}
     )
@@ -49,7 +51,8 @@ def test_update_dao_not_found(client: Flask, victor: User, victor_logged_in: str
         f"/daos/999999",
         json={
             "name": "Updated DAO",
-            "description": "Updated description"
+            "description": "Updated description",
+            "user_who_made_request": victor.user_id
         },
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )

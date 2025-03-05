@@ -9,8 +9,10 @@ from api.models.user import User
 def test_delete_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO, db: SQLAlchemy):
     res = client.delete(
         f"/daos/{dao.dao_id}",
-        headers={"Authorization": f"Bearer {victor_logged_in}"}
+        headers={"Authorization": f"Bearer {victor_logged_in}"},
+        json={"user_id": victor.user_id}
     )
+    print(res.json)
     assert res.status_code == 200
     
     # Make the DAO transient to avoid SQLAlchemy error for other tests
@@ -21,13 +23,15 @@ def test_delete_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO
 def test_delete_dao_not_found(client: Flask, victor: User, victor_logged_in: str):
     res = client.delete(
         f"/daos/1234567890",
-        headers={"Authorization": f"Bearer {victor_logged_in}"}
+        headers={"Authorization": f"Bearer {victor_logged_in}"},
+        json={"user_id": victor.user_id}
     )
     assert res.status_code == 404
 
 def test_unauthorized_dao_delete(client: Flask, victor: User, sayori: User, sayori_logged_in: str, dao: DAO):
     res = client.delete(
         f"/daos/{dao.dao_id}",
-        headers={"Authorization": f"Bearer {sayori_logged_in}"}
+        headers={"Authorization": f"Bearer {sayori_logged_in}"},
+        json={"user_id": victor.user_id}
     )
     assert res.status_code == 401

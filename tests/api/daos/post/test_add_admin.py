@@ -8,6 +8,7 @@ def test_add_admin(client: Flask, victor: User, sayori: User, victor_logged_in: 
         json={"user_id": sayori.user_id},
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
+    print(res.json)
     assert res.status_code == 200
     assert sayori in dao.members
     assert sayori in dao.admins

@@ -8,7 +8,8 @@ def test_create_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO
     pod_data = {
         "name": "Test POD",
         "description": "Test POD description",
-        "dao_id": dao.dao_id
+        "dao_id": dao.dao_id,
+        "user_who_made_request": victor.user_id
     }
     res = client.post(
         f"/daos/{dao.dao_id}/pods",

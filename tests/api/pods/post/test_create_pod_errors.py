@@ -54,7 +54,8 @@ def test_create_pod_wrong_community(client: Flask, victor: User, victor_logged_i
     pod_data = {
         "name": "Test POD",
         "description": "Test POD description",
-        "dao_id": dao.dao_id
+        "dao_id": dao.dao_id,
+        "user_who_made_request": victor.user_id
     }
     res = client.post(
         f"/daos/999999/pods",
@@ -71,7 +72,8 @@ def test_create_pod_not_admin(client: Flask, sayori: User, sayori_logged_in: str
     pod_data = {
         "name": "Test POD",
         "description": "Test POD description",
-        "dao_id": dao.dao_id
+        "dao_id": dao.dao_id,
+        "user_who_made_request": sayori.user_id
     }
     res = client.post(
         f"/daos/{dao.dao_id}/pods",
