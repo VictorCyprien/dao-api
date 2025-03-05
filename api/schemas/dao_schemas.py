@@ -14,12 +14,14 @@ class DAOSchema(Schema):
     is_active = fields.Bool(dump_default=True)
     admins = fields.Nested(UserBasicSchema, many=True, dump_only=True)
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)
+    user_who_made_request = fields.Int(required=True)
 
 class DAOUpdateSchema(Schema):
     """Schema for updating a DAO"""
     name = fields.Str(validate=validate.Length(min=1))
     description = fields.Str(validate=validate.Length(min=1))
     is_active = fields.Bool()
+    user_who_made_request = fields.Int(required=True)
 
 class DAOMembershipSchema(Schema):
     """Schema for DAO membership operations"""

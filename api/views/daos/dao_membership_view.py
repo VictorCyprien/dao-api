@@ -25,7 +25,12 @@ class DAOMembershipView(MethodView):
     def post(self, membership_data, dao_id):
         """Add a member to a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(membership_data["user_id"], db.session)
 
@@ -54,7 +59,12 @@ class DAOMembershipView(MethodView):
     def delete(self, membership_data, dao_id):
         """Remove a member from a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(membership_data["user_id"], db.session)
 
@@ -85,7 +95,12 @@ class DAOAdminView(MethodView):
     def post(self, admin_data, dao_id):
         """Add an admin to a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(admin_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(admin_data["user_id"], db.session)
 
@@ -114,7 +129,12 @@ class DAOAdminView(MethodView):
     def delete(self, admin_data, dao_id):
         """Remove an admin from a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(admin_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(admin_data["user_id"], db.session)
 

@@ -30,8 +30,14 @@ class RootDAOsView(MethodView):
     def post(self, dao_data: Dict):
         """Create a new DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
-            
+
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(dao_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
+
         try:
             dao = DAO.create(dao_data)
             dao.admins.append(auth_user)

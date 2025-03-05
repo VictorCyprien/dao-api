@@ -51,9 +51,14 @@ class OneDAOView(MethodView):
     def put(self, update_data, dao_id):
         """Update a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        dao = DAO.get_by_id(dao_id, db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(update_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
+        dao = DAO.get_by_id(dao_id, db.session)
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
             
@@ -69,15 +74,22 @@ class OneDAOView(MethodView):
             abort(400, message=str(e))
 
 
+    @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200)
     @conditional_jwt_required()
-    def delete(self, dao_id: int):
+    def delete(self, user_data: dict, dao_id: int):
         """Delete a DAO"""
         db: SQLAlchemy = current_app.db
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if not current_app.config.get('AUTH_DISABLED', False):
+            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        else:
+            auth_user = User.get_by_id(user_data["user_who_made_request"], db.session)
+        if not auth_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
+
         dao = DAO.get_by_id(dao_id, db.session)
         
         if not dao:
