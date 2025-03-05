@@ -298,6 +298,50 @@
         ]
       }
     },
+    "/daos/{dao_name}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DAO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get a DAO by name",
+        "tags": [
+          "daos"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_name",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
     "/daos/{dao_id}": {
       "get": {
         "responses": {
@@ -396,6 +440,9 @@
       },
       "delete": {
         "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
           "200": {
             "description": "OK"
           },
@@ -431,6 +478,16 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DAOMembership"
+              }
+            }
           }
         },
         "summary": "Delete a DAO",
@@ -941,6 +998,9 @@
       },
       "delete": {
         "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -983,6 +1043,16 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PODMembership"
+              }
+            }
           }
         },
         "summary": "Delete a POD",
@@ -1584,12 +1654,16 @@
             "items": {
               "$ref": "#/components/schemas/UserBasic"
             }
+          },
+          "user_who_made_request": {
+            "type": "integer"
           }
         },
         "required": [
           "description",
           "name",
-          "owner_id"
+          "owner_id",
+          "user_who_made_request"
         ]
       },
       "DAOUpdate": {
@@ -1605,8 +1679,14 @@
           },
           "is_active": {
             "type": "boolean"
+          },
+          "user_who_made_request": {
+            "type": "integer"
           }
-        }
+        },
+        "required": [
+          "user_who_made_request"
+        ]
       },
       "DAOMembership": {
         "type": "object",
@@ -1643,12 +1723,16 @@
             "type": "string",
             "format": "date-time",
             "readOnly": true
+          },
+          "user_who_made_request": {
+            "type": "integer"
           }
         },
         "required": [
           "dao_id",
           "description",
-          "name"
+          "name",
+          "user_who_made_request"
         ]
       },
       "PODUpdate": {
@@ -1664,18 +1748,28 @@
           },
           "is_active": {
             "type": "boolean"
+          },
+          "user_who_made_request": {
+            "type": "integer"
           }
-        }
+        },
+        "required": [
+          "user_who_made_request"
+        ]
       },
       "PODMembership": {
         "type": "object",
         "properties": {
           "user_id": {
             "type": "integer"
+          },
+          "user_who_made_request": {
+            "type": "integer"
           }
         },
         "required": [
-          "user_id"
+          "user_id",
+          "user_who_made_request"
         ]
       },
       "Item": {
