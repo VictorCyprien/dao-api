@@ -8,12 +8,13 @@ POST {{URL}}/users
 Content-Type: application/json
 
 {
-    "username": "Chara",
-    "email": "charadreemurr3571@gmail.com",
+    "username": "Chara123",
+    "email": "charadreemurr35711@gmail.com",
     "password": "password",
-    "discord_username": "charadreemurr3571",
-    "wallet_address": "8D1234567890"
+    "discord_username": "charadreemurr35711",
+    "wallet_address": "8D12341567890"
 }
+// USER ID : 6669109429727085459
 
 
 ###
@@ -40,6 +41,32 @@ Authorization: Bearer {{TOKEN}}
 ###
 GET {{URL}}/users/4041456094629714805
 Authorization: Bearer {{TOKEN}}
+
+###
+POST {{URL}}/daos
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "name": "BWEN",
+    "description": "BWEN is a DAO for the BWEN project",
+    "owner_id": 6669109429727085459,
+    "user_who_made_request": 6669109429727085459
+}
+//DAO ID : 5377070422756330697
+
+
+###
+POST {{URL}}/daos/3535629962354651700/pods
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "name": "Developers",
+    "description": "A POD for the developers of the BWEN project",
+    "dao_id": 3535629962354651700,
+    "user_who_made_request": 6669109429727085459
+}
 
 
 ###
