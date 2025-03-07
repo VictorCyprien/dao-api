@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields
 
 class LoginParamsSchema(Schema):
-    email = fields.String(metadata={"description": "Email of the login"}, required=True)
+    wallet_address = fields.String(metadata={"description": "Wallet address of the user"}, required=True)
     password = fields.String(metadata={"description": "Password of the login"}, required=True)
 
     class Meta:
@@ -23,5 +23,32 @@ class LogoutResponseSchema(Schema):
 
     class Meta:
         description = "Logout details"
+        ordered = True
+
+
+# New schemas for signature-based authentication
+class ChallengeRequestSchema(Schema):
+    wallet_address = fields.String(metadata={"description": "Wallet address of the user"}, required=True)
+    
+    class Meta:
+        description = "Request to generate authentication challenge"
+        ordered = True
+
+
+class ChallengeResponseSchema(Schema):
+    message = fields.String(metadata={"description": "Challenge message to sign"})
+    wallet_address = fields.String(metadata={"description": "Wallet address of the user"})
+    
+    class Meta:
+        description = "Challenge message for wallet authentication"
+        ordered = True
+
+
+class VerifySignatureSchema(Schema):
+    wallet_address = fields.String(metadata={"description": "Wallet address of the user"}, required=True)
+    signature = fields.String(metadata={"description": "Signed message from wallet"}, required=True)
+    
+    class Meta:
+        description = "Verification of wallet signature"
         ordered = True
 
