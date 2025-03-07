@@ -64,11 +64,17 @@ def setup_jwt(app: Flask, redis_client: StrictRedis):
     return jwt_redis_blocklist
 
 
-def setup_cors(app: Flask, config: Config, allowed_origins: list):
+def setup_cors(app: Flask, config: Config, allowed_origins: str):
     # Setup CORS with specific configuration
+    if allowed_origins == "*":
+        resources = {r"/*": {"origins": "*"}}
+    else:
+        allowed_list = [origin.strip() for origin in allowed_origins.split(',')]
+        resources = {r"/*": {"origins": allowed_list}}
+        
     cors = CORS(
         app,
-        resources={r"/*": {"origins": allowed_origins}},
+        resources=resources,
         supports_credentials=True,
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
@@ -99,8 +105,12 @@ def create_flask_app(config: Config) -> Flask:
         """ Log response status, after every request. """
         app.logger.info(f'--> Response status: {response.status}')
         cors_origin = request.headers.get('Origin')
-        if allowed_origins == "*" or cors_origin in allowed_origins.split(','):
+        if allowed_origins == "*":
             response.headers.add('Access-Control-Allow-Origin', cors_origin)
+        elif cors_origin:
+            allowed_list = [origin.strip() for origin in allowed_origins.split(',')]
+            if cors_origin in allowed_list:
+                response.headers.add('Access-Control-Allow-Origin', cors_origin)
 
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
