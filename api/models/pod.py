@@ -13,7 +13,7 @@ from api import Base
 pod_admins = Table(
     'pod_admins',
     Base.metadata,
-    Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('pod_id', BigInteger, ForeignKey('pods.pod_id', ondelete='CASCADE'), primary_key=True),
     Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
@@ -22,13 +22,13 @@ pod_admins = Table(
 pod_members = Table(
     'pod_members',
     Base.metadata,
-    Column('pod_id', BigInteger, ForeignKey('pod.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('pod_id', BigInteger, ForeignKey('pods.pod_id', ondelete='CASCADE'), primary_key=True),
     Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
 class POD(Base):
-    __tablename__ = "pod"
+    __tablename__ = "pods"
     __table_args__ = {'extend_existing': True}
 
     pod_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
