@@ -1,52 +1,5 @@
 {
   "paths": {
-    "/auth/login": {
-      "post": {
-        "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
-          "201": {
-            "description": "Log the user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginParams"
-              }
-            }
-          }
-        },
-        "summary": "Login the user",
-        "tags": [
-          "auth"
-        ],
-        "operationId": "Login"
-      }
-    },
     "/auth/logout": {
       "post": {
         "responses": {
@@ -79,6 +32,100 @@
           "auth"
         ],
         "operationId": "Logout"
+      }
+    },
+    "/auth/wallet/challenge": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Challenge message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeRequest"
+              }
+            }
+          }
+        },
+        "summary": "Generate a challenge message for Solana wallet signature authentication",
+        "tags": [
+          "auth"
+        ],
+        "operationId": "GetWalletChallenge"
+      }
+    },
+    "/auth/wallet/verify": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifySignature"
+              }
+            }
+          }
+        },
+        "summary": "Verify a Solana wallet signature and authenticate the user",
+        "tags": [
+          "auth"
+        ],
+        "operationId": "VerifyWalletSignature"
       }
     },
     "/users/": {
@@ -127,6 +174,85 @@
         ],
         "operationId": "CreateUser"
       }
+    },
+    "/users/@me": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Get authenticated user informations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get authenticated user informations",
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetAuthUserInfos"
+      }
+    },
+    "/users/{wallet_address}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Check if user with the wallet address exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserExistResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Check if user with the wallet address exists",
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetUserWithWalletAddress"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "wallet_address",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     },
     "/users/{user_id}": {
       "get": {
@@ -792,6 +918,9 @@
     "/daos/{dao_id}/pods": {
       "get": {
         "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -817,6 +946,16 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PODUserWhoMadeRequest"
+              }
+            }
           }
         },
         "summary": "Get all PODs for a DAO",
@@ -1465,37 +1604,15 @@
           }
         }
       },
-      "LoginParams": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "Email of the login"
-          },
-          "password": {
-            "type": "string",
-            "description": "Password of the login"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ],
-        "description": "Login details"
-      },
-      "LoginResponse": {
+      "LogoutResponse": {
         "type": "object",
         "properties": {
           "msg": {
             "type": "string",
-            "description": "Message of login"
-          },
-          "token": {
-            "type": "string",
-            "description": "Token of the user"
+            "description": "Message of logout"
           }
         },
-        "description": "Token of the user"
+        "description": "Logout details"
       },
       "PagingError": {
         "type": "object",
@@ -1515,15 +1632,64 @@
         },
         "description": "Informations about the error"
       },
-      "LogoutResponse": {
+      "ChallengeRequest": {
+        "type": "object",
+        "properties": {
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          }
+        },
+        "required": [
+          "wallet_address"
+        ],
+        "description": "Request to generate authentication challenge"
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Challenge message to sign"
+          },
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          }
+        },
+        "description": "Challenge message for wallet authentication"
+      },
+      "VerifySignature": {
+        "type": "object",
+        "properties": {
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Signed message from wallet"
+          }
+        },
+        "required": [
+          "signature",
+          "wallet_address"
+        ],
+        "description": "Verification of wallet signature"
+      },
+      "LoginResponse": {
         "type": "object",
         "properties": {
           "msg": {
             "type": "string",
-            "description": "Message of logout"
+            "description": "Message of login"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token of the user"
           }
         },
-        "description": "Logout details"
+        "description": "Token of the user"
       },
       "InputCreateUser": {
         "type": "object",
@@ -1532,24 +1698,37 @@
             "type": "string",
             "description": "Username of the user"
           },
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          },
           "email": {
             "type": "string",
+            "format": "email",
             "description": "Email of the user"
           },
-          "password": {
+          "member_name": {
             "type": "string",
-            "description": "Password of the user"
+            "description": "Display name of the user"
           },
           "discord_username": {
             "type": "string",
             "description": "Discord username of the user"
           },
-          "wallet_address": {
+          "twitter_username": {
             "type": "string",
-            "description": "Wallet address of the user"
+            "description": "Twitter username of the user"
+          },
+          "telegram_username": {
+            "type": "string",
+            "description": "Telegram username of the user"
           }
         },
-        "description": "Input informations need to create user."
+        "required": [
+          "username",
+          "wallet_address"
+        ],
+        "description": "Input information needed to create user."
       },
       "User": {
         "type": "object",
@@ -1562,17 +1741,47 @@
             "type": "string",
             "description": "Username of the user"
           },
+          "wallet_address": {
+            "type": "string",
+            "description": "Wallet address of the user"
+          },
           "email": {
             "type": "string",
             "description": "Email of the user"
+          },
+          "member_name": {
+            "type": "string",
+            "description": "Display name of the user"
           },
           "discord_username": {
             "type": "string",
             "description": "Discord username of the user"
           },
-          "wallet_address": {
+          "twitter_username": {
             "type": "string",
-            "description": "Wallet address of the user"
+            "description": "Twitter username of the user"
+          },
+          "telegram_username": {
+            "type": "string",
+            "description": "Telegram username of the user"
+          },
+          "last_login": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last login timestamp"
+          },
+          "last_interaction": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last interaction timestamp"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "description": "Whether the email is verified"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "Whether the user is active"
           }
         },
         "description": "User informations."
@@ -1589,24 +1798,45 @@
         },
         "description": "Create/Update a user."
       },
+      "UserExistResponse": {
+        "type": "object",
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          }
+        },
+        "description": "Check if user with the wallet address exists."
+      },
       "InputUpdateUser": {
         "type": "object",
         "properties": {
           "username": {
             "type": "string",
-            "description": "New Username of the user"
+            "description": "New username of the user"
           },
           "email": {
             "type": "string",
-            "description": "New Email of the user"
+            "description": "New email of the user"
           },
-          "password": {
+          "member_name": {
             "type": "string",
-            "description": "New Password of the user"
+            "description": "New display name of the user"
           },
           "discord_username": {
             "type": "string",
             "description": "New Discord username of the user"
+          },
+          "twitter_username": {
+            "type": "string",
+            "description": "New Twitter username of the user"
+          },
+          "telegram_username": {
+            "type": "string",
+            "description": "New Telegram username of the user"
+          },
+          "wallet_address": {
+            "type": "string",
+            "description": "New wallet address of the user"
           }
         },
         "description": "New user information"
@@ -1699,6 +1929,17 @@
           "user_id"
         ]
       },
+      "PODUserWhoMadeRequest": {
+        "type": "object",
+        "properties": {
+          "user_who_made_request": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_who_made_request"
+        ]
+      },
       "POD": {
         "type": "object",
         "properties": {
@@ -1762,14 +2003,10 @@
         "properties": {
           "user_id": {
             "type": "integer"
-          },
-          "user_who_made_request": {
-            "type": "integer"
           }
         },
         "required": [
-          "user_id",
-          "user_who_made_request"
+          "user_id"
         ]
       },
       "Item": {
@@ -1847,8 +2084,8 @@
       }
     },
     "responses": {
-      "UNPROCESSABLE_ENTITY": {
-        "description": "Unprocessable Entity",
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
         "content": {
           "application/json": {
             "schema": {
@@ -1857,8 +2094,8 @@
           }
         }
       },
-      "DEFAULT_ERROR": {
-        "description": "Default error response",
+      "UNPROCESSABLE_ENTITY": {
+        "description": "Unprocessable Entity",
         "content": {
           "application/json": {
             "schema": {
