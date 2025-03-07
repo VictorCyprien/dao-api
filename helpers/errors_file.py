@@ -50,6 +50,7 @@ class ErrorHandler():
     USER_CREATE = "Unable to create the user"
     USER_NOT_FOUND = "This user doesn't exist !"
     USER_UPDATE = "Unable to update the user"
+    USER_USERNAME_ALREADY_USED = "This username is already used !"
     USER_EMAIL_ALREADY_USED = "This email is already used !"
     USER_DISCORD_USERNAME_ALREADY_USED = "This discord username is already used !"
     USER_WALLET_ADDRESS_ALREADY_USED = "This wallet address is already used !"
@@ -71,4 +72,6 @@ class ErrorHandler():
     POD_NOT_FOUND = "This POD doesn't exist !"
     USER_ALREADY_IN_POD = "This user is already in this POD !"
     USER_NOT_IN_POD = "This user is not in this POD !"
+    CHALLENGE_EXPIRED = "The Solana authentication challenge has expired, please request a new one"
+    INVALID_SIGNATURE = "The provided Solana wallet signature is invalid"
     
