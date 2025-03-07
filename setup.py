@@ -11,7 +11,11 @@ required = [
     "gunicorn",
     "environs",
     "passlib",
-    "redis"
+    "redis",
+    "solders",       # Solana SDK for Python
+    "anchorpy",      # Python wrapper for Anchor programs on Solana
+    "base58",
+    "pynacl"
 ]
 
 VERSION = "2025.1.0"
