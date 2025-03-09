@@ -255,38 +255,6 @@
       ]
     },
     "/users/{user_id}": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Get one user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Get an existing user",
-        "tags": [
-          "users"
-        ],
-        "operationId": "GetUser"
-      },
       "put": {
         "responses": {
           "422": {
@@ -348,8 +316,8 @@
           "name": "user_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -423,50 +391,6 @@
           "daos"
         ]
       }
-    },
-    "/daos/{dao_name}": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DAO"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Get a DAO by name",
-        "tags": [
-          "daos"
-        ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "dao_name",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      ]
     },
     "/daos/{dao_id}": {
       "get": {
@@ -566,9 +490,6 @@
       },
       "delete": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
             "description": "OK"
           },
@@ -606,16 +527,6 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DAOMembership"
-              }
-            }
-          }
-        },
         "summary": "Delete a DAO",
         "tags": [
           "daos"
@@ -627,8 +538,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -636,9 +547,6 @@
     "/daos/{dao_id}/members": {
       "post": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -681,16 +589,6 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DAOMembership"
-              }
-            }
           }
         },
         "summary": "Add a member to a DAO",
@@ -768,8 +666,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -909,8 +807,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -918,9 +816,6 @@
     "/daos/{dao_id}/pods": {
       "get": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -946,16 +841,6 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PODUserWhoMadeRequest"
-              }
-            }
           }
         },
         "summary": "Get all PODs for a DAO",
@@ -1033,8 +918,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -1137,9 +1022,6 @@
       },
       "delete": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -1184,16 +1066,6 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PODMembership"
-              }
-            }
-          }
-        },
         "summary": "Delete a POD",
         "tags": [
           "daos"
@@ -1205,8 +1077,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         },
         {
@@ -1214,8 +1086,8 @@
           "name": "pod_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -1257,9 +1129,6 @@
       },
       "post": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -1302,16 +1171,6 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PODMembership"
-              }
-            }
           }
         },
         "summary": "Add a member to a POD",
@@ -1389,8 +1248,8 @@
           "name": "dao_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         },
         {
@@ -1398,8 +1257,8 @@
           "name": "pod_id",
           "required": true,
           "schema": {
-            "type": "integer",
-            "minimum": 0
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
@@ -1734,7 +1593,7 @@
         "type": "object",
         "properties": {
           "user_id": {
-            "type": "integer",
+            "type": "string",
             "description": "Unique user identifier"
           },
           "username": {
@@ -1833,10 +1692,6 @@
           "telegram_username": {
             "type": "string",
             "description": "New Telegram username of the user"
-          },
-          "wallet_address": {
-            "type": "string",
-            "description": "New wallet address of the user"
           }
         },
         "description": "New user information"
@@ -1845,7 +1700,7 @@
         "type": "object",
         "properties": {
           "user_id": {
-            "type": "integer"
+            "type": "string"
           },
           "username": {
             "type": "string"
@@ -1856,7 +1711,7 @@
         "type": "object",
         "properties": {
           "dao_id": {
-            "type": "integer",
+            "type": "string",
             "readOnly": true
           },
           "name": {
@@ -1866,7 +1721,7 @@
             "type": "string"
           },
           "owner_id": {
-            "type": "integer"
+            "type": "string"
           },
           "is_active": {
             "type": "boolean"
@@ -1884,16 +1739,12 @@
             "items": {
               "$ref": "#/components/schemas/UserBasic"
             }
-          },
-          "user_who_made_request": {
-            "type": "integer"
           }
         },
         "required": [
           "description",
           "name",
-          "owner_id",
-          "user_who_made_request"
+          "owner_id"
         ]
       },
       "DAOUpdate": {
@@ -1909,46 +1760,29 @@
           },
           "is_active": {
             "type": "boolean"
-          },
-          "user_who_made_request": {
-            "type": "integer"
           }
-        },
-        "required": [
-          "user_who_made_request"
-        ]
+        }
       },
       "DAOMembership": {
         "type": "object",
         "properties": {
           "user_id": {
-            "type": "integer"
+            "type": "string"
           }
         },
         "required": [
           "user_id"
         ]
       },
-      "PODUserWhoMadeRequest": {
-        "type": "object",
-        "properties": {
-          "user_who_made_request": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "user_who_made_request"
-        ]
-      },
       "POD": {
         "type": "object",
         "properties": {
           "pod_id": {
-            "type": "integer",
+            "type": "string",
             "readOnly": true
           },
           "dao_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -1964,16 +1798,12 @@
             "type": "string",
             "format": "date-time",
             "readOnly": true
-          },
-          "user_who_made_request": {
-            "type": "integer"
           }
         },
         "required": [
           "dao_id",
           "description",
-          "name",
-          "user_who_made_request"
+          "name"
         ]
       },
       "PODUpdate": {
@@ -1989,20 +1819,14 @@
           },
           "is_active": {
             "type": "boolean"
-          },
-          "user_who_made_request": {
-            "type": "integer"
           }
-        },
-        "required": [
-          "user_who_made_request"
-        ]
+        }
       },
       "PODMembership": {
         "type": "object",
         "properties": {
           "user_id": {
-            "type": "integer"
+            "type": "string"
           }
         },
         "required": [
