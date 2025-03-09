@@ -85,13 +85,13 @@ class User(Base):
         user = User(
             user_id=User.generate_user_id(),
             username=input_data["username"],
-            email=input_data["email"],
-            email_verified=False,
-            discord_username=input_data["discord_username"],
             wallet_address=input_data["wallet_address"],
-            member_name=input_data.get("member_name"),
-            twitter_username=input_data.get("twitter_username"),
-            telegram_username=input_data.get("telegram_username"),
+            email=input_data.get("email", None),
+            email_verified=False,
+            discord_username=input_data.get("discord_username", None),
+            member_name=input_data.get("member_name", None),
+            twitter_username=input_data.get("twitter_username", None),
+            telegram_username=input_data.get("telegram_username", None),
             last_login=datetime.now(pytz.utc),
             last_interaction=datetime.now(pytz.utc)
         )
