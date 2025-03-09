@@ -14,36 +14,26 @@ from api.views.daos.daos_blp import blp as daos_blp
 from helpers.errors_file import ErrorHandler, NotFound, Unauthorized, BadRequest
 
 
-@daos_blp.route("/<int:dao_id>/members")
+@daos_blp.route("/<string:dao_id>/members")
 class DAOMembershipView(MethodView):
     @conditional_jwt_required()
-    @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    def post(self, membership_data, dao_id):
+    def post(self, dao_id: str):
         """Add a member to a DAO"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
+        
         dao = DAO.get_by_id(dao_id, db.session)
-        target_user = User.get_by_id(membership_data["user_id"], db.session)
-
-        if not target_user:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
-            
-        if dao.owner_id != auth_user.user_id and auth_user not in dao.admins:
-            raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
 
-        if not dao.add_member(target_user):
+        if not dao.add_member(auth_user):
             raise BadRequest(ErrorHandler.DAO_MEMBERSHIP_ALREADY_EXISTS)
         
         db.session.commit()
@@ -56,20 +46,18 @@ class DAOMembershipView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    def delete(self, membership_data, dao_id):
+    def delete(self, member_data, dao_id: str):
         """Remove a member from a DAO"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        dao = DAO.get_by_id(dao_id, db.session)
-        target_user = User.get_by_id(membership_data["user_id"], db.session)
-
+        
+        target_user = User.get_by_id(member_data["user_id"], db.session)
         if not target_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
+        
+        dao = DAO.get_by_id(dao_id, db.session)
         
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
@@ -84,7 +72,7 @@ class DAOMembershipView(MethodView):
         return dao
 
 
-@daos_blp.route("/<int:dao_id>/admins")
+@daos_blp.route("/<string:dao_id>/admins")
 class DAOAdminView(MethodView):
     @conditional_jwt_required()
     @daos_blp.arguments(DAOMembershipSchema)
@@ -92,15 +80,13 @@ class DAOAdminView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    def post(self, admin_data, dao_id):
+    def post(self, admin_data, dao_id: str):
         """Add an admin to a DAO"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(admin_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
+        
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(admin_data["user_id"], db.session)
 
@@ -126,15 +112,13 @@ class DAOAdminView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    def delete(self, admin_data, dao_id):
+    def delete(self, admin_data, dao_id: str):
         """Remove an admin from a DAO"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(admin_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
+        
         dao = DAO.get_by_id(dao_id, db.session)
         target_user = User.get_by_id(admin_data["user_id"], db.session)
 

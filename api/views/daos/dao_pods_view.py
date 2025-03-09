@@ -8,7 +8,7 @@ from api.utils import conditional_jwt_required
 from api.models.pod import POD
 from api.models.dao import DAO
 from api.models.user import User
-from api.schemas.pod_schemas import PODMembershipSchema, PODSchema, PODUpdateSchema, PODUserWhoMadeRequestSchema
+from api.schemas.pod_schemas import PODMembershipSchema, PODSchema, PODUpdateSchema
 from api.schemas.communs_schemas import PagingError
 from api.schemas.users_schemas import UserSchema
 from api.views.daos.daos_blp import blp as daos_blp
@@ -16,26 +16,21 @@ from api.views.daos.daos_blp import blp as daos_blp
 from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 
 
-@daos_blp.route("<int:dao_id>/pods")
+@daos_blp.route("<string:dao_id>/pods")
 class RootPODView(MethodView):
     @conditional_jwt_required()
-    @daos_blp.arguments(PODUserWhoMadeRequestSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema(many=True))
-    def get(self, pod_data: dict, dao_id: int):
+    def get(self, dao_id: str):
         """Get all PODs for a DAO"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(pod_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
 
         dao = DAO.get_by_id(dao_id, db.session)
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
-        
         if auth_user not in dao.members:
             raise Unauthorized(ErrorHandler.USER_NOT_MEMBER)
         
@@ -48,13 +43,10 @@ class RootPODView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(201, PODSchema)
-    def post(self, pod_data, dao_id):
+    def post(self, pod_data, dao_id: str):
         """Create a new POD"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(pod_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
@@ -76,11 +68,11 @@ class RootPODView(MethodView):
             abort(400, message=str(e))
 
 
-@daos_blp.route("<int:dao_id>/pods/<int:pod_id>")
+@daos_blp.route("<string:dao_id>/pods/<string:pod_id>")
 class PODView(MethodView):
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema)
-    def get(self, dao_id: int, pod_id: int):
+    def get(self, dao_id: str, pod_id: str):
         """Get a POD by ID"""
         db: SQLAlchemy = current_app.db
         dao = DAO.get_by_id(dao_id, db.session)
@@ -100,13 +92,10 @@ class PODView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, PODSchema)
-    def put(self, pod_data, dao_id: int, pod_id: int):
+    def put(self, pod_data, dao_id: str, pod_id: str):
         """Update a POD"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(pod_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
@@ -132,18 +121,14 @@ class PODView(MethodView):
 
 
     @conditional_jwt_required()
-    @daos_blp.arguments(PODMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, PODSchema)
-    def delete(self, membership_data, dao_id, pod_id):
+    def delete(self, dao_id, pod_id):
         """Delete a POD"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
 
@@ -167,11 +152,11 @@ class PODView(MethodView):
             abort(400, message=str(e))
 
 
-@daos_blp.route("<int:dao_id>/pods/<int:pod_id>/members")
+@daos_blp.route("<string:dao_id>/pods/<string:pod_id>/members")
 class PODMembersView(MethodView):
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, UserSchema(many=True))
-    def get(self, dao_id: int, pod_id: int):
+    def get(self, dao_id: str, pod_id: str):
         """Get all members of a POD"""
         db: SQLAlchemy = current_app.db
         dao = DAO.get_by_id(dao_id, db.session)
@@ -186,41 +171,26 @@ class PODMembersView(MethodView):
 
 
     @conditional_jwt_required()
-    @daos_blp.arguments(PODMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, PODSchema)
-    def post(self, membership_data, dao_id, pod_id):
+    def post(self, dao_id: str, pod_id: str):
         """Add a member to a POD"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        target_user = User.get_by_id(membership_data["user_id"], db.session)
         
         dao = DAO.get_by_id(dao_id, db.session)
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
-        
-        # Check if user is a member of the DAO
-        if target_user not in dao.members:
-            raise Unauthorized(ErrorHandler.USER_NOT_MEMBER)
-
-        # Check if user is a admin of the DAO
-        if auth_user not in dao.admins:
-            # If user is not a admin, check if they are the target user
-            if target_user != auth_user:
-                raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
 
         pod = POD.get_by_id(pod_id, db.session)
         if not pod or pod.dao_id != dao_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         
-        if not pod.add_member(target_user):
+        if not pod.add_member(auth_user):
             raise BadRequest(ErrorHandler.USER_ALREADY_IN_POD)
         
         db.session.commit()
@@ -233,29 +203,30 @@ class PODMembersView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, PODSchema)
-    def delete(self, membership_data, dao_id, pod_id):
+    def delete(self, member_data, dao_id: str, pod_id: str):
         """Remove a member from a POD"""
         db: SQLAlchemy = current_app.db
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        else:
-            auth_user = User.get_by_id(membership_data["user_who_made_request"], db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        target_user = User.get_by_id(membership_data["user_id"], db.session)
+        
+        target_user = User.get_by_id(member_data["user_id"], db.session)
+        if not target_user:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
 
         dao = DAO.get_by_id(dao_id, db.session)
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
-        # Check if user is a member of the DAO
         if target_user not in dao.members:
+            raise BadRequest(ErrorHandler.USER_NOT_MEMBER)
+        
+        # Check if user is a member of the DAO
+        if auth_user not in dao.members:
             raise Unauthorized(ErrorHandler.USER_NOT_MEMBER)
-
-        # Check if user is a admin of the DAO
-        if auth_user not in dao.admins:
-            # If user is not a admin, check if they are the target user
-            if target_user != auth_user:
+        
+        if auth_user.user_id != target_user.user_id:
+            if auth_user not in dao.admins and auth_user.user_id != dao.owner_id:
                 raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
 
         pod = POD.get_by_id(pod_id, db.session)

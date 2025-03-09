@@ -47,7 +47,6 @@ class OneUserWalletView(MethodView):
     @users_blp.doc(operationId='GetUserWithWalletAddress')
     @users_blp.response(404, schema=PagingError, description="NotFound")
     @users_blp.response(200, schema=UserExistResponseSchema, description="Check if user with the wallet address exists")
-    @conditional_jwt_required(fresh=True)
     def get(self, wallet_address: str):
         """Check if user with the wallet address exists"""
         db: SQLAlchemy = current_app.db
@@ -63,37 +62,8 @@ class OneUserWalletView(MethodView):
 
 
 
-@users_blp.route('/<int:user_id>')
+@users_blp.route('/<string:user_id>')
 class OneUserView(MethodView):
-
-    @users_blp.doc(operationId='GetUser')
-    @users_blp.response(404, schema=PagingError, description="NotFound")
-    @users_blp.response(200, schema=UserResponseSchema, description="Get one user")
-    @conditional_jwt_required(fresh=True)
-    def get(self, user_id: int):
-        """Get an existing user"""
-        db: SQLAlchemy = current_app.db
-        # Only attempt to get the auth user if authentication is not disabled
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
-            
-            user = User.get_by_id(id=user_id, session=db.session)
-            if user is None:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
-            # We raise a NotFound if the user is not the same as the authenticated user
-            if auth_user.user_id != user.user_id:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        else:
-            # If authentication is disabled, just get the user by ID
-            user = User.get_by_id(id=user_id, session=db.session)
-            if user is None:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-
-        return {
-            "user": user
-        }
-
 
     @users_blp.doc(operationId='UpdateUser')
     @users_blp.arguments(InputUpdateUserSchema)
@@ -101,27 +71,20 @@ class OneUserView(MethodView):
     @users_blp.response(404, schema=PagingError, description="NotFound")
     @users_blp.response(200, schema=UserResponseSchema, description="Update one user")
     @conditional_jwt_required(fresh=True)
-    def put(self, input_dict: Dict, user_id: int):
+    def put(self, input_dict: Dict, user_id: str):
         """Update an existing user"""
         db: SQLAlchemy = current_app.db
         
         # Only attempt to get the auth user if authentication is not disabled
-        if not current_app.config.get('AUTH_DISABLED', False):
-            auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        user = User.get_by_id(id=user_id, session=db.session)
+        if user is None:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
             
-            user = User.get_by_id(id=user_id, session=db.session)
-            if user is None:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
-            # We raise a NotFound if the user is not the same as the authenticated user
-            if auth_user.user_id != user.user_id:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        else:
-            # If authentication is disabled, just get the user by ID
-            user = User.get_by_id(id=user_id, session=db.session)
-            if user is None:
-                raise NotFound(ErrorHandler.USER_NOT_FOUND)
-        
+        # We raise a NotFound if the user is not the same as the authenticated user
+        if auth_user.user_id != user.user_id:
+            raise NotFound(ErrorHandler.USER_NOT_FOUND)
+
         user.update(input_dict)
 
         try:
