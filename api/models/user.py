@@ -7,6 +7,7 @@ from datetime import datetime
 import pytz
 import secrets
 import base58
+
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
@@ -20,7 +21,7 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
 
-    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String, primary_key=True)
     """ ID of the User
     """
 
@@ -73,9 +74,6 @@ class User(Base):
     member_daos = relationship('DAO', secondary='dao_members', back_populates='members')
     """ DAOs that the user is a member of """
 
-    administered_pods = relationship('POD', secondary='pod_admins', back_populates='admins')
-    """ PODs that the user is an admin of """
-
     member_pods = relationship('POD', secondary='pod_members', back_populates='members')
     """ PODs that the user is a member of """
 
@@ -109,7 +107,6 @@ class User(Base):
         member_name = input_data.get("member_name", None)
         twitter_username = input_data.get("twitter_username", None)
         telegram_username = input_data.get("telegram_username", None)
-        wallet_address = input_data.get("wallet_address", None)
 
         if username is not None:
             self.username = username
@@ -124,12 +121,10 @@ class User(Base):
             self.twitter_username = twitter_username
         if telegram_username is not None:
             self.telegram_username = telegram_username
-        if wallet_address is not None:
-            self.wallet_address = wallet_address
 
 
     @classmethod
-    def get_by_id(cls, id: int, session: Session) -> "User":
+    def get_by_id(cls, id: str, session: Session) -> "User":
         """ User getter with a ID
         """
         return session.query(User).filter(User.user_id == id).first()
@@ -143,7 +138,7 @@ class User(Base):
 
 
     @classmethod
-    def generate_user_id(cls) -> int:
+    def generate_user_id(cls) -> str:
         """ Generate a random user_id between 1 and integer limit
         """
         import random
@@ -153,7 +148,7 @@ class User(Base):
         max_int = sys.maxsize
 
         # Generate random ID between 1 and max_int
-        return random.randint(1, max_int)
+        return str(random.randint(1, max_int))
     
 
     @staticmethod

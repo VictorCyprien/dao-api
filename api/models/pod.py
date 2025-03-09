@@ -9,21 +9,14 @@ from datetime import datetime, timezone
 
 from api import Base
 
-# Association table for POD admins
-pod_admins = Table(
-    'pod_admins',
-    Base.metadata,
-    Column('pod_id', BigInteger, ForeignKey('pods.pod_id', ondelete='CASCADE'), primary_key=True),
-    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
-    extend_existing=True
-)
+
 
 # Association table for POD members
 pod_members = Table(
     'pod_members',
     Base.metadata,
-    Column('pod_id', BigInteger, ForeignKey('pods.pod_id', ondelete='CASCADE'), primary_key=True),
-    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    Column('pod_id', String, ForeignKey('pods.pod_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', String, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
@@ -31,7 +24,7 @@ class POD(Base):
     __tablename__ = "pods"
     __table_args__ = {'extend_existing': True}
 
-    pod_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    pod_id: Mapped[str] = mapped_column(String, primary_key=True)
     """ ID of the POD """
 
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -40,7 +33,7 @@ class POD(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     """ Description of the POD """
 
-    dao_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
+    dao_id: Mapped[str] = mapped_column(String, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
     """ ID of the DAO this POD belongs to """
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -50,9 +43,6 @@ class POD(Base):
     """ Timestamp of when the POD was created """
 
     # Relationships
-    admins = relationship('User', secondary=pod_admins, back_populates='administered_pods')
-    """ Administrators of the POD """
-    
     members = relationship('User', secondary=pod_members, back_populates='member_pods')
     """ Members of the POD """
     
@@ -84,21 +74,6 @@ class POD(Base):
         if is_active is not None:
             self.is_active = is_active
 
-    def add_admin(self, user) -> bool:
-        """ Add a user as admin if they're not already """
-        if user not in self.admins:
-            self.admins.append(user)
-            if user not in self.members:
-                self.members.append(user)
-            return True
-        return False
-
-    def remove_admin(self, user) -> bool:
-        """ Remove a user from admins """
-        if user in self.admins:
-            self.admins.remove(user)
-            return True
-        return False
 
     def add_member(self, user) -> bool:
         """ Add a user as member if they're not already """
@@ -110,8 +85,6 @@ class POD(Base):
     def remove_member(self, user) -> bool:
         """ Remove a user from members """
         if user in self.members:
-            if user in self.admins:
-                self.admins.remove(user)
             self.members.remove(user)
             return True
         return False

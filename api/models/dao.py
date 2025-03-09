@@ -11,16 +11,16 @@ from api import Base
 dao_admins = Table(
     'dao_admins',
     Base.metadata,
-    Column('dao_id', BigInteger, ForeignKey('daos.dao_id', ondelete='CASCADE'), primary_key=True),
-    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    Column('dao_id', String, ForeignKey('daos.dao_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', String, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
 dao_members = Table(
     'dao_members',
     Base.metadata,
-    Column('dao_id', BigInteger, ForeignKey('daos.dao_id', ondelete='CASCADE'), primary_key=True),
-    Column('user_id', BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
+    Column('dao_id', String, ForeignKey('daos.dao_id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', String, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True),
     extend_existing=True
 )
 
@@ -28,7 +28,7 @@ class DAO(Base):
     __tablename__ = "daos"
     __table_args__ = {'extend_existing': True}
 
-    dao_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    dao_id: Mapped[str] = mapped_column(String, primary_key=True)
     """ ID of the DAO """
 
     name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
@@ -37,7 +37,7 @@ class DAO(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     """ Description of the DAO """
 
-    owner_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('users.user_id'), nullable=False)
+    owner_id: Mapped[str] = mapped_column(String, ForeignKey('users.user_id'), nullable=False)
     """ ID of the DAO owner """
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -116,7 +116,7 @@ class DAO(Base):
         return False
 
     @classmethod
-    def get_by_id(cls, id: int, session: Session) -> "DAO":
+    def get_by_id(cls, id: str, session: Session) -> "DAO":
         """ DAO getter with an ID """
         return session.query(DAO).filter(DAO.dao_id == id).first()
     
@@ -131,6 +131,6 @@ class DAO(Base):
         return session.query(DAO).all()
 
     @classmethod
-    def generate_dao_id(cls) -> int:
+    def generate_dao_id(cls) -> str:
         """ Generate a random dao_id """
-        return random.randint(1, sys.maxsize)
+        return str(random.randint(1, sys.maxsize))
