@@ -34,13 +34,9 @@ Authorization: Bearer {{TOKEN}}
 
 
 ###
-GET {{URL}}/users/4767045800791484551
+GET {{URL}}/users/@me
 Authorization: Bearer {{TOKEN}}
 
-
-###
-GET {{URL}}/users/4041456094629714805
-Authorization: Bearer {{TOKEN}}
 
 ###
 POST {{URL}}/daos
@@ -50,8 +46,7 @@ Authorization: Bearer {{TOKEN}}
 {
     "name": "BWEN",
     "description": "BWEN is a DAO for the BWEN project",
-    "owner_id": 6669109429727085459,
-    "user_who_made_request": 6669109429727085459
+    "owner_id": "5569671438199193019"
 }
 //DAO ID : 5377070422756330697
 
@@ -64,8 +59,7 @@ Authorization: Bearer {{TOKEN}}
 {
     "name": "Developers",
     "description": "A POD for the developers of the BWEN project",
-    "dao_id": 3535629962354651700,
-    "user_who_made_request": 6669109429727085459
+    "dao_id": "3535629962354651700"
 }
 
 
