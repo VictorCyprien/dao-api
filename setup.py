@@ -2,9 +2,9 @@
 from setuptools import setup, find_packages
 
 required = [
-    "mongoengine",
+    "SQLAlchemy",
     "Flask",
-    "flask_mongoengine",
+    "Flask-SQLAlchemy",
     "flask-smorest",
     "marshmallow",
     "pytz",
@@ -12,10 +12,6 @@ required = [
     "environs",
     "passlib",
     "redis",
-    "solders",       # Solana SDK for Python
-    "anchorpy",      # Python wrapper for Anchor programs on Solana
-    "base58",
-    "pynacl"
 ]
 
 VERSION = "2025.1.0"
