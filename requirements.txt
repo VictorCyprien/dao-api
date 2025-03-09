@@ -12,7 +12,7 @@ construct==2.10.68
 construct-typing==0.5.6
 coverage==7.6.10
 crontab==1.0.1
--e git+ssh://git@github.com/VictorCyprien/dao-api.git@c90c7ab947959fde328ebe834fc482ee45836249#egg=dao_api
+-e git+ssh://git@github.com/VictorCyprien/dao-api.git@b306e37adffc117d3c0578df76c3e59679e5a1bd#egg=dao_api
 dnspython==2.7.0
 email_validator==2.2.0
 environs==14.1.0
