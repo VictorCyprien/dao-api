@@ -97,7 +97,7 @@ def create_flask_app(config: Config) -> Flask:
         """ Log every requests """
         app.logger.info(f'>-- {request.method} {request.path} from {request.remote_addr}')
         app.logger.debug(f'       Args: {request.args.to_dict()}')
-        app.logger.debug(f'    Headers: {request.headers.to_wsgi_list()}')
+        #app.logger.debug(f'    Headers: {request.headers.to_wsgi_list()}')
         app.logger.debug(f'       Body: {request.get_data()}')
 
     @app.after_request
