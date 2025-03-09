@@ -4,7 +4,7 @@ from api.models.user import User
 
 
 class UserSchema(Schema):
-    user_id = fields.Integer(
+    user_id = fields.String(
         attribute='user_id',
         metadata={"description": "Unique user identifier"}
     )
@@ -54,14 +54,14 @@ class InputCreateUserSchema(Schema):
 
     @validates_schema
     def validation_payload(self, data, **kwargs):
-        email: str = data.get("email", None)
-        discord_username: str = data.get("discord_username", None)
+        username: str = data.get("username", None)
+        wallet_address: str = data.get("wallet_address", None)
 
-        if email is not None and not User.is_valid_email(email):
-            raise ValidationError("Email format invalid.", field_name="email")
+        if username is None:
+            raise ValidationError("Invalid payload", field_name="username")
 
-        if discord_username is None or len(discord_username) < 3:
-            raise ValidationError("The discord username must be at least 3 characters.", field_name="discord_username")
+        if wallet_address is None:
+            raise ValidationError("Invalid payload", field_name="wallet_address")
 
     class Meta:
         description = "Input information needed to create user."
@@ -75,7 +75,6 @@ class InputUpdateUserSchema(Schema):
     discord_username = fields.String(metadata={"description": "New Discord username of the user"})
     twitter_username = fields.String(metadata={"description": "New Twitter username of the user"})
     telegram_username = fields.String(metadata={"description": "New Telegram username of the user"})
-    wallet_address = fields.String(metadata={"description": "New wallet address of the user"})
 
     class Meta:
         description = "New user information"

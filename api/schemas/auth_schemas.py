@@ -1,12 +1,5 @@
 from marshmallow import Schema, fields
 
-class LoginParamsSchema(Schema):
-    wallet_address = fields.String(metadata={"description": "Wallet address of the user"}, required=True)
-    password = fields.String(metadata={"description": "Password of the login"}, required=True)
-
-    class Meta:
-        description = "Login details"
-        ordered = True
 
 
 class LoginResponseSchema(Schema):
