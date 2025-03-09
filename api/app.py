@@ -84,6 +84,8 @@ def setup_cors(app: Flask, config: Config, allowed_origins: str):
 def create_flask_app(config: Config) -> Flask:
     # Create the Flask App
     app = Flask(__name__)
+    # If we don't set this, there will be a redirection and the access token will go away
+    app.url_map.strict_slashes = False
     app.logger = Logger()
 
     # Initialize CORS
