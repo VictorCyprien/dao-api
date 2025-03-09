@@ -18,7 +18,9 @@ from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 
 @daos_blp.route("<string:dao_id>/pods")
 class RootPODView(MethodView):
-    @jwt_required()
+
+    @daos_blp.doc(operationId='GetAllPODsForDAO')
+    @jwt_required(fresh=True)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema(many=True))
     def get(self, dao_id: str):
@@ -37,7 +39,8 @@ class RootPODView(MethodView):
         return POD.get_dao_pods(dao_id, db.session)
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='CreatePOD')
+    @jwt_required(fresh=True)
     @daos_blp.arguments(PODSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -70,6 +73,7 @@ class RootPODView(MethodView):
 
 @daos_blp.route("<string:dao_id>/pods/<string:pod_id>")
 class PODView(MethodView):
+    @daos_blp.doc(operationId='GetPODById')
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema)
     def get(self, dao_id: str, pod_id: str):
@@ -86,7 +90,8 @@ class PODView(MethodView):
         return pod
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='UpdatePOD')
+    @jwt_required(fresh=True)
     @daos_blp.arguments(PODUpdateSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -120,7 +125,8 @@ class PODView(MethodView):
             abort(400, message=str(e))
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='DeletePOD')
+    @jwt_required(fresh=True)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
@@ -154,6 +160,7 @@ class PODView(MethodView):
 
 @daos_blp.route("<string:dao_id>/pods/<string:pod_id>/members")
 class PODMembersView(MethodView):
+    @daos_blp.doc(operationId='GetAllMembersOfPOD')
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, UserSchema(many=True))
     def get(self, dao_id: str, pod_id: str):
@@ -170,7 +177,8 @@ class PODMembersView(MethodView):
         return pod.members
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='AddMemberToPOD')
+    @jwt_required(fresh=True)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
@@ -197,7 +205,8 @@ class PODMembersView(MethodView):
         return pod
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='RemoveMemberFromPOD')
+    @jwt_required(fresh=True)
     @daos_blp.arguments(PODMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)

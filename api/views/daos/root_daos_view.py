@@ -17,6 +17,7 @@ from helpers.errors_file import ErrorHandler, NotFound
 
 @daos_blp.route("/")
 class RootDAOsView(MethodView):
+    @daos_blp.doc(operationId='GetAllDAOs')
     @daos_blp.response(200, DAOSchema(many=True))
     def get(self):
         """List all DAOs"""
@@ -24,10 +25,11 @@ class RootDAOsView(MethodView):
         return DAO.get_all(db.session)
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='CreateDAO')
     @daos_blp.arguments(DAOSchema)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(201, DAOSchema)
+    @jwt_required(fresh=True)
     def post(self, dao_data: Dict):
         """Create a new DAO"""
         db: SQLAlchemy = current_app.db

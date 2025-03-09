@@ -26,7 +26,7 @@ class LogoutAuthView(MethodView):
     @auth_blp.doc(operationId='Logout')
     @auth_blp.response(401, schema=PagingError, description="Not logged")
     @auth_blp.response(201, schema=LogoutResponseSchema, description="Logout the user")
-    @jwt_required()
+    @jwt_required(fresh=True)
     def post(self):
         """Logout the user"""
         jti = get_jwt()["jti"]

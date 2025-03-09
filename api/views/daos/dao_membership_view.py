@@ -16,11 +16,13 @@ from helpers.errors_file import ErrorHandler, NotFound, Unauthorized, BadRequest
 
 @daos_blp.route("/<string:dao_id>/members")
 class DAOMembershipView(MethodView):
-    @jwt_required()
+
+    @daos_blp.doc(operationId='AddMemberToDAO')
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
+    @jwt_required(fresh=True)
     def post(self, dao_id: str):
         """Add a member to a DAO"""
         db: SQLAlchemy = current_app.db
@@ -40,12 +42,13 @@ class DAOMembershipView(MethodView):
         return dao
     
 
-    @jwt_required()
+    @daos_blp.doc(operationId='RemoveMemberFromDAO')
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
+    @jwt_required(fresh=True)
     def delete(self, member_data, dao_id: str):
         """Remove a member from a DAO"""
         db: SQLAlchemy = current_app.db
@@ -74,12 +77,14 @@ class DAOMembershipView(MethodView):
 
 @daos_blp.route("/<string:dao_id>/admins")
 class DAOAdminView(MethodView):
-    @jwt_required()
+    
+    @daos_blp.doc(operationId='AddAdminToDAO')
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
+    @jwt_required(fresh=True)
     def post(self, admin_data, dao_id: str):
         """Add an admin to a DAO"""
         db: SQLAlchemy = current_app.db
@@ -106,12 +111,13 @@ class DAOAdminView(MethodView):
         return dao
 
 
-    @jwt_required()
+    @daos_blp.doc(operationId='RemoveAdminFromDAO')
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
+    @jwt_required(fresh=True)
     def delete(self, admin_data, dao_id: str):
         """Remove an admin from a DAO"""
         db: SQLAlchemy = current_app.db

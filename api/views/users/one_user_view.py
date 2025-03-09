@@ -30,7 +30,7 @@ class OneUserWalletView(MethodView):
     @users_blp.doc(operationId='GetAuthUserInfos')
     @users_blp.response(404, schema=PagingError, description="NotFound")
     @users_blp.response(200, schema=UserResponseSchema, description="Get authenticated user informations")
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self):
         """Get authenticated user informations"""
         db: SQLAlchemy = current_app.db

@@ -16,9 +16,10 @@ from helpers.errors_file import ErrorHandler, NotFound, Unauthorized
 
 @daos_blp.route("/<string:dao_id>")
 class OneDAOView(MethodView):
-    @jwt_required()
+    @daos_blp.doc(operationId='GetDAOById')
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, DAOSchema)
+    @jwt_required(fresh=True)
     def get(self, dao_id: str):
         """Get a DAO by ID"""
         db: SQLAlchemy = current_app.db
@@ -28,12 +29,13 @@ class OneDAOView(MethodView):
         return dao
 
 
+    @daos_blp.doc(operationId='UpdateDAO')
     @daos_blp.arguments(DAOUpdateSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    @jwt_required()
+    @jwt_required(fresh=True)
     def put(self, update_data, dao_id):
         """Update a DAO"""
         db: SQLAlchemy = current_app.db
@@ -57,11 +59,12 @@ class OneDAOView(MethodView):
             abort(400, message=str(e))
 
 
+    @daos_blp.doc(operationId='DeleteDAO')
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200)
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, dao_id: str):
         """Delete a DAO"""
         db: SQLAlchemy = current_app.db
