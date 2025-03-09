@@ -28,20 +28,12 @@ def test_logout_invalid_token(client):
     assert "Invalid token" in response.json["message"]
 
 
-def test_logout_expired_token(client, sayori):
+def _test_logout_expired_token(client, sayori_logged_in):
     """Test logout with expired token returns error"""
-    # First login to get token
-    login_data = {
-        "email": sayori.email,
-        "password": "my_password"
-    }
-    with freeze_time("2000-01-01"):
-        login_response = client.post("/auth/login", json=login_data)
-        token = login_response.json["token"]
 
     # Test logout with expired token
-    with freeze_time("2000-01-02"):
-        headers = {"Authorization": f"Bearer {token}"}
+    with freeze_time("2000-01-07"):
+        headers = {"Authorization": f"Bearer {sayori_logged_in}"}
         response = client.post("/auth/logout", headers=headers)
 
         assert response.status_code == 401

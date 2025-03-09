@@ -1,4 +1,5 @@
 from typing import Iterator
+from unittest.mock import patch, MagicMock
 
 from flask import Flask
 from flask.testing import FlaskClient
@@ -130,41 +131,79 @@ def mock_redis_queue():
     RedisQueue.enqueue = _original
 
 
+# Signature-based auth fixtures
 @pytest.fixture
-def victor_logged_in(client, victor):
-    login_data = {
-        "email": victor.email,
-        "password": "my_password"
+def mock_redis():
+    """Mock Redis for signature-based authentication"""
+    redis_patcher = patch('api.views.auth.wallet_auth_view.redis_client')
+    mock_redis = redis_patcher.start()
+    mock_redis.get.return_value = "Test challenge message"
+    mock_redis.setex.return_value = True
+    yield mock_redis
+    redis_patcher.stop()
+
+
+@pytest.fixture
+def mock_verify_signature():
+    """Mock signature verification to always succeed"""
+    verify_patcher = patch('api.views.auth.wallet_auth_view.User.verify_signature')
+    mock_verify = verify_patcher.start()
+    mock_verify.return_value = True
+    yield mock_verify
+    verify_patcher.stop()
+
+
+@pytest.fixture
+def mock_challenge_message():
+    """Mock challenge message generation"""
+    challenge_patcher = patch('api.views.auth.wallet_auth_view.User.generate_challenge_message')
+    mock_challenge = challenge_patcher.start()
+    mock_challenge.return_value = "Test challenge message"
+    yield mock_challenge
+    challenge_patcher.stop()
+
+
+@pytest.fixture
+def victor_logged_in(client, victor, mock_redis, mock_verify_signature):
+    """Login Victor using wallet signature authentication"""
+    # Signature verification step
+    verify_data = {
+        "wallet_address": victor.wallet_address,
+        "signature": "validSignatureString"
     }
-    response = client.post("/auth/login", json=login_data)
+    response = client.post("/auth/wallet/verify", json=verify_data)
     token = response.json["token"]
     yield token
 
 
 @pytest.fixture
-def sayori_logged_in(client, sayori):
-    login_data = {
-        "email": sayori.email,
-        "password": "my_password"
+def sayori_logged_in(client, sayori, mock_redis, mock_verify_signature):
+    """Login Sayori using wallet signature authentication"""
+    # Signature verification step
+    verify_data = {
+        "wallet_address": sayori.wallet_address,
+        "signature": "validSignatureString"
     }
-    response = client.post("/auth/login", json=login_data)
+    response = client.post("/auth/wallet/verify", json=verify_data)
     token = response.json["token"]
     yield token
 
 
 @pytest.fixture
-def natsuki_logged_in(client, natsuki):
-    login_data = {
-        "email": natsuki.email,
-        "password": "my_password"
+def natsuki_logged_in(client, natsuki, mock_redis, mock_verify_signature):
+    """Login Natsuki using wallet signature authentication"""
+    # Signature verification step
+    verify_data = {
+        "wallet_address": natsuki.wallet_address,
+        "signature": "validSignatureString"
     }
-    response = client.post("/auth/login", json=login_data)
-    token = response.json['token']
+    response = client.post("/auth/wallet/verify", json=verify_data)
+    token = response.json["token"]
     yield token
 
 
 @pytest.fixture
-def dao(app, victor, db: SQLAlchemy):
+def dao(app, victor, db: SQLAlchemy) -> Iterator[DAO]:
     dao_data = {
         "name": "Test DAO",
         "description": "A test DAO",
@@ -184,7 +223,7 @@ def dao(app, victor, db: SQLAlchemy):
 
 
 @pytest.fixture
-def pod(app, dao, db: SQLAlchemy):
+def pod(app, dao, db: SQLAlchemy) -> Iterator[POD]:
     pod_data = {
         "name": "Backend Learning Group",
         "description": "Learn backend development with Python and Flask",

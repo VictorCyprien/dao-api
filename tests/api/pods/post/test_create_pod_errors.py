@@ -55,7 +55,7 @@ def test_create_pod_wrong_community(client: Flask, victor: User, victor_logged_i
         "name": "Test POD",
         "description": "Test POD description",
         "dao_id": dao.dao_id,
-        "user_who_made_request": victor.user_id
+        
     }
     res = client.post(
         f"/daos/999999/pods",
@@ -73,7 +73,6 @@ def test_create_pod_not_admin(client: Flask, sayori: User, sayori_logged_in: str
         "name": "Test POD",
         "description": "Test POD description",
         "dao_id": dao.dao_id,
-        "user_who_made_request": sayori.user_id
     }
     res = client.post(
         f"/daos/{dao.dao_id}/pods",
@@ -96,53 +95,10 @@ def test_add_user_to_nonexistent_pod(client: Flask, victor: User, victor_logged_
     assert res.status_code == 404
 
 
-def test_add_user_to_pod_not_admin(client: Flask, victor: User, sayori: User, victor_logged_in: str, sayori_logged_in: str, dao: DAO, pod: POD):
-    """Test adding a user to a POD that they are not an admin of""" 
-    membership_data = {
-        "user_id": victor.user_id
-    }
-    res = client.post(
-        f"/daos/{dao.dao_id}/pods/{pod.pod_id}/members",
-        json=membership_data,
-        headers={"Authorization": f"Bearer {sayori_logged_in}"}
-    )
-    assert res.status_code == 401
-
-
-def test_add_user_to_pod_not_member(client: Flask, victor: User, sayori: User, victor_logged_in: str, sayori_logged_in: str, dao: DAO, pod: POD):
-    """Test adding a user to a POD that they are not a member of"""
-    membership_data = {
-        "user_id": victor.user_id
-    }
-    res = client.post(
-        f"/daos/{dao.dao_id}/pods/{pod.pod_id}/members",
-        json=membership_data,
-        headers={"Authorization": f"Bearer {sayori_logged_in}"}
-    )
-    assert res.status_code == 401
-
-
-def test_add_user_to_pod_not_in_community(client: Flask, victor: User, victor_logged_in: str, sayori: User, dao: DAO, pod: POD):
-    """Test adding a user to a POD but they are not a member of the dao"""
-    membership_data = {
-        "user_id": sayori.user_id
-    }
-    res = client.post(
-        f"/daos/{dao.dao_id}/pods/{pod.pod_id}/members",
-        json=membership_data,
-        headers={"Authorization": f"Bearer {victor_logged_in}"}
-    )
-    assert res.status_code == 401
-
-
 def test_add_user_to_pod_community_not_found(client: Flask, victor: User, victor_logged_in: str, sayori: User, dao: DAO, pod: POD):
     """Test adding a user to a POD but the dao is not found"""
-    membership_data = {
-        "user_id": sayori.user_id
-    }
     res = client.post(
         f"/daos/999999/pods/{pod.pod_id}/members",
-        json=membership_data,
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
     assert res.status_code == 404

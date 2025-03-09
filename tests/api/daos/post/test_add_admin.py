@@ -17,7 +17,7 @@ def test_add_admin(client: Flask, victor: User, sayori: User, victor_logged_in: 
 def test_add_admin_not_found(client: Flask, victor: User, sayori: User, victor_logged_in: str, dao: DAO):
     res = client.post(
         f"/daos/{dao.dao_id}/admins",
-        json={"user_id": 1234567890},
+        json={"user_id": "1234567890"},
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
     assert res.status_code == 404

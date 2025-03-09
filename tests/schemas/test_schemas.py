@@ -9,54 +9,24 @@ def test_input_create_user_schema(app):
     # Test valid data
     data = {
         "username": "Chara",
-        "email": "charadreemurr3571@gmail.com", 
-        "password": "password",
-        "discord_username": "charadreemurr3571",
         "wallet_address": "8D1234567890",
     }
     result = schema.load(data)
     assert result == data
 
-    # Test missing email
+    # Test missing username
     invalid_data = {
-        "username": "Chara",
-        "password": "password",
-        "discord_username": "charadreemurr3571",
-        "wallet_address": "8D1234567890",
-    }
-    with raises(ValidationError) as exc:
-        schema.load(invalid_data)
-    assert "Invalid payload" in str(exc.value)
-
-    # Test missing discord username
-    invalid_data = {
-        "username": "Chara",
-        "email": "charadreemurr3571@gmail.com",
-        "password": "password",
         "wallet_address": "8D1234567890", 
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "Invalid payload" in str(exc.value)
+    assert "{'username': ['Missing data for required field.']}" in str(exc.value)
 
     # Test missing wallet address
     invalid_data = {
         "username": "Chara",
-        "email": "charadreemurr3571@gmail.com",
-        "password": "password",
-        "discord_username": "charadreemurr3571",
     }
     with raises(ValidationError) as exc:
         schema.load(invalid_data)
-    assert "Invalid payload" in str(exc.value)
+    assert "{'wallet_address': ['Missing data for required field.']}" in str(exc.value)
 
-    # Test missing password
-    invalid_data = {
-        "username": "Chara",
-        "email": "charadreemurr3571@gmail.com",
-        "discord_username": "charadreemurr3571",
-        "wallet_address": "8D1234567890",
-    }
-    with raises(ValidationError) as exc:
-        schema.load(invalid_data)
-    assert "Invalid payload" in str(exc.value)

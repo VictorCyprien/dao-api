@@ -3,13 +3,13 @@ from api.models.dao import DAO
 from api.models.user import User
 
 
-def test_remove_member(client: Flask, victor: User, sayori: User, victor_logged_in: str, dao: DAO):
+def test_remove_member(client: Flask, victor: User, sayori: User, victor_logged_in: str, sayori_logged_in: str, dao: DAO):
     """Test successfully removing a member from a dao"""
     # First add member
     res = client.post(
         f"/daos/{dao.dao_id}/members",
         json={"user_id": sayori.user_id},
-        headers={"Authorization": f"Bearer {victor_logged_in}"}
+        headers={"Authorization": f"Bearer {sayori_logged_in}"}
     )
     assert res.status_code == 200
     assert sayori in dao.members
@@ -27,7 +27,7 @@ def test_remove_member(client: Flask, victor: User, sayori: User, victor_logged_
 def test_remove_member_not_found(client: Flask, victor: User, sayori: User, victor_logged_in: str, dao: DAO):
     res = client.delete(
         f"/daos/{dao.dao_id}/members",
-        json={"user_id": 1234567890},
+        json={"user_id": "1234567890"},
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
     assert res.status_code == 404
@@ -52,20 +52,21 @@ def test_user_not_member(client: Flask, victor: User, sayori: User, victor_logge
     assert res.json["message"] == "This user is not a member of this DAO !"
 
 
-def test_unauthorized_member_operations(client: Flask, victor: User, sayori: User, 
-                                     natsuki: User, natsuki_logged_in: str, dao: DAO):
+def test_unauthorized_member_operations(client: Flask, victor: User, sayori: User, natsuki: User, natsuki_logged_in: str, dao: DAO):
     """Test that non-admins cannot add/remove members"""
+    # This should add auth user and not anyone else
     res = client.post(
         f"/daos/{dao.dao_id}/members",
         json={"user_id": sayori.user_id},
         headers={"Authorization": f"Bearer {natsuki_logged_in}"}
     )
-    assert res.status_code == 401
-    assert res.json["message"] == "You are not an admin of this DAO !"
+    assert res.status_code == 200
+    assert sayori not in dao.members
+    assert natsuki in dao.members
 
     res = client.delete(
         f"/daos/{dao.dao_id}/members",
-        json={"user_id": sayori.user_id},
+        json={"user_id": victor.user_id},
         headers={"Authorization": f"Bearer {natsuki_logged_in}"}
     )
     assert res.status_code == 401

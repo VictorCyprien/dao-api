@@ -18,11 +18,18 @@ def test_user_update(client: Flask, victor: User, victor_logged_in: str):
     assert data == {
         'action': 'updated',
         'user': {
-            "username": "VicCrypto",
-            "email": "victor@example.com",
-            "discord_username": "victor#1234",
-            "wallet_address": "0x1234567890",
-            "user_id": ANY        
+            'discord_username': 'victor#1234',
+            'email': 'victor@example.com',
+            'email_verified': False,
+            'is_active': True,
+            'last_interaction': ANY,
+            'last_login': ANY,
+            'member_name': None,
+            'telegram_username': None,
+            'twitter_username': None,
+            'user_id': ANY,
+            'username': 'VicCrypto',
+            'wallet_address': '0x1234567890'
         }
     }
 
@@ -40,42 +47,20 @@ def test_user_update_email(client: Flask, victor: User, victor_logged_in: str):
     assert data == {
         'action': 'updated',
         'user': {
-            "username": "VicCrypto",
-            "email": "viccrypto13@gmail.com",
-            "discord_username": "victor#1234",
-            "wallet_address": "0x1234567890",
-            "user_id": ANY        
+            'discord_username': 'victor#1234',
+            'email': 'viccrypto13@gmail.com',
+            'email_verified': False,
+            'is_active': True,
+            'last_interaction': ANY,
+            'last_login': ANY,
+            'member_name': None,
+            'telegram_username': None,
+            'twitter_username': None,
+            'user_id': ANY,
+            'username': 'VicCrypto',
+            'wallet_address': '0x1234567890'
         }
     }
-
-
-def test_user_update_password(client: Flask, victor: User, victor_logged_in: str, db: SQLAlchemy):
-    old_password = victor.password
-    data_put = {
-        "username": "VicCrypto",
-        "password": "my_new_password",
-    }
-
-    res = client.put(f"/users/{victor.user_id}", json=data_put, headers={"Authorization": f"Bearer {victor_logged_in}"})
-    assert res.status_code == 200
-    data = res.json
-    print(data)
-    assert data == {
-        'action': 'updated',
-        'user': {
-            "username": "VicCrypto",
-            "email": "victor@example.com",
-            "discord_username": "victor#1234",
-            "wallet_address": "0x1234567890",
-            "user_id": ANY        
-        }
-    }
-
-    db.session.refresh(victor)
-
-    # Check if the password is updated
-    assert User.check_password(password="my_new_password", hashed_password=victor.password)
-    assert not User.check_password(password=old_password, hashed_password=victor.password)
 
 
 def test_user_update_wallet_address(client: Flask, victor: User, victor_logged_in: str):
@@ -103,11 +88,18 @@ def test_user_update_no_payload(client: Flask, victor: User, victor_logged_in: s
     assert data == {
         'action': 'updated',
         'user': {
-            "username": "Victor",
-            "email": "victor@example.com",
-            "discord_username": "victor#1234",
-            "wallet_address": "0x1234567890",
-            "user_id": ANY        
+            'discord_username': 'victor#1234',
+            'email': 'victor@example.com',
+            'email_verified': False,
+            'is_active': True,
+            'last_interaction': ANY,
+            'last_login': ANY,
+            'member_name': None,
+            'telegram_username': None,
+            'twitter_username': None,
+            'user_id': ANY,
+            'username': 'Victor',
+            'wallet_address': '0x1234567890'
         }
     }
 

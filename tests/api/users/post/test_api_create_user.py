@@ -11,24 +11,31 @@ def test_create_user(client: Flask, db: SQLAlchemy):
     data = {
         "username": "Chara",
         "email": "charadreemurr3571@gmail.com",
-        "password": "my_password",
         "discord_username": "charadreemurr3571",
         "wallet_address": "8D1234567890",
     }
 
     res = client.post("/users/", json=data)
+    print(res.json)
     assert res.status_code == 201
     data = res.json
     print(data)
     assert data == {
         'action': 'created',
         'user': {
-            "username": "Chara",
-            "email": "charadreemurr3571@gmail.com",
-            "discord_username": "charadreemurr3571",
-            "wallet_address": "8D1234567890",
-            "user_id": ANY
-        }
+            'discord_username': 'charadreemurr3571',
+            'email': 'charadreemurr3571@gmail.com',
+            'email_verified': False,
+            'is_active': True,
+            'last_interaction': ANY,
+            'last_login': ANY,
+            'member_name': None,
+            'telegram_username': None,
+            'twitter_username': None,
+            'user_id': ANY,
+            'username': 'Chara',
+            'wallet_address': '8D1234567890'
+    }
     }
 
     user_id = data['user']['user_id']
@@ -36,7 +43,6 @@ def test_create_user(client: Flask, db: SQLAlchemy):
     assert user.user_id == ANY
     assert user.username == "Chara"
     assert user.email == "charadreemurr3571@gmail.com"
-    assert User.check_password("my_password", user.password)
     assert user.discord_username == "charadreemurr3571"
     assert user.wallet_address == "8D1234567890"
 
@@ -51,7 +57,12 @@ def test_create_user_empty_data(client: Flask):
     print(data)
     assert data == {
         'code': 422,
-        'errors': {'json': {'_schema': ['Invalid payload']}},
+        'errors': {
+            'json': {
+                'username': ['Missing data for required field.'],
+                'wallet_address': ['Missing data for required field.']
+            }
+        },
         'status': 'Unprocessable Entity'
     }
 
@@ -60,8 +71,7 @@ def test_create_email_already_used(client: Flask, victor: User):
     data = {
         'discord_username': 'victor#1234',
         'email': 'victor@example.com',
-        'password': 'my_password',
-        'username': 'Victor',
+        'username': 'Victor123',
         'wallet_address': '0x1234567890'
     }
 
@@ -80,19 +90,19 @@ def test_create_user_invalid_email(client: Flask):
     data = {
         'discord_username': 'chara#1234',
         'email': 'invalid_email',
-        'password': 'my_password', 
         'username': 'Chara',
         'wallet_address': '0x1234567890'
     }
 
     res = client.post("/users/", json=data)
-    assert res.status_code == 400
+    print(res.json)
+    assert res.status_code == 422
     data = res.json
     print(data)
     assert data == {
-        'code': 400,
-        'message': 'This email is invalid',
-        'status': 'Bad Request'
+        'code': 422,
+        'errors': {'json': {'email': ['Not a valid email address.']}},
+        'status': 'Unprocessable Entity'
     }
 
 
@@ -101,8 +111,7 @@ def test_create_discord_username_already_used(client: Flask, victor: User):
     data = {
         'discord_username': 'victor#1234',
         'email': 'victor2@example.com',
-        'password': 'my_password',
-        'username': 'Victor',
+        'username': 'Victor123',
         'wallet_address': '0x1234567890'
     }
 
@@ -121,8 +130,7 @@ def test_create_wallet_address_already_used(client: Flask, victor: User):
     data = {
         'discord_username': 'victor3#1234',
         'email': 'victor4@example.com',
-        'password': 'my_password',
-        'username': 'Victor',
+        'username': 'Victor123',
         'wallet_address': '0x1234567890'
     }
 
@@ -136,3 +144,21 @@ def test_create_wallet_address_already_used(client: Flask, victor: User):
         'status': 'Bad Request'
     }
 
+
+def test_create_user_username_already_used(client: Flask, victor: User):
+    data = {
+        'discord_username': 'victor5#1234',
+        'email': 'victor6@example.com',
+        'username': victor.username,
+        'wallet_address': '0xe5zf1ez5f'
+    }
+
+    res = client.post("/users/", json=data)
+    assert res.status_code == 400
+    data = res.json
+    print(data)
+    assert data == {
+        'code': 400,
+        'message': 'This username is already used !',
+        'status': 'Bad Request'
+    }

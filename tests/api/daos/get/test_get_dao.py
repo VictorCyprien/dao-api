@@ -7,6 +7,7 @@ def test_get_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
         f"/daos/{dao.dao_id}",
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
+    print(res.json)
     assert res.status_code == 200
     data = res.json
     assert data == {

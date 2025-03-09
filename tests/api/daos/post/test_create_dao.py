@@ -9,7 +9,6 @@ def test_create_dao(client: Flask, victor: User, victor_logged_in: str):
             "name": "New DAO",
             "description": "A test DAO",
             "owner_id": victor.user_id,
-            "user_who_made_request": victor.user_id
         },
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )

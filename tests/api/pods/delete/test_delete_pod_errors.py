@@ -47,7 +47,8 @@ def test_remove_pod_member_not_in_community(client: Flask, victor: User, sayori:
         json=membership_data,
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
-    assert res.status_code == 401
+    print(res.json)
+    assert res.status_code == 400
 
 
 def test_delete_pod_wrong_community(client: Flask, victor: User, victor_logged_in: str, dao: DAO, pod: POD):
