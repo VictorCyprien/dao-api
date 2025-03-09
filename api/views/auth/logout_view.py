@@ -1,7 +1,6 @@
 from flask import current_app
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt
-from ...utils import conditional_jwt_required
+from flask_jwt_extended import get_jwt, jwt_required
 
 from .auth_blp import auth_blp
 
@@ -27,14 +26,12 @@ class LogoutAuthView(MethodView):
     @auth_blp.doc(operationId='Logout')
     @auth_blp.response(401, schema=PagingError, description="Not logged")
     @auth_blp.response(201, schema=LogoutResponseSchema, description="Logout the user")
-    @conditional_jwt_required()
+    @jwt_required()
     def post(self):
         """Logout the user"""
-        # Only attempt to get the JWT if authentication is not disabled
-        if not current_app.config.get('AUTH_DISABLED', False):
-            jti = get_jwt()["jti"]
-            jwt_redis_blocklist = current_app.extensions['jwt_redis_blocklist']
-            jwt_redis_blocklist.set(jti, "", ex=config.JWT_ACCESS_TOKEN_EXPIRES)
+        jti = get_jwt()["jti"]
+        jwt_redis_blocklist = current_app.extensions['jwt_redis_blocklist']
+        jwt_redis_blocklist.set(jti, "", ex=config.JWT_ACCESS_TOKEN_EXPIRES)
 
         return {
             "msg": "You have been logout !"

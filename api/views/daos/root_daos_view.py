@@ -3,13 +3,13 @@ from typing import Dict
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from api.utils import conditional_jwt_required
+
 
 from api.models.dao import DAO
 from api.models.user import User
-from api.schemas.dao_schemas import DAOSchema, DAOUpdateSchema, DAOMembershipSchema
+from api.schemas.dao_schemas import DAOSchema
 from api.schemas.communs_schemas import PagingError
 from api.views.daos.daos_blp import blp as daos_blp
 from helpers.errors_file import ErrorHandler, NotFound
@@ -23,7 +23,8 @@ class RootDAOsView(MethodView):
         db: SQLAlchemy = current_app.db
         return DAO.get_all(db.session)
 
-    @conditional_jwt_required()
+
+    @jwt_required()
     @daos_blp.arguments(DAOSchema)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(201, DAOSchema)

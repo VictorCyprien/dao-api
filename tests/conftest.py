@@ -32,7 +32,6 @@ def app(request) -> Iterator[Flask]:
     config.SECURITY_PASSWORD_SALT = "123456"
     config.JWT_ACCESS_TOKEN_EXPIRES = 60
     config.JWT_SECRET_KEY = "test_secret_key"
-    config.AUTH_DISABLED = False
 
     from api.app import create_flask_app
     _app = create_flask_app(config=config)

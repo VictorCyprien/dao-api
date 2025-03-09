@@ -1,6 +1,5 @@
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt_identity
-from ...utils import conditional_jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from ast import literal_eval
 
@@ -29,7 +28,7 @@ class ItemsDataView(MethodView):
     @data_blp.arguments(QueryParamsSchema, location="query")
     @data_blp.response(400, schema=PagingError, description="BadRequest")
     @data_blp.response(200, schema=ItemsResponseSchema, description="OK")
-    @conditional_jwt_required(fresh=True)
+    @jwt_required(fresh=True)
     def get(self, input_data: dict):
         """Get data"""
         #Expected format: YYYY-MM-DDThh:mm:ss
@@ -67,7 +66,7 @@ class SummaryDataView(MethodView):
     @data_blp.arguments(QueryParamsSchema, location="query")
     @data_blp.response(400, schema=PagingError, description="BadRequest")
     @data_blp.response(200, schema=SummaryResponseSchema, description="OK")
-    @conditional_jwt_required(fresh=True)
+    @jwt_required(fresh=True)
     def get(self, input_data: dict):
         """Get data"""
         #Expected format: YYYY-MM-DDThh:mm:ss

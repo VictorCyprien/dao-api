@@ -16,9 +16,6 @@ class Config:
         # FLASK JWT
         self.JWT_SECRET_KEY = env.str('JWT_SECRET_KEY', None)
         self.JWT_ACCESS_TOKEN_EXPIRES = env.int('JWT_ACCESS_TOKEN_EXPIRES', None)
-        
-        # Authentication can be disabled for development/testing purposes
-        self.AUTH_DISABLED = env.bool('AUTH_DISABLED', False)
 
         # FLASK CORS
         self.CORS_ALLOWED_ORIGINS = env.str('CORS_ALLOWED_ORIGINS', "*")

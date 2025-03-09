@@ -1,9 +1,9 @@
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from api.utils import conditional_jwt_required
+
 
 from api.models.dao import DAO
 from api.models.user import User
@@ -16,7 +16,7 @@ from helpers.errors_file import ErrorHandler, NotFound, Unauthorized
 
 @daos_blp.route("/<string:dao_id>")
 class OneDAOView(MethodView):
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, DAOSchema)
     def get(self, dao_id: str):
@@ -33,7 +33,7 @@ class OneDAOView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200, DAOSchema)
-    @conditional_jwt_required()
+    @jwt_required()
     def put(self, update_data, dao_id):
         """Update a DAO"""
         db: SQLAlchemy = current_app.db
@@ -61,7 +61,7 @@ class OneDAOView(MethodView):
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
     @daos_blp.response(200)
-    @conditional_jwt_required()
+    @jwt_required()
     def delete(self, dao_id: str):
         """Delete a DAO"""
         db: SQLAlchemy = current_app.db

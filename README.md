@@ -60,7 +60,6 @@ The following environment variables can be set to configure the API:
 | FLASK_ENV | Flask environment (dev, prod) | "dev" |
 | JWT_SECRET_KEY | Secret key for JWT tokens | None |
 | JWT_ACCESS_TOKEN_EXPIRES | Expiration time for JWT tokens in seconds | None |
-| AUTH_DISABLED | Disable authentication requirements (for development) | False |
 | CORS_ALLOWED_ORIGINS | CORS allowed origins | "*" |
 | POSTGRESQL_URI | PostgreSQL URI | "localhost" |
 | POSTGRESQL_USERNAME | PostgreSQL username | "root" |
@@ -69,23 +68,6 @@ The following environment variables can be set to configure the API:
 | REDIS_URI | Redis URI | "localhost" |
 | REDIS_PORT | Redis port | 6379 |
 
-### Disabling Authentication
-
-For development or testing purposes, you can disable authentication by setting the `AUTH_DISABLED` environment variable to `True`:
-
-```bash
-# Linux/macOS
-export AUTH_DISABLED=True
-python run.py
-
-# Windows
-set AUTH_DISABLED=True
-python run.py
-```
-
-This will bypass all JWT authentication requirements in the API, allowing you to test endpoints without needing to authenticate.
-
-> ⚠️ **Warning**: Do not use this option in production environments.
 
 ## API Documentation
 

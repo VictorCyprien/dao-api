@@ -1,9 +1,9 @@
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from api.utils import conditional_jwt_required
+
 
 from api.models.dao import DAO
 from api.models.user import User
@@ -16,7 +16,7 @@ from helpers.errors_file import ErrorHandler, NotFound, Unauthorized, BadRequest
 
 @daos_blp.route("/<string:dao_id>/members")
 class DAOMembershipView(MethodView):
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
@@ -40,7 +40,7 @@ class DAOMembershipView(MethodView):
         return dao
     
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -74,7 +74,7 @@ class DAOMembershipView(MethodView):
 
 @daos_blp.route("/<string:dao_id>/admins")
 class DAOAdminView(MethodView):
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -106,7 +106,7 @@ class DAOAdminView(MethodView):
         return dao
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)

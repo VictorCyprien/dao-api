@@ -7,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from ...utils import conditional_jwt_required
 
 from .users_blp import users_blp
 from ...models.user import User
@@ -70,7 +69,7 @@ class OneUserView(MethodView):
     @users_blp.response(400, schema=PagingError, description="BadRequest")
     @users_blp.response(404, schema=PagingError, description="NotFound")
     @users_blp.response(200, schema=UserResponseSchema, description="Update one user")
-    @conditional_jwt_required(fresh=True)
+    @jwt_required(fresh=True)
     def put(self, input_dict: Dict, user_id: str):
         """Update an existing user"""
         db: SQLAlchemy = current_app.db

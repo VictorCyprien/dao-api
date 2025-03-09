@@ -1,9 +1,9 @@
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from api.utils import conditional_jwt_required
+
 
 from api.models.pod import POD
 from api.models.dao import DAO
@@ -18,7 +18,7 @@ from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 
 @daos_blp.route("<string:dao_id>/pods")
 class RootPODView(MethodView):
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.response(404, PagingError)
     @daos_blp.response(200, PODSchema(many=True))
     def get(self, dao_id: str):
@@ -37,7 +37,7 @@ class RootPODView(MethodView):
         return POD.get_dao_pods(dao_id, db.session)
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(PODSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -86,7 +86,7 @@ class PODView(MethodView):
         return pod
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(PODUpdateSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
@@ -120,7 +120,7 @@ class PODView(MethodView):
             abort(400, message=str(e))
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
@@ -170,7 +170,7 @@ class PODMembersView(MethodView):
         return pod.members
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
     @daos_blp.response(400, PagingError)
@@ -197,7 +197,7 @@ class PODMembersView(MethodView):
         return pod
 
 
-    @conditional_jwt_required()
+    @jwt_required()
     @daos_blp.arguments(PODMembershipSchema)
     @daos_blp.response(404, PagingError)
     @daos_blp.response(403, PagingError)
