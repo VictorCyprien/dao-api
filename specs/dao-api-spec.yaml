@@ -345,7 +345,8 @@
         "summary": "List all DAOs",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "GetAllDAOs"
       },
       "post": {
         "responses": {
@@ -389,7 +390,8 @@
         "summary": "Create a new DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "CreateDAO"
       }
     },
     "/daos/{dao_id}": {
@@ -422,7 +424,8 @@
         "summary": "Get a DAO by ID",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "GetDAOById"
       },
       "put": {
         "responses": {
@@ -486,7 +489,8 @@
         "summary": "Update a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "UpdateDAO"
       },
       "delete": {
         "responses": {
@@ -530,7 +534,8 @@
         "summary": "Delete a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "DeleteDAO"
       },
       "parameters": [
         {
@@ -594,7 +599,8 @@
         "summary": "Add a member to a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "AddMemberToDAO"
       },
       "delete": {
         "responses": {
@@ -658,7 +664,8 @@
         "summary": "Remove a member from a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "RemoveMemberFromDAO"
       },
       "parameters": [
         {
@@ -735,7 +742,8 @@
         "summary": "Add an admin to a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "AddAdminToDAO"
       },
       "delete": {
         "responses": {
@@ -799,7 +807,8 @@
         "summary": "Remove an admin from a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "RemoveAdminFromDAO"
       },
       "parameters": [
         {
@@ -846,7 +855,8 @@
         "summary": "Get all PODs for a DAO",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "GetAllPODsForDAO"
       },
       "post": {
         "responses": {
@@ -910,7 +920,8 @@
         "summary": "Create a new POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "CreatePOD"
       },
       "parameters": [
         {
@@ -954,7 +965,8 @@
         "summary": "Get a POD by ID",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "GetPODById"
       },
       "put": {
         "responses": {
@@ -1018,7 +1030,8 @@
         "summary": "Update a POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "UpdatePOD"
       },
       "delete": {
         "responses": {
@@ -1069,7 +1082,8 @@
         "summary": "Delete a POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "DeletePOD"
       },
       "parameters": [
         {
@@ -1125,7 +1139,8 @@
         "summary": "Get all members of a POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "GetAllMembersOfPOD"
       },
       "post": {
         "responses": {
@@ -1176,7 +1191,8 @@
         "summary": "Add a member to a POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "AddMemberToPOD"
       },
       "delete": {
         "responses": {
@@ -1240,7 +1256,8 @@
         "summary": "Remove a member from a POD",
         "tags": [
           "daos"
-        ]
+        ],
+        "operationId": "RemoveMemberFromPOD"
       },
       "parameters": [
         {
