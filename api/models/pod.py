@@ -105,6 +105,6 @@ class POD(Base):
         return session.query(cls).filter_by(dao_id=dao_id).all()
     
     @classmethod
-    def generate_pod_id(cls) -> int:
+    def generate_pod_id(cls) -> str:
         """ Generate a random pod_id """
-        return random.randint(1, sys.maxsize)
+        return str(random.randint(1, sys.maxsize))
