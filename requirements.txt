@@ -49,7 +49,7 @@ port-for==0.7.4
 psutil==6.1.1
 psycopg==3.2.4
 psycopg2==2.9.10
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.9
 pycparser==2.22
 Pygments==2.19.1
 PyJWT==2.9.0
