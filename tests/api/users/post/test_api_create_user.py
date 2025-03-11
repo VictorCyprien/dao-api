@@ -72,7 +72,7 @@ def test_create_email_already_used(client: Flask, victor: User):
         'discord_username': 'victor#1234',
         'email': 'victor@example.com',
         'username': 'Victor123',
-        'wallet_address': '0x1234567890'
+        'wallet_address': '0x123456789012'
     }
 
     res = client.post("/users/", json=data)
@@ -112,7 +112,7 @@ def test_create_discord_username_already_used(client: Flask, victor: User):
         'discord_username': 'victor#1234',
         'email': 'victor2@example.com',
         'username': 'Victor123',
-        'wallet_address': '0x1234567890'
+        'wallet_address': '0x1234567890123'
     }
 
     res = client.post("/users/", json=data)
