@@ -121,7 +121,7 @@ class UserBasic(BaseModel):
 
 class DAOMembership(BaseModel):
     """DAO membership"""
-    user_id: str
+    user_id: Optional[str] = Field(None, description="User ID")
 
 
 class InputCreateDAO(BaseModel):
@@ -163,7 +163,7 @@ class DAOUpdate(BaseModel):
 
 class PODMembership(BaseModel):
     """POD membership"""
-    user_id: str
+    user_id: Optional[str] = Field(None, description="User ID")
 
 
 class InputCreatePOD(BaseModel):
