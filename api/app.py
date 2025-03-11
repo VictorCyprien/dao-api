@@ -188,8 +188,8 @@ def create_flask_app(config: Config) -> Flask:
     from .views.daos import daos_blp
     rest_api.register_blueprint(daos_blp)
 
-    from .views.data import data_blp
-    rest_api.register_blueprint(data_blp)
+    # from .views.data import data_blp
+    # rest_api.register_blueprint(data_blp)
 
     app.logger.debug(f"URL Map: \n{app.url_map}")
     return app
