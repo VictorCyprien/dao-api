@@ -29,15 +29,16 @@ class RootUsersView(UserViewHandler):
     def post(self, body: InputCreateUser):
         """Create a new user"""
         db: SQLAlchemy = current_app.db
+        input_data = body.model_dump(exclude_unset=True)
 
         # Check if email, discord username, wallet address or github username are already used
         try:
-            self.check_user_exists(input_data=body.model_dump(exclude_unset=True), session=db.session)
+            self.check_user_exists(input_data=input_data, session=db.session)
         except BadRequest as error:
             raise error
 
         # Create user
-        user = User.create(input_data=body.model_dump(exclude_unset=True))
+        user = User.create(input_data=input_data)
 
         # Save user
         db.session.add(user)

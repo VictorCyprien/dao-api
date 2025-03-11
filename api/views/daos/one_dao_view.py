@@ -60,6 +60,7 @@ class OneDAOView(MethodView):
             db.session.rollback()
             abort(400, message=str(e))
 
+
     @daos_blp.doc(operationId='DeleteDAO')
     @jwt_required(fresh=True)
     def delete(self, dao_id: str):
