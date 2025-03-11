@@ -74,7 +74,7 @@ class DAOMembershipView(MethodView):
         if not target_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
-        if auth_user.user_id == target_user.user_id:
+        if target_user.user_id == dao.owner_id:
             raise BadRequest(ErrorHandler.CANNOT_REMOVE_OWNER)
             
         if not dao.remove_member(target_user):
