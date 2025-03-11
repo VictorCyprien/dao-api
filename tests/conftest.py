@@ -1,17 +1,13 @@
 from typing import Iterator
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from flask import Flask
 from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 
-import sqlalchemy as sa
-
 from unittest.mock import Mock
-import mongomock
 import pytest
 import freezegun
-from pytest_postgresql.janitor import DatabaseJanitor
 
 from api import Base
 from api.models.user import User
