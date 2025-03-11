@@ -5,15 +5,17 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 import secrets
 import redis
+from flask_pydantic import validate
 
 from .auth_blp import auth_blp
 
 from ...schemas.communs_schemas import PagingError
-from ...schemas.auth_schemas import (
-    LoginResponseSchema,
-    ChallengeRequestSchema,
-    ChallengeResponseSchema,
-    VerifySignatureSchema
+from ...schemas.pydantic_schemas import (
+    ChallengeRequest, 
+    ChallengeResponse, 
+    VerifySignature, 
+    LoginResponse,
+    PagingError as PydanticPagingError
 )
 
 from ...models.user import User
@@ -32,12 +34,10 @@ redis_client = RedisToken()
 class WalletChallengeView(MethodView):
     
     @auth_blp.doc(operationId='GetWalletChallenge')
-    @auth_blp.arguments(ChallengeRequestSchema)
-    @auth_blp.response(404, schema=PagingError, description="User not found")
-    @auth_blp.response(200, schema=ChallengeResponseSchema, description="Challenge message")
-    def post(self, challenge_request: dict):
+    @validate(body=ChallengeRequest)
+    def post(self, body: ChallengeRequest):
         """Generate a challenge message for Solana wallet signature authentication"""
-        wallet_address = challenge_request.get("wallet_address")
+        wallet_address = body.wallet_address
         logger.debug(f"Generating challenge for Solana wallet: {wallet_address}")
         
         # Check if user exists
@@ -53,24 +53,24 @@ class WalletChallengeView(MethodView):
         redis_key = f"wallet_auth:{wallet_address}"
         redis_client.set_token(redis_key, message, 300)
 
+        # Create response using Pydantic model
+        response = ChallengeResponse(
+            message=message,
+            wallet_address=wallet_address
+        )
         
-        return {
-            "message": message,
-            "wallet_address": wallet_address
-        }
+        return response.model_dump()
 
 
 @auth_blp.route('/wallet/verify')
 class WalletVerifyView(MethodView):
     
     @auth_blp.doc(operationId='VerifyWalletSignature')
-    @auth_blp.arguments(VerifySignatureSchema)
-    @auth_blp.response(401, schema=PagingError, description="Invalid signature")
-    @auth_blp.response(201, schema=LoginResponseSchema, description="Login successful")
-    def post(self, verify_data: dict):
+    @validate(body=VerifySignature)
+    def post(self, body: VerifySignature):
         """Verify a Solana wallet signature and authenticate the user"""
-        wallet_address = verify_data.get("wallet_address")
-        signature = verify_data.get("signature")
+        wallet_address = body.wallet_address
+        signature = body.signature
         
         logger.debug(f"Verifying Solana signature for wallet: {wallet_address}")
         
@@ -109,7 +109,10 @@ class WalletVerifyView(MethodView):
             expires_delta=timedelta(minutes=config.JWT_ACCESS_TOKEN_EXPIRES)
         )
         
-        return {
-            "msg": "Logged in with Solana wallet signature",
-            "token": token
-        } 
+        # Create response using Pydantic model
+        response = LoginResponse(
+            msg="Logged in with Solana wallet signature",
+            token=token
+        )
+        
+        return jsonify(response.model_dump()), 201
