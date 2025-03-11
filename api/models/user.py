@@ -271,3 +271,38 @@ class User(Base):
             # Log the error
             logger.error(f"Solana signature verification failed: {str(e)}")
             return False
+
+
+    def to_dict(self):
+        """Convert User model to dictionary for Pydantic serialization"""
+        return {
+            "user_id": self.user_id,
+            "username": self.username,
+            "wallet_address": self.wallet_address,
+            "email": self.email,
+            "member_name": self.member_name,
+            "discord_username": self.discord_username,
+            "twitter_username": self.twitter_username,
+            "telegram_username": self.telegram_username,
+            "last_login": self.last_login,
+            "last_interaction": self.last_interaction,
+            "email_verified": self.email_verified,
+            "is_active": self.is_active
+        }
+        
+    def __iter__(self):
+        """Make the model iterable for dict() conversion"""
+        yield from {
+            "user_id": self.user_id,
+            "username": self.username,
+            "wallet_address": self.wallet_address,
+            "email": self.email,
+            "member_name": self.member_name,
+            "discord_username": self.discord_username,
+            "twitter_username": self.twitter_username,
+            "telegram_username": self.telegram_username,
+            "last_login": self.last_login,
+            "last_interaction": self.last_interaction,
+            "email_verified": self.email_verified,
+            "is_active": self.is_active
+        }.items()
