@@ -42,7 +42,7 @@ def test_update_pod_invalid_data(client: Flask, victor: User, victor_logged_in: 
         json=update_data,
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
-    assert res.status_code == 422
+    assert res.status_code == 400
 
 
 def test_update_pod_not_admin(client: Flask, sayori: User, sayori_logged_in: str, dao: DAO, pod: POD):

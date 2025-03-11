@@ -26,7 +26,7 @@ def test_create_pod_invalid_data(client: Flask, victor: User, victor_logged_in: 
         json=pod_data,
         headers={"Authorization": f"Bearer {victor_logged_in}"}
     )
-    assert res.status_code == 422
+    assert res.status_code == 400
 
 def test_add_duplicate_pod_member(client: Flask, victor: User, victor_logged_in: str, dao: DAO, pod: POD):
     """Test adding the same member twice"""

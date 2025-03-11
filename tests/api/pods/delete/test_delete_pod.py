@@ -42,6 +42,7 @@ def test_remove_pod_member(client: Flask, victor: User, victor_logged_in: str, n
     # First add the member
     res = client.post(
         f"/daos/{dao.dao_id}/members",
+        json={},
         headers={"Authorization": f"Bearer {natsuki_logged_in}"}
     )
     print(res.json)
@@ -53,9 +54,10 @@ def test_remove_pod_member(client: Flask, victor: User, victor_logged_in: str, n
     }
     res = client.post(
         f"/daos/{dao.dao_id}/pods/{pod.pod_id}/members",
+        json={},
         headers={"Authorization": f"Bearer {natsuki_logged_in}"}
     )
-
+    print(res.json)
     assert res.status_code == 200
     assert natsuki in pod.members
     
