@@ -66,18 +66,33 @@ def test_user_update_email(client: Flask, victor: User, victor_logged_in: str):
 def test_user_update_wallet_address(client: Flask, victor: User, victor_logged_in: str):
     data_put = {
         "username": "VicCrypto",
-        "wallet_address": "0x1234567890",
+        "wallet_address": "0x987654321",
     }
 
     res = client.put(f"/users/{victor.user_id}", json=data_put, headers={"Authorization": f"Bearer {victor_logged_in}"})
-    assert res.status_code == 422
+    print(res.json)
+    assert res.status_code == 200
     data = res.json
     print(data)
     assert data == {
-        'code': 422,
-        'errors': {'json': {'wallet_address': ['Unknown field.']}},
-        'status': 'Unprocessable Entity'
+        'action': 'updated',
+        'user': {
+            'discord_username': 'victor#1234',
+            'email': 'victor@example.com',
+            'email_verified': False,
+            'is_active': True,
+            'last_interaction': ANY,
+            'last_login': ANY,
+            'member_name': None,
+            'telegram_username': None,
+            'twitter_username': None,
+            'user_id': ANY,
+            'username': 'VicCrypto',
+            'wallet_address': '0x1234567890'
+        }
     }
+
+    assert victor.wallet_address != "0x987654321" and victor.wallet_address == "0x1234567890"
     
 
 def test_user_update_no_payload(client: Flask, victor: User, victor_logged_in: str):
