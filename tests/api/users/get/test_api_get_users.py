@@ -11,21 +11,20 @@ def test_get_auth_user(client: Flask, victor: User, victor_logged_in: str):
     data = res.json
     print(data)
     assert data == {
-        'user': {
-            'discord_username': 'victor#1234',
-            'email': 'victor@example.com',
-            'email_verified': False,
-            'is_active': True,
-            'last_login': ANY,
-            'last_interaction': ANY,
-            'member_name': None,
-            'telegram_username': None,
-            'twitter_username': None,
-            'user_id': ANY,
-            'username': 'Victor',
-            'wallet_address': '0x1234567890'
-        }
+        'discord_username': 'victor#1234',
+        'email': 'victor@example.com',
+        'email_verified': False,
+        'is_active': True,
+        'last_login': ANY,
+        'last_interaction': ANY,
+        'member_name': None,
+        'telegram_username': None,
+        'twitter_username': None,
+        'user_id': ANY,
+        'username': 'Victor',
+        'wallet_address': '0x1234567890'
     }
+    
 
 
 def test_get_one_user_not_logged(client: Flask, victor: User):

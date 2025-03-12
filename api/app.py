@@ -8,6 +8,7 @@ from flask_cors import CORS
 import redis
 from redis import StrictRedis
 from rq import Queue
+from pydantic import ValidationError
 
 from . import Base
 from .config import Config
@@ -33,6 +34,24 @@ def setup_redis(config: Config):
         db=0, 
         decode_responses=True
     )
+
+
+def setup_pydantic(app: Flask):
+    """
+    Configure Pydantic for request validation.
+    This enables automatic validation of request data using Pydantic models.
+    """
+    @app.errorhandler(ValidationError)
+    def handle_validation_error(error):
+        """Handle Pydantic validation errors and return appropriate response"""
+        return jsonify({
+            "code": 422,
+            "message": "Validation error",
+            "status": "Unprocessable Entity", 
+            "errors": error.errors()
+        }), 422
+    
+    return app
 
 
 def setup_jwt(app: Flask, redis_client: StrictRedis):
@@ -91,6 +110,9 @@ def create_flask_app(config: Config) -> Flask:
     # Initialize CORS
     allowed_origins = config.CORS_ALLOWED_ORIGINS if hasattr(config, 'CORS_ALLOWED_ORIGINS') else "*"
     setup_cors(app, config, allowed_origins)
+
+    # Initialize Pydantic
+    setup_pydantic(app)
 
     """ Log each API/APP request
     """
@@ -166,8 +188,8 @@ def create_flask_app(config: Config) -> Flask:
     from .views.daos import daos_blp
     rest_api.register_blueprint(daos_blp)
 
-    from .views.data import data_blp
-    rest_api.register_blueprint(data_blp)
+    # from .views.data import data_blp
+    # rest_api.register_blueprint(data_blp)
 
     app.logger.debug(f"URL Map: \n{app.url_map}")
     return app

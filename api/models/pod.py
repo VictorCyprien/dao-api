@@ -108,3 +108,28 @@ class POD(Base):
     def generate_pod_id(cls) -> str:
         """ Generate a random pod_id """
         return str(random.randint(1, sys.maxsize))
+
+    def to_dict(self):
+        """Convert POD model to dictionary for Pydantic serialization"""
+        result = {
+            "pod_id": self.pod_id,
+            "dao_id": self.dao_id,
+            "name": self.name,
+            "description": self.description,
+            "is_active": self.is_active,
+            "created_at": self.created_at,
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+        }
+        return result
+        
+    def __iter__(self):
+        """Make the model iterable for dict() conversion"""
+        yield from {
+            "pod_id": self.pod_id,
+            "dao_id": self.dao_id,
+            "name": self.name,
+            "description": self.description,
+            "is_active": self.is_active,
+            "created_at": self.created_at,
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+        }.items()

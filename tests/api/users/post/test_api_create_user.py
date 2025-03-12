@@ -52,18 +52,29 @@ def test_create_user(client: Flask, db: SQLAlchemy):
 
 def test_create_user_empty_data(client: Flask):
     res = client.post("/users/", json={})
-    assert res.status_code == 422
+    print(res.json)
+    assert res.status_code == 400
     data = res.json
     print(data)
     assert data == {
-        'code': 422,
-        'errors': {
-            'json': {
-                'username': ['Missing data for required field.'],
-                'wallet_address': ['Missing data for required field.']
-            }
-        },
-        'status': 'Unprocessable Entity'
+        'validation_error': {
+            'body_params': [
+                {
+                    'input': {},
+                    'loc': ['username'],
+                    'msg': 'Field required',
+                    'type': 'missing',
+                    'url': 'https://errors.pydantic.dev/2.10/v/missing'
+                },
+                {
+                    'input': {},
+                    'loc': ['wallet_address'],
+                    'msg': 'Field required',
+                    'type': 'missing',
+                    'url': 'https://errors.pydantic.dev/2.10/v/missing'
+                }
+            ]
+        }
     }
 
 
@@ -96,13 +107,21 @@ def test_create_user_invalid_email(client: Flask):
 
     res = client.post("/users/", json=data)
     print(res.json)
-    assert res.status_code == 422
+    assert res.status_code == 400
     data = res.json
     print(data)
     assert data == {
-        'code': 422,
-        'errors': {'json': {'email': ['Not a valid email address.']}},
-        'status': 'Unprocessable Entity'
+        'validation_error': {
+            'body_params': [
+                {
+                    'ctx': {'reason': 'An email address must have an @-sign.'},
+                    'input': 'invalid_email',
+                    'loc': ['email'],
+                    'msg': 'value is not a valid email address: An email address must have an @-sign.',
+                    'type': 'value_error'
+                }
+            ]
+        }
     }
 
 

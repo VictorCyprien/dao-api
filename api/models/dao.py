@@ -134,3 +134,28 @@ class DAO(Base):
     def generate_dao_id(cls) -> str:
         """ Generate a random dao_id """
         return str(random.randint(1, sys.maxsize))
+
+    def to_dict(self):
+        """Convert DAO model to dictionary for Pydantic serialization"""
+        result = {
+            "dao_id": self.dao_id,
+            "name": self.name,
+            "description": self.description,
+            "owner_id": self.owner_id,
+            "is_active": self.is_active,
+            "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+        }
+        return result
+        
+    def __iter__(self):
+        """Make the model iterable for dict() conversion"""
+        yield from {
+            "dao_id": self.dao_id,
+            "name": self.name,
+            "description": self.description,
+            "owner_id": self.owner_id,
+            "is_active": self.is_active,
+            "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+        }.items()

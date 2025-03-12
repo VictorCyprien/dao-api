@@ -69,6 +69,7 @@ class ErrorHandler():
     USER_NOT_ADMIN = "You are not an admin of this DAO !"
     USER_NOT_OWNER = "You are not the owner of this DAO !"
     USER_NOT_MEMBER = "This user is not a member of this DAO !"
+    CANNOT_REMOVE_OWNER = "The owner cannot be removed as admin"
     POD_NOT_FOUND = "This POD doesn't exist !"
     USER_ALREADY_IN_POD = "This user is already in this POD !"
     USER_NOT_IN_POD = "This user is not in this POD !"

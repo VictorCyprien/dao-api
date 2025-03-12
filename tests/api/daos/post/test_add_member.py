@@ -6,6 +6,7 @@ def test_add_member(client: Flask, victor: User, sayori: User, sayori_logged_in:
     """Test successfully adding a member to a DAO"""
     res = client.post(
         f"/daos/{dao.dao_id}/members",
+        json={},
         headers={"Authorization": f"Bearer {sayori_logged_in}"}
     )
     data = res.json
