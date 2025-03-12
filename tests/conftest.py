@@ -13,6 +13,7 @@ from api import Base
 from api.models.user import User
 from api.models.dao import DAO
 from api.models.pod import POD
+from api.models.treasury import Token, Transfer
 
 from environs import Env
 
@@ -231,5 +232,45 @@ def pod(app, dao, db: SQLAlchemy) -> Iterator[POD]:
             db.session.commit()
         yield pod
         db.session.delete(pod)
+        db.session.commit()
+
+
+# Add Treasury fixtures
+@pytest.fixture
+def token(app, dao, db: SQLAlchemy) -> Iterator[Token]:
+    token_data = {
+        "dao_id": dao.dao_id,
+        "name": "Test Token",
+        "symbol": "TEST",
+        "contract": "So11111111111111111111111111111111111111111",
+        "amount": 1000.0,
+        "price": 1.0,
+        "percentage": 100
+    }
+    
+    with app.app_context():
+        token = Token.create(token_data)
+        db.session.add(token)
+        db.session.commit()
+        yield token
+        db.session.delete(token)
+        db.session.commit()
+
+@pytest.fixture
+def transfer(app, dao, token, victor, db: SQLAlchemy) -> Iterator[Transfer]:
+    transfer_data = {
+        "dao_id": dao.dao_id,
+        "token_id": token.token_id,
+        "from_address": "0xExternalAddress",
+        "to_address": victor.wallet_address,
+        "amount": 500.0
+    }
+    
+    with app.app_context():
+        transfer = Transfer.create(transfer_data)
+        db.session.add(transfer)
+        db.session.commit()
+        yield transfer
+        db.session.delete(transfer)
         db.session.commit()
 

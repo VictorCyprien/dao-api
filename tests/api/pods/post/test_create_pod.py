@@ -18,9 +18,11 @@ def test_create_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO
     )
     assert res.status_code == 201
     data = res.json
-    assert data["name"] == pod_data["name"]
-    assert data["description"] == pod_data["description"]
-    assert data["dao_id"] == dao.dao_id
+    print(data)
+    assert data["action"] == "created"
+    assert data["pod"]["name"] == pod_data["name"]
+    assert data["pod"]["description"] == pod_data["description"]
+    assert data["pod"]["dao_id"] == dao.dao_id
 
 def test_add_pod_member(client: Flask, victor: User, victor_logged_in: str, dao: DAO, pod: POD):
     """Test adding a member to a POD"""

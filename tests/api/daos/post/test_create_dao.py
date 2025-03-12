@@ -16,12 +16,14 @@ def test_create_dao(client: Flask, victor: User, victor_logged_in: str):
     print(data)
     assert res.status_code == 201
     assert data == {
-        'dao_id': ANY,
-        'name': 'New DAO',
-        'description': 'A test DAO',
-        'owner_id': victor.user_id,
-        'is_active': True,
-        'admins': [
+        'action': 'created',
+        'dao': {
+            'dao_id': ANY,
+            'name': 'New DAO',
+            'description': 'A test DAO',
+            'owner_id': victor.user_id,
+            'is_active': True,
+            'admins': [
             {
                 'user_id': victor.user_id,
                 'username': victor.username,
@@ -32,5 +34,6 @@ def test_create_dao(client: Flask, victor: User, victor_logged_in: str):
                 'user_id': victor.user_id,
                 'username': victor.username,
             }
-        ]
+            ]
+        }
     } 

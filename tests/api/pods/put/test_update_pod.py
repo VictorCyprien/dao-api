@@ -17,5 +17,6 @@ def test_update_pod(client: Flask, victor: User, victor_logged_in: str, dao: DAO
     )
     assert res.status_code == 200
     data = res.json
-    assert data["name"] == update_data["name"]
-    assert data["description"] == update_data["description"] 
+    assert data["action"] == "updated"
+    assert data["pod"]["name"] == update_data["name"]
+    assert data["pod"]["description"] == update_data["description"] 
