@@ -188,6 +188,9 @@ def create_flask_app(config: Config) -> Flask:
     from .views.daos import daos_blp
     rest_api.register_blueprint(daos_blp)
 
+    from .views.treasury import treasury_blp
+    rest_api.register_blueprint(treasury_blp)
+
     # from .views.data import data_blp
     # rest_api.register_blueprint(data_blp)
 

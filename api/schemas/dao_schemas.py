@@ -15,6 +15,22 @@ class DAOSchema(Schema):
     admins = fields.Nested(UserBasicSchema, many=True, dump_only=True)
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)
 
+class InputCreateDAOSchema(Schema):
+    """Schema for creating a DAO"""
+    name = fields.Str(required=True)
+    description = fields.Str(required=True)
+    owner_id = fields.Str(required=True)
+
+class DAOSchemaResponse(Schema):
+    """Schema for DAO response"""
+    action = fields.Str(required=True)
+    dao = fields.Nested(DAOSchema, required=True)
+
+class DAOMembershipResponseSchema(Schema):
+    """Schema for DAO membership response"""
+    action = fields.Str(required=True)
+    dao = fields.Nested(DAOSchema, required=True)
+
 class DAOUpdateSchema(Schema):
     """Schema for updating a DAO"""
     name = fields.Str(validate=validate.Length(min=1))
