@@ -266,4 +266,138 @@ class CreateItemRequest(BaseModel):
                 "link": "https://example.com",
                 "topics": "crypto,blockchain,dao"
             }
+        }
+
+# Treasury-related schemas
+class TokenBase(BaseModel):
+    """Base Token model"""
+    name: str = Field(..., description="Token name")
+    symbol: str = Field(..., description="Token symbol")
+    contract: Optional[str] = Field(None, description="Contract address of the token on the blockchain")
+    amount: float = Field(0.0, description="Amount of tokens")
+    price: float = Field(0.0, description="Current price of the token")
+    percentage: int = Field(0, description="Percentage of treasury this token represents", ge=0, le=100)
+
+class InputCreateToken(TokenBase):
+    """Input information needed to create a Token"""
+    dao_id: str = Field(..., description="DAO ID this token belongs to")
+
+class TokenModel(TokenBase):
+    """Token information"""
+    token_id: str = Field(..., description="Token ID")
+    dao_id: str = Field(..., description="DAO ID this token belongs to")
+    value: float = Field(..., description="Total value of the token holding (amount * price)")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "token_id": "123456789",
+                "dao_id": "987654321",
+                "name": "Steakhouse USDT",
+                "symbol": "USDT",
+                "amount": 14000.0,
+                "price": 1.08,
+                "percentage": 60,
+                "value": 15120.0
+            }
+        }
+
+class TokenUpdate(BaseModel):
+    """Token update information"""
+    name: Optional[str] = Field(None, min_length=1, description="Token name")
+    symbol: Optional[str] = Field(None, min_length=1, description="Token symbol")
+    contract: Optional[str] = Field(None, description="Contract address of the token on the blockchain")
+    amount: Optional[float] = Field(None, description="Amount of tokens")
+    price: Optional[float] = Field(None, description="Current price of the token")
+    percentage: Optional[int] = Field(None, description="Percentage of treasury this token represents", ge=0, le=100)
+
+class TransferBase(BaseModel):
+    """Base Transfer model"""
+    from_address: str = Field(..., description="Wallet address that sent the tokens")
+    to_address: str = Field(..., description="Wallet address that received the tokens")
+    amount: float = Field(..., description="Amount of tokens transferred")
+    timestamp: Optional[datetime] = Field(None, description="When the transfer occurred")
+
+class InputCreateTransfer(TransferBase):
+    """Input information needed to create a Transfer"""
+    dao_id: str = Field(..., description="DAO ID this transfer belongs to")
+    token_id: str = Field(..., description="Token ID")
+
+class TransferModel(TransferBase):
+    """Transfer information"""
+    transfer_id: str = Field(..., description="Transfer ID")
+    dao_id: str = Field(..., description="DAO ID this transfer belongs to")
+    token_id: str = Field(..., description="Token ID")
+    token: Optional[TokenModel] = Field(None, description="Token information")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "transfer_id": "123456789",
+                "dao_id": "987654321",
+                "token_id": "987654321",
+                "from_address": "0x123456789abcdef",
+                "to_address": "0xfedcba987654321",
+                "amount": 1000.0,
+                "timestamp": "2023-08-15T14:30:00Z",
+                "token": {
+                    "token_id": "987654321",
+                    "dao_id": "123456789",
+                    "name": "Steakhouse USDT",
+                    "symbol": "USDT",
+                    "amount": 14000.0,
+                    "price": 1.08,
+                    "percentage": 60,
+                    "value": 15120.0
+                }
+            }
+        }
+
+class TreasuryModel(BaseModel):
+    """Treasury information"""
+    total_value: float = Field(..., description="Total value of all tokens")
+    daily_change: float = Field(..., description="Value change in the last 24 hours")
+    daily_change_percentage: float = Field(..., description="Percentage change in the last 24 hours")
+    tokens: List[TokenModel] = Field(..., description="Tokens in the treasury")
+    recent_transfers: List[TransferModel] = Field(..., description="Recent transfers")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "total_value": 26632122.28,
+                "daily_change": 111172.70,
+                "daily_change_percentage": 0.42,
+                "tokens": [
+                    {
+                        "token_id": "123456789",
+                        "dao_id": "987654321",
+                        "name": "Steakhouse USDT",
+                        "symbol": "USDT",
+                        "amount": 14000000.0,
+                        "price": 1.08,
+                        "percentage": 60,
+                        "value": 15120000.0
+                    },
+                    {
+                        "token_id": "987654321",
+                        "dao_id": "987654321",
+                        "name": "Steakhouse ETH",
+                        "symbol": "ETH",
+                        "amount": 5413.96,
+                        "price": 1951.42,
+                        "percentage": 40,
+                        "value": 10564891.66
+                    }
+                ],
+                "recent_transfers": [
+                    {
+                        "transfer_id": "123456789",
+                        "token_id": "123456789",
+                        "from_address": "0x123456789abcdef",
+                        "to_address": "0xfedcba987654321",
+                        "amount": 14000.0,
+                        "timestamp": "2023-08-15T14:30:00Z"
+                    }
+                ]
+            }
         } 
