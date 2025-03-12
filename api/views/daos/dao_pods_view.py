@@ -1,31 +1,40 @@
-from flask import current_app, jsonify
+from typing import Dict
+
+from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from flask_pydantic import validate
-
+from sqlalchemy.exc import IntegrityError
 
 from api.models.pod import POD
 from api.models.dao import DAO
 from api.models.user import User
-from api.schemas.pydantic_schemas import (
-    POD as PODModel,
-    InputCreatePOD,
-    PODUpdate,
-    PODMembership,
-    User as UserModel,
-    PagingError
+from api.schemas.pod_schemas import (
+    PODMembershipResponseSchema,
+    PODMembershipSchema,
+    PODSchema, 
+    InputCreatePODSchema,
+    PODSchemaResponse,
+    PODUpdateSchema,
 )
+from api.schemas.communs_schemas import PagingError
+from api.schemas.users_schemas import UserSchema
 from api.views.daos.daos_blp import blp as daos_blp
 
 from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
+from helpers.logging_file import Logger
+
+logger = Logger()
 
 
 @daos_blp.route("<string:dao_id>/pods")
 class RootPODView(MethodView):
 
     @daos_blp.doc(operationId='GetAllPODsForDAO')
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(200, PODSchema(many=True), description="List of all PODs for the DAO")
     @jwt_required(fresh=True)
     def get(self, dao_id: str):
         """Get all PODs for a DAO"""
@@ -41,16 +50,17 @@ class RootPODView(MethodView):
             raise Unauthorized(ErrorHandler.USER_NOT_MEMBER)
         
         pods = POD.get_dao_pods(dao_id, db.session)
-        
-        # Convert to Pydantic models using POD's serialization method
-        pod_models = [PODModel.model_validate(pod.to_dict()) for pod in pods]
-        return [pod_model.model_dump() for pod_model in pod_models]
+        return pods
 
 
+    @daos_blp.arguments(InputCreatePODSchema)
     @daos_blp.doc(operationId='CreatePOD')
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(400, PagingError, description="Bad Request - Invalid data")
+    @daos_blp.response(201, PODSchemaResponse, description="POD created successfully")
     @jwt_required(fresh=True)
-    @validate(body=InputCreatePOD)
-    def post(self, body: InputCreatePOD, dao_id: str):
+    def post(self, input_data: Dict, dao_id: str):
         """Create a new POD"""
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
@@ -67,22 +77,25 @@ class RootPODView(MethodView):
             
         try:
             # Ensure dao_id in the body matches the URL parameter
-            pod_data = body.model_dump(exclude_unset=True)
-            pod = POD.create(pod_data)
+            pod = POD.create(input_data)
             db.session.add(pod)
             db.session.commit()
             
-            # Convert to Pydantic model
-            pod_model = PODModel.model_validate(pod.to_dict())
-            return jsonify(pod_model.model_dump()), 201
-        except Exception as e:
+            return {
+                "action": "created",
+                "pod": pod
+            }
+        except Exception as error:
             db.session.rollback()
-            abort(400, message=str(e))
+            logger.error(f"Error creating POD: {error}")
+            raise BadRequest(ErrorHandler.POD_CREATE)
 
 
 @daos_blp.route("<string:dao_id>/pods/<string:pod_id>")
 class PODView(MethodView):
     @daos_blp.doc(operationId='GetPODById')
+    @daos_blp.response(404, PagingError, description="DAO or POD not found")
+    @daos_blp.response(200, PODSchema, description="POD retrieved successfully")
     def get(self, dao_id: str, pod_id: str):
         """Get a POD by ID"""
         db: SQLAlchemy = current_app.db
@@ -94,15 +107,17 @@ class PODView(MethodView):
         if not pod or pod.dao_id != dao_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         
-        # Convert to Pydantic model
-        pod_model = PODModel.model_validate(pod.to_dict())
-        return pod_model.model_dump()
+        return pod
 
 
+    @daos_blp.arguments(PODUpdateSchema)
     @daos_blp.doc(operationId='UpdatePOD')
+    @daos_blp.response(404, PagingError, description="User, DAO or POD not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(400, PagingError, description="Bad Request - Invalid data")
+    @daos_blp.response(200, PODSchemaResponse, description="POD updated successfully")
     @jwt_required(fresh=True)
-    @validate(body=PODUpdate)
-    def put(self, body: PODUpdate, dao_id: str, pod_id: str):
+    def put(self, input_data: Dict, dao_id: str, pod_id: str):
         """Update a POD"""
         db: SQLAlchemy = current_app.db
         
@@ -127,18 +142,24 @@ class PODView(MethodView):
             
         try:
             # Update POD
-            pod.update(body.model_dump(exclude_unset=True))
+            pod.update(input_data)
             db.session.commit()
             
-            # Convert to Pydantic model
-            pod_model = PODModel.model_validate(pod.to_dict())
-            return pod_model.model_dump()
-        except Exception as e:
+            return {
+                "action": "updated",
+                "pod": pod
+            }
+        except Exception as error:
             db.session.rollback()
-            abort(400, message=str(e))
+            logger.error(f"Error updating POD: {error}")
+            raise BadRequest(ErrorHandler.POD_UPDATE)
 
 
     @daos_blp.doc(operationId='DeletePOD')
+    @daos_blp.response(404, PagingError, description="User, DAO or POD not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(400, PagingError, description="Bad Request - Error deleting POD")
+    @daos_blp.response(200, PODSchemaResponse, description="POD deleted successfully")
     @jwt_required(fresh=True)
     def delete(self, dao_id, pod_id):
         """Delete a POD"""
@@ -170,15 +191,21 @@ class PODView(MethodView):
             # Delete POD
             db.session.delete(pod)
             db.session.commit()
-            return {}, 200
-        except Exception as e:
+            return {
+                "action": "deleted",
+                "pod": pod
+            }
+        except Exception as error:
             db.session.rollback()
-            abort(400, message=str(e))
+            logger.error(f"Error deleting POD: {error}")
+            raise BadRequest(ErrorHandler.POD_DELETE)
 
 
 @daos_blp.route("<string:dao_id>/pods/<string:pod_id>/members")
 class PODMembersView(MethodView):
     @daos_blp.doc(operationId='GetAllMembersOfPOD')
+    @daos_blp.response(404, PagingError, description="DAO or POD not found")
+    @daos_blp.response(200, UserSchema(many=True), description="List of all members in the POD")
     def get(self, dao_id: str, pod_id: str):
         """Get all members of a POD"""
         db: SQLAlchemy = current_app.db
@@ -193,12 +220,14 @@ class PODMembersView(MethodView):
         if not pod or pod.dao_id != dao_id:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
             
-        # Convert members to Pydantic models
-        member_models = [UserModel.model_validate(member.to_dict()) for member in pod.members]
-        return [member_model.model_dump() for member_model in member_models]
+        return pod.members
 
 
     @daos_blp.doc(operationId='AddMemberToPOD')
+    @daos_blp.response(404, PagingError, description="User, DAO or POD not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(400, PagingError, description="Bad Request - User already in POD")
+    @daos_blp.response(200, PODMembershipResponseSchema, description="User added to POD successfully")
     @jwt_required(fresh=True)
     def post(self, dao_id: str, pod_id: str):
         """Add a member to a POD"""
@@ -224,14 +253,20 @@ class PODMembersView(MethodView):
             raise BadRequest(ErrorHandler.USER_ALREADY_IN_POD)
         
         db.session.commit()
-        pod_model = PODModel.model_validate(pod.to_dict())
-        return pod_model.model_dump()
+        return {
+            "action": "added",
+            "pod": pod
+        }
 
 
+    @daos_blp.arguments(PODMembershipSchema)
     @daos_blp.doc(operationId='RemoveMemberFromPOD')
+    @daos_blp.response(404, PagingError, description="User, DAO or POD not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @daos_blp.response(400, PagingError, description="Bad Request - User not in POD")
+    @daos_blp.response(200, PODMembershipResponseSchema, description="User removed from POD successfully")
     @jwt_required(fresh=True)
-    @validate(body=PODMembership)
-    def delete(self, body: PODMembership, dao_id: str, pod_id: str):
+    def delete(self, input_data: Dict, dao_id: str, pod_id: str):
         """Remove a member from a POD"""
         db: SQLAlchemy = current_app.db
         
@@ -255,7 +290,7 @@ class PODMembersView(MethodView):
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
             
         # Get user to remove
-        user_to_remove = User.get_by_id(body.user_id, db.session)
+        user_to_remove = User.get_by_id(input_data["user_id"], db.session)
         if not user_to_remove:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
             
@@ -264,6 +299,8 @@ class PODMembersView(MethodView):
             raise BadRequest(ErrorHandler.USER_NOT_MEMBER)
         
         db.session.commit()
-        pod_model = PODModel.model_validate(pod.to_dict())
-        return pod_model.model_dump()
+        return {
+            "action": "removed",
+            "pod": pod
+        }
 

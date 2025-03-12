@@ -1,30 +1,32 @@
-from flask import current_app, jsonify
+from flask import current_app
 from flask.views import MethodView
 from flask_smorest import abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_sqlalchemy import SQLAlchemy
-from flask_pydantic import validate
-
+from sqlalchemy.exc import IntegrityError
+from typing import Dict
 
 from api.models.dao import DAO
 from api.models.user import User
-from api.schemas.pydantic_schemas import (
-    DAO as DAOModel,
-    DAOMembership,
-    PagingError
-)
+from api.schemas.dao_schemas import DAOMembershipResponseSchema, DAOSchema, DAOMembershipSchema
+from api.schemas.communs_schemas import PagingError
 from api.views.daos.daos_blp import blp as daos_blp
 
 from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
+from helpers.logging_file import Logger
+
+logger = Logger()
 
 
 @daos_blp.route("/<string:dao_id>/members")
 class DAOMembershipView(MethodView):
     
     @daos_blp.doc(operationId='AddMemberToDAO')
-    @validate(body=DAOMembership)
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(400, PagingError, description="Bad Request")
+    @daos_blp.response(200, DAOMembershipResponseSchema, description="User added to DAO successfully")
     @jwt_required(fresh=True)
-    def post(self, body: DAOMembership, dao_id: str):
+    def post(self, dao_id: str):
         """Add a member to a DAO"""
         db: SQLAlchemy = current_app.db
         
@@ -44,16 +46,21 @@ class DAOMembershipView(MethodView):
         
         # Add user to DAO
         db.session.commit()
-            
-        # Convert to Pydantic model
-        dao_model = DAOModel.model_validate(dao.to_dict())
-        return dao_model.model_dump()
+        
+        return {
+            "action": "added",
+            "dao": dao
+        }
 
             
+    @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.doc(operationId='RemoveMemberFromDAO')
-    @validate(body=DAOMembership)
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized")
+    @daos_blp.response(400, PagingError, description="Bad Request")
+    @daos_blp.response(200, DAOMembershipResponseSchema, description="User removed from DAO successfully")
     @jwt_required(fresh=True)
-    def delete(self, body: DAOMembership, dao_id: str):
+    def delete(self, input_data: Dict, dao_id: str):
         """Remove a member from a DAO"""
         db: SQLAlchemy = current_app.db
         
@@ -70,7 +77,7 @@ class DAOMembershipView(MethodView):
         if dao.owner_id != auth_user.user_id and auth_user not in dao.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
         
-        target_user = User.get_by_id(body.user_id, db.session)
+        target_user = User.get_by_id(input_data["user_id"], db.session)
         if not target_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
@@ -81,17 +88,23 @@ class DAOMembershipView(MethodView):
             raise BadRequest(ErrorHandler.USER_NOT_MEMBER)
         
         db.session.commit()
-        dao_model = DAOModel.model_validate(dao.to_dict())
-        return dao_model.model_dump()
+        return {
+            "action": "removed",
+            "dao": dao
+        }
 
 
 @daos_blp.route("/<string:dao_id>/admins")
 class DAOAdminView(MethodView):
     
+    @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.doc(operationId='AddAdminToDAO')
-    @validate(body=DAOMembership)
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized")
+    @daos_blp.response(400, PagingError, description="Bad Request")
+    @daos_blp.response(200, DAOMembershipResponseSchema, description="User added to DAO successfully")
     @jwt_required(fresh=True)
-    def post(self, body: DAOMembership, dao_id: str):
+    def post(self, input_data: Dict, dao_id: str):
         """Add an admin to a DAO"""
         db: SQLAlchemy = current_app.db
         
@@ -112,7 +125,7 @@ class DAOAdminView(MethodView):
         if auth_user not in dao.admins:
             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
         
-        target_user = User.get_by_id(body.user_id, db.session)
+        target_user = User.get_by_id(input_data["user_id"], db.session)
         if not target_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
         
@@ -120,14 +133,20 @@ class DAOAdminView(MethodView):
             raise BadRequest(ErrorHandler.DAO_ADMIN_ALREADY_EXISTS)
         
         db.session.commit()
-        dao_model = DAOModel.model_validate(dao.to_dict())
-        return dao_model.model_dump()
+        return {
+            "action": "added",
+            "dao": dao
+        }
 
 
+    @daos_blp.arguments(DAOMembershipSchema)
     @daos_blp.doc(operationId='RemoveAdminFromDAO')
-    @validate(body=DAOMembership)
+    @daos_blp.response(404, PagingError, description="User or DAO not found")
+    @daos_blp.response(401, PagingError, description="Unauthorized")
+    @daos_blp.response(400, PagingError, description="Bad Request")
+    @daos_blp.response(200, DAOMembershipResponseSchema, description="User removed from DAO successfully")
     @jwt_required(fresh=True)
-    def delete(self, body: DAOMembership, dao_id: str):
+    def delete(self, input_data: Dict, dao_id: str):
         """Remove an admin from a DAO"""
         db: SQLAlchemy = current_app.db
         
@@ -142,7 +161,7 @@ class DAOAdminView(MethodView):
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
             
         # Get user to remove as admin
-        user_to_remove = User.get_by_id(body.user_id, db.session)
+        user_to_remove = User.get_by_id(input_data["user_id"], db.session)
         if not user_to_remove:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
             
@@ -160,5 +179,7 @@ class DAOAdminView(MethodView):
             raise BadRequest(ErrorHandler.USER_NOT_ADMIN)
         
         db.session.commit()
-        dao_model = DAOModel.model_validate(dao.to_dict())
-        return dao_model.model_dump()
+        return {
+            "action": "removed",
+            "dao": dao
+        }

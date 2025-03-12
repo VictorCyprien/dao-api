@@ -1,12 +1,11 @@
-from flask import current_app, jsonify
+from flask import current_app
 from flask.views import MethodView
 from flask_jwt_extended import get_jwt, jwt_required
-from flask_pydantic import validate
 
 from .auth_blp import auth_blp
 
 from ...schemas.communs_schemas import PagingError
-from ...schemas.pydantic_schemas import LogoutResponse, PagingError as PydanticPagingError
+from ...schemas.auth_schemas import LogoutResponseSchema
 
 from ...models.user import User
 from ...config import config
@@ -23,6 +22,8 @@ logger = Logger()
 class LogoutAuthView(MethodView):
     
     @auth_blp.doc(operationId='Logout')
+    @auth_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+    @auth_blp.response(201, LogoutResponseSchema, description="Successfully logged out")
     @jwt_required(fresh=True)
     def post(self):
         """Logout the user"""
@@ -30,7 +31,5 @@ class LogoutAuthView(MethodView):
         jwt_redis_blocklist = current_app.extensions['jwt_redis_blocklist']
         jwt_redis_blocklist.set(jti, "", ex=config.JWT_ACCESS_TOKEN_EXPIRES)
 
-        # Create response using Pydantic model
-        response = LogoutResponse(msg="You have been logout !")
-        return jsonify(response.model_dump()), 201
+        return {"msg": "You have been logout !"}, 201
 

@@ -1,18 +1,15 @@
-from flask import current_app, jsonify
+from typing import Dict
+
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
-from flask_pydantic import validate
 
 from sqlalchemy.exc import IntegrityError
 
 from .users_blp import users_blp
 from ...models.user import User
 
+from ...schemas.users_schemas import UserResponseSchema, InputCreateUserSchema
 from ...schemas.communs_schemas import PagingError
-from ...schemas.pydantic_schemas import (
-    InputCreateUser,
-    UserResponse,
-    PagingError as PydanticPagingError
-)
 
 from helpers.errors_file import BadRequest, ErrorHandler
 from helpers.logging_file import Logger
@@ -24,12 +21,13 @@ logger = Logger()
 
 @users_blp.route('/')
 class RootUsersView(UserViewHandler):
+    @users_blp.arguments(InputCreateUserSchema)
     @users_blp.doc(operationId='CreateUser')
-    @validate(body=InputCreateUser)
-    def post(self, body: InputCreateUser):
+    @users_blp.response(400, PagingError, description="Bad Request")
+    @users_blp.response(201, UserResponseSchema, description="User successfully created")
+    def post(self, input_data: Dict):
         """Create a new user"""
         db: SQLAlchemy = current_app.db
-        input_data = body.model_dump(exclude_unset=True)
 
         # Check if email, discord username, wallet address or github username are already used
         try:
@@ -45,14 +43,11 @@ class RootUsersView(UserViewHandler):
 
         try:
             db.session.commit()
-        except IntegrityError as error:
+        except Exception as error:
             logger.error(f"Error creating user: {error}")
             raise BadRequest(ErrorHandler.USER_CREATE)
 
-        # Create response using Pydantic model
-        response = UserResponse(
-            action='created',
-            user=user.to_dict()
-        )
-
-        return jsonify(response.model_dump()), 201
+        return {
+            "action": "created",
+            "user": user
+        }
