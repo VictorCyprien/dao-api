@@ -1362,6 +1362,71 @@
         }
       ]
     },
+    "/treasury/daos/{dao_id}/update-percentages": {
+      "put": {
+        "responses": {
+          "200": {
+            "description": "Token percentages updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryUpdatePercentages"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Error updating token percentages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Update the percentages of tokens in the DAO's treasury without changing prices",
+        "tags": [
+          "treasury"
+        ],
+        "operationId": "UpdateDAOTokenPercentages"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
     "/treasury/daos/{dao_id}/tokens": {
       "get": {
         "responses": {
@@ -2219,6 +2284,42 @@
             }
           }
         }
+      },
+      "TreasuryUpdatePercentages": {
+        "type": "object",
+        "properties": {
+          "total_value": {
+            "readOnly": true
+          },
+          "daily_change": {
+            "readOnly": true
+          },
+          "daily_change_percentage": {
+            "readOnly": true
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Token"
+            }
+          },
+          "recent_transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          },
+          "action": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "message"
+        ]
       },
       "TokenCreate": {
         "type": "object",
