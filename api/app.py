@@ -8,6 +8,7 @@ from flask_cors import CORS
 import redis
 from redis import StrictRedis
 from rq import Queue
+from flask_caching import Cache
 from pydantic import ValidationError
 
 from . import Base
@@ -34,6 +35,26 @@ def setup_redis(config: Config):
         db=0, 
         decode_responses=True
     )
+
+
+def setup_cache(app: Flask, config: Config):
+    """
+    Configure Flask-Caching for the application.
+    
+    Args:
+        app: Flask application instance
+        config: Application configuration
+        
+    Returns:
+        Initialized Cache instance
+    """
+    app.logger.info("Setting up caching...")
+    cache_config = config.cache_config
+    app.config.update(cache_config)
+    cache = Cache(app)
+    app.extensions['cache'] = cache
+    app.logger.info(f"Cache initialized with type: {cache_config['CACHE_TYPE']}")
+    return cache
 
 
 def setup_pydantic(app: Flask):
@@ -174,6 +195,9 @@ def create_flask_app(config: Config) -> Flask:
 
     # Add Redis Queue
     app.queue = Queue(connection=redis_client)
+    
+    # Initialize caching
+    setup_cache(app, config)
 
     # Add REST API
     rest_api = Api(app)

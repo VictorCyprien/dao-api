@@ -1,4 +1,5 @@
 from environs import Env
+import os
 
 
 class Config:
@@ -39,11 +40,36 @@ class Config:
         # PASSWORD CUSTOM SALT
         self.SECURITY_PASSWORD_SALT = env.str('SECURITY_PASSWORD_SALT', "672B2BB59D2E432E8F3FB10E23B8AECC")
 
+        # WALLET API CONFIGURATION
+        self.WALLET_API_HOST = env.str('WALLET_API_HOST', 'http://localhost:8080')
+        self.WALLET_API_TIMEOUT = env.int('WALLET_API_TIMEOUT', 5)
+        self.WALLET_API_DEFAULT_PRICE = env.float('WALLET_API_DEFAULT_PRICE', 1.0)  # Default price for tokens if not available
+
+        # CACHE CONFIGURATION
+        self.CACHE_TYPE = env.str('CACHE_TYPE', 'redis')
+        self.CACHE_REDIS_HOST = env.str('CACHE_REDIS_HOST', self.REDIS_URI)
+        self.CACHE_REDIS_PORT = env.int('CACHE_REDIS_PORT', self.REDIS_PORT)
+        self.CACHE_DEFAULT_TIMEOUT = env.int('CACHE_DEFAULT_TIMEOUT', 300)  # Default cache timeout in seconds (5 minutes)
+        self.CACHE_KEY_PREFIX = env.str('CACHE_KEY_PREFIX', 'dao_api_cache:')
+        
+        # CACHE TIMEOUTS FOR SPECIFIC ENDPOINTS (in seconds)
+        self.CACHE_TIMEOUT_TOKEN_LIST = env.int('CACHE_TIMEOUT_TOKEN_LIST', 300)  # 5 minutes for token lists
+        self.CACHE_TIMEOUT_DAO_LIST = env.int('CACHE_TIMEOUT_DAO_LIST', 600)  # 10 minutes for DAO lists
+        self.CACHE_TIMEOUT_TREASURY = env.int('CACHE_TIMEOUT_TREASURY', 1800)  # 30 minutes for treasury data
+
         # OPENAPI
         self.API_TITLE = self.SERVICE_NAME
         self.API_VERSION = env.str('CI_COMMIT_REF_NAME', "dev")
         self.OPENAPI_VERSION = "3.0.2"
 
+        # API Secret Key for encrypting the user auth tokens (Defaults to 'super-secret')
+        self.SECRET_KEY = os.getenv('SECRET_KEY', "super-secret")
+
+        # API configuration
+        self.API_SPEC_URL = env.str('API_SPEC_URL', '/api/swagger.json')
+        self.OPENAPI_URL_PREFIX = env.str('OPENAPI_URL_PREFIX', '/')
+        self.OPENAPI_SWAGGER_UI_PATH = env.str('OPENAPI_SWAGGER_UI_PATH', '/api/swagger')
+        self.OPENAPI_SWAGGER_UI_URL = env.str('OPENAPI_SWAGGER_UI_URL', 'https://cdn.jsdelivr.net/npm/swagger-ui-dist/')
 
     @property
     def mongodb_settings(self):
@@ -51,6 +77,17 @@ class Config:
             'host': f'{self.MONGODB_URI}/{self.MONGODB_DATABASE}',
             'db': self.MONGODB_DATABASE,
             'connect': self.MONGODB_CONNECT,
+        }
+        
+    @property
+    def cache_config(self):
+        """Get the Flask-Caching configuration dictionary"""
+        return {
+            'CACHE_TYPE': self.CACHE_TYPE,
+            'CACHE_REDIS_HOST': self.CACHE_REDIS_HOST,
+            'CACHE_REDIS_PORT': self.CACHE_REDIS_PORT,
+            'CACHE_DEFAULT_TIMEOUT': self.CACHE_DEFAULT_TIMEOUT,
+            'CACHE_KEY_PREFIX': self.CACHE_KEY_PREFIX,
         }
 
     @property
