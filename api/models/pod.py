@@ -49,6 +49,9 @@ class POD(Base):
     dao = relationship('DAO', back_populates='pods')
     """ DAO that the POD belongs to """
 
+    discord_channels = relationship('DiscordChannel', back_populates='pod')
+    """ Discord channels associated with this POD """
+
     @classmethod
     def create(cls, input_data: dict) -> "POD":
         """ Create a new POD instance """
@@ -118,7 +121,8 @@ class POD(Base):
             "description": self.description,
             "is_active": self.is_active,
             "created_at": self.created_at,
-            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members],
+            "discord_channels": [channel.to_dict() for channel in self.discord_channels] if hasattr(self, 'discord_channels') and self.discord_channels else []
         }
         return result
         
@@ -131,5 +135,6 @@ class POD(Base):
             "description": self.description,
             "is_active": self.is_active,
             "created_at": self.created_at,
-            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
+            "members": [{"user_id": member.user_id, "username": member.username} for member in self.members],
+            "discord_channels": [channel.to_dict() for channel in self.discord_channels] if hasattr(self, 'discord_channels') and self.discord_channels else []
         }.items()
