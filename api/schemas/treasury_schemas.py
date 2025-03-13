@@ -85,4 +85,9 @@ class TreasurySchema(Schema):
     def get_daily_change_percentage(self, obj):
         """Calculate the daily change percentage (placeholder)"""
         # This would normally involve historical data - simplified for now
-        return obj.get("daily_change_percentage", 0.0) 
+        return obj.get("daily_change_percentage", 0.0)
+
+class TreasuryUpdatePercentagesSchema(TreasurySchema):
+    """Schema for the response when updating token percentages"""
+    action = fields.Str(required=True, dump_default="updated_percentages")
+    message = fields.Str(required=True) 
