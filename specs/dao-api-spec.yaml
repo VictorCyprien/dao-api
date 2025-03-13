@@ -1317,6 +1317,365 @@
         }
       ]
     },
+    "/daos/{dao_id}/pods/{pod_id}/feed": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Discord feed retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordMessagesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or POD not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get Discord feed for a POD",
+        "tags": [
+          "daos"
+        ],
+        "operationId": "GetPODFeed"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/daos/{dao_id}/pods/{pod_id}/discord-channels": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Discord channels retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or POD not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all Discord channels for a POD",
+        "tags": [
+          "daos"
+        ],
+        "operationId": "GetPODDiscordChannels"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Discord channel linked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO, POD or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkDiscordChannel"
+              }
+            }
+          }
+        },
+        "summary": "Link a Discord channel to a POD",
+        "tags": [
+          "daos"
+        ],
+        "operationId": "LinkDiscordChannelToPOD"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/daos/{dao_id}/pods/{pod_id}/discord-channels/{channel_id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Discord channel unlinked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Channel not linked to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO, POD or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Unlink a Discord channel from a POD",
+        "tags": [
+          "daos"
+        ],
+        "operationId": "UnlinkDiscordChannelFromPOD"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "channel_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/daos/{dao_id}/pods/{pod_id}/discord-channels/{channel_id}/messages": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Discord messages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordMessagesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Channel not linked to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO, POD or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get messages from a specific Discord channel",
+        "tags": [
+          "daos"
+        ],
+        "operationId": "GetChannelMessages"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "channel_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
     "/treasury/daos/{dao_id}": {
       "get": {
         "responses": {
@@ -1632,6 +1991,331 @@
           }
         }
       ]
+    },
+    "/discord/channels": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Discord channels retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all Discord channels",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "GetAllDiscordChannels"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Discord channel created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDiscordChannel"
+              }
+            }
+          }
+        },
+        "summary": "Create a new Discord channel in the system",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "CreateDiscordChannel"
+      }
+    },
+    "/discord/channels/unlinked": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Unlinked Discord channels retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all Discord channels that are not linked to any POD",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "GetUnlinkedDiscordChannels"
+      }
+    },
+    "/discord/channels/{channel_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Discord channel retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get a specific Discord channel",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "GetDiscordChannel"
+      },
+      "put": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Discord channel updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDiscordChannel"
+              }
+            }
+          }
+        },
+        "summary": "Update a Discord channel",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "UpdateDiscordChannel"
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Discord channel deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Error deleting channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or Discord channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Delete a Discord channel",
+        "tags": [
+          "discord"
+        ],
+        "operationId": "DeleteDiscordChannel"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "channel_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     }
   },
   "info": {
@@ -1654,6 +2338,10 @@
     {
       "name": "treasury",
       "description": "Operations on Treasury"
+    },
+    {
+      "name": "discord",
+      "description": "Operations on Discord channels and messages"
     }
   ],
   "openapi": "3.0.2",
@@ -2067,6 +2755,39 @@
           "user_id"
         ]
       },
+      "DiscordChannel": {
+        "type": "object",
+        "properties": {
+          "channel_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "last_synced_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "message_count": {
+            "type": "integer",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "POD": {
         "type": "object",
         "properties": {
@@ -2091,6 +2812,13 @@
             "type": "string",
             "format": "date-time",
             "readOnly": true
+          },
+          "discord_channels": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/DiscordChannel"
+            }
           }
         },
         "required": [
@@ -2109,6 +2837,9 @@
             "type": "string"
           },
           "dao_id": {
+            "type": "string"
+          },
+          "discord_channel_id": {
             "type": "string"
           }
         },
@@ -2173,6 +2904,114 @@
         },
         "required": [
           "user_id"
+        ]
+      },
+      "DiscordMessage": {
+        "type": "object",
+        "properties": {
+          "message_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "channel_id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "has_media": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "media_urls": {},
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "indexed_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "channel_id",
+          "created_at",
+          "user_id",
+          "username"
+        ]
+      },
+      "DiscordMessagesResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscordMessage"
+            }
+          }
+        },
+        "required": [
+          "action",
+          "messages"
+        ]
+      },
+      "DiscordChannelsResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscordChannel"
+            }
+          }
+        },
+        "required": [
+          "action",
+          "channels"
+        ]
+      },
+      "LinkDiscordChannel": {
+        "type": "object",
+        "properties": {
+          "channel_id": {
+            "type": "string"
+          },
+          "pod_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id",
+          "pod_id"
+        ]
+      },
+      "DiscordChannelResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/DiscordChannel"
+          }
+        },
+        "required": [
+          "action",
+          "channel"
         ]
       },
       "Token": {
@@ -2408,6 +3247,37 @@
           "action",
           "transfer"
         ]
+      },
+      "CreateDiscordChannel": {
+        "type": "object",
+        "properties": {
+          "channel_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "channel_id",
+          "name"
+        ]
+      },
+      "UpdateDiscordChannel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       }
     },
     "responses": {
