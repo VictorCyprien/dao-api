@@ -218,6 +218,9 @@ def create_flask_app(config: Config) -> Flask:
     from .views.treasury import treasury_blp
     rest_api.register_blueprint(treasury_blp)
 
+    from .views.discord_admin_view import blp as discord_blp
+    rest_api.register_blueprint(discord_blp)
+
     # from .views.data import data_blp
     # rest_api.register_blueprint(data_blp)
 
