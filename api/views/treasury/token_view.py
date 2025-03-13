@@ -14,6 +14,8 @@ from api.schemas.communs_schemas import PagingError
 from api.views.treasury.treasury_blp import blp as treasury_blp
 from helpers.errors_file import ErrorHandler, NotFound, BadRequest
 from helpers.logging_file import Logger
+from helpers.cache_decorator import cached_view
+from helpers.build_cache_key import make_token_key
 
 logger = Logger()
 
@@ -23,6 +25,7 @@ class TokensView(MethodView):
     @treasury_blp.response(404, PagingError, description="DAO not found")
     @treasury_blp.response(200, TokenSchema(many=True), description="List of all tokens for the DAO")
     @jwt_required()
+    @cached_view(timeout=1800, make_key=make_token_key)
     def get(self, dao_id: str):
         """Get all tokens for a specific DAO"""
         db: SQLAlchemy = current_app.db

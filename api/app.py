@@ -16,6 +16,9 @@ from .config import Config
 
 from helpers.logging_file import Logger
 
+# Create a cache instance that can be imported and used across the app
+cache = Cache()
+
 
 def setup_db(app: Flask, config: Config):
     db = SQLAlchemy(model_class=Base)
@@ -51,8 +54,8 @@ def setup_cache(app: Flask, config: Config):
     app.logger.info("Setting up caching...")
     cache_config = config.cache_config
     app.config.update(cache_config)
-    cache = Cache(app)
-    app.extensions['cache'] = cache
+    # Initialize the cache with the app
+    cache.init_app(app)
     app.logger.info(f"Cache initialized with type: {cache_config['CACHE_TYPE']}")
     return cache
 

@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from flask import current_app
+from flask_caching import Cache
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,8 +14,18 @@ from helpers.errors_file import ErrorHandler, NotFound, Unauthorized, BadRequest
 from api.schemas.treasury_schemas import TreasurySchema, TreasuryUpdatePercentagesSchema
 from api.schemas.communs_schemas import PagingError
 from helpers.logging_file import Logger
+from helpers.cache_decorator import cached_view, invalidate_view_cache
+from helpers.build_cache_key import make_treasury_key, make_token_key
 
 logger = Logger()
+
+# Function to create method-specific key generators
+def make_get_treasury_key(*args, **kwargs):
+    return make_treasury_key(*args, method="GET", **kwargs)
+
+def make_put_treasury_key(*args, **kwargs):
+    return make_treasury_key(*args, method="PUT", **kwargs)
+
 
 @treasury_blp.route("/daos/<string:dao_id>")
 class DAOTreasuryView(DaoViewHandler):
@@ -22,6 +33,7 @@ class DAOTreasuryView(DaoViewHandler):
     @treasury_blp.response(404, PagingError, description="DAO not found")
     @treasury_blp.response(200, TreasurySchema, description="Treasury information for a specific DAO")
     @jwt_required()
+    @cached_view(timeout=1800, make_key=make_get_treasury_key)
     def get(self, dao_id: str):
         """Get Treasury information for a specific DAO"""
         db: SQLAlchemy = current_app.db
@@ -53,7 +65,8 @@ class DAOTreasuryView(DaoViewHandler):
             "recent_transfers": recent_transfers
         }
         
-        return treasury 
+        logger.info(f"Generated treasury data for DAO {dao_id}")        
+        return treasury
 
 
 @treasury_blp.route("/daos/<string:dao_id>/update-percentages")
@@ -64,6 +77,7 @@ class DAOTokensPercentagesView(DaoViewHandler):
     @treasury_blp.response(400, PagingError, description="Bad Request - Error updating token percentages")
     @treasury_blp.response(200, TreasuryUpdatePercentagesSchema, description="Token percentages updated successfully")
     @jwt_required()
+    @cached_view(timeout=1800, make_key=make_put_treasury_key)
     def put(self, dao_id: str):
         """Update the percentages of tokens in the DAO's treasury without changing prices"""
         db: SQLAlchemy = current_app.db
@@ -117,6 +131,11 @@ class DAOTokensPercentagesView(DaoViewHandler):
             "tokens": tokens,
             "recent_transfers": recent_transfers
         }
+        
+        # Invalidate the GET cache for this DAO's treasury data since it's been updated
+        invalidate_view_cache(make_key=make_get_treasury_key, dao_id=dao_id)
+        invalidate_view_cache(make_key=make_token_key, dao_id=dao_id)
+        logger.info(f"Invalidated GET cache for DAO {dao_id} after updating token percentages")
         
         logger.info(f"Successfully updated token percentages for DAO {dao_id}")
         return treasury
