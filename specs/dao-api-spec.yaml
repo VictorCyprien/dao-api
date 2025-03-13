@@ -4,7 +4,7 @@
       "post": {
         "responses": {
           "201": {
-            "description": "Logout the user",
+            "description": "Successfully logged out",
             "content": {
               "application/json": {
                 "schema": {
@@ -14,7 +14,7 @@
             }
           },
           "401": {
-            "description": "Not logged",
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -41,7 +41,7 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "Challenge message",
+            "description": "Challenge message generated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -88,7 +88,7 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "201": {
-            "description": "Login successful",
+            "description": "Successfully authenticated",
             "content": {
               "application/json": {
                 "schema": {
@@ -98,7 +98,17 @@
             }
           },
           "401": {
-            "description": "Invalid signature",
+            "description": "Unauthorized or invalid signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -135,7 +145,7 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "201": {
-            "description": "Infos of new user",
+            "description": "User successfully created",
             "content": {
               "application/json": {
                 "schema": {
@@ -145,7 +155,7 @@
             }
           },
           "400": {
-            "description": "BadRequest",
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -179,17 +189,17 @@
       "get": {
         "responses": {
           "200": {
-            "description": "Get authenticated user informations",
+            "description": "User information retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
-          "404": {
-            "description": "NotFound",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -213,21 +223,11 @@
       "get": {
         "responses": {
           "200": {
-            "description": "Check if user with the wallet address exists",
+            "description": "Check if user exists completed successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserExistResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NotFound",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
                 }
               }
             }
@@ -261,7 +261,7 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "Update one user",
+            "description": "User updated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -270,8 +270,8 @@
               }
             }
           },
-          "404": {
-            "description": "NotFound",
+          "400": {
+            "description": "Bad Request - Error updating user",
             "content": {
               "application/json": {
                 "schema": {
@@ -280,8 +280,18 @@
               }
             }
           },
-          "400": {
-            "description": "BadRequest",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -326,7 +336,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "List of all DAOs",
             "content": {
               "application/json": {
                 "schema": {
@@ -354,17 +364,37 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "201": {
-            "description": "Created",
+            "description": "DAO created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOSchemaResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -382,7 +412,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DAO"
+                "$ref": "#/components/schemas/InputCreateDAO"
               }
             }
           }
@@ -398,7 +428,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "DAO retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -408,7 +438,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -433,17 +463,17 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "DAO updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOSchemaResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Invalid data",
             "content": {
               "application/json": {
                 "schema": {
@@ -452,8 +482,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -463,7 +493,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,10 +525,17 @@
       "delete": {
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "DAO deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DAOSchemaResponse"
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Error deleting DAO",
             "content": {
               "application/json": {
                 "schema": {
@@ -507,8 +544,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -518,7 +555,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -553,11 +590,11 @@
       "post": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "User added to DAO successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOMembershipResponse"
                 }
               }
             }
@@ -572,18 +609,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -608,11 +635,11 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "User removed from DAO successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOMembershipResponse"
                 }
               }
             }
@@ -627,8 +654,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -638,7 +665,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -686,11 +713,11 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "User added to DAO successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOMembershipResponse"
                 }
               }
             }
@@ -705,8 +732,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -716,7 +743,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -751,11 +778,11 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "User removed from DAO successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DAO"
+                  "$ref": "#/components/schemas/DAOMembershipResponse"
                 }
               }
             }
@@ -770,8 +797,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -781,7 +808,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -826,7 +853,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "List of all PODs for the DAO",
             "content": {
               "application/json": {
                 "schema": {
@@ -838,8 +865,18 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -864,17 +901,17 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "201": {
-            "description": "Created",
+            "description": "POD created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/POD"
+                  "$ref": "#/components/schemas/PODSchemaResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Invalid data",
             "content": {
               "application/json": {
                 "schema": {
@@ -883,8 +920,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -894,7 +931,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User or DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -912,7 +949,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/POD"
+                "$ref": "#/components/schemas/InputCreatePOD"
               }
             }
           }
@@ -939,7 +976,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "POD retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -949,7 +986,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -974,17 +1011,17 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "POD updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/POD"
+                  "$ref": "#/components/schemas/PODSchemaResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Invalid data",
             "content": {
               "application/json": {
                 "schema": {
@@ -993,8 +1030,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -1004,7 +1041,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User, DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1036,17 +1073,17 @@
       "delete": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "POD deleted successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/POD"
+                  "$ref": "#/components/schemas/PODSchemaResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - Error deleting POD",
             "content": {
               "application/json": {
                 "schema": {
@@ -1055,8 +1092,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -1066,7 +1103,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User, DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1110,7 +1147,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "List of all members in the POD",
             "content": {
               "application/json": {
                 "schema": {
@@ -1123,7 +1160,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1145,17 +1182,17 @@
       "post": {
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "User added to POD successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/POD"
+                  "$ref": "#/components/schemas/PODMembershipResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - User already in POD",
             "content": {
               "application/json": {
                 "schema": {
@@ -1164,8 +1201,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -1175,7 +1212,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User, DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1200,17 +1237,17 @@
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
           "200": {
-            "description": "OK",
+            "description": "User removed from POD successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/POD"
+                  "$ref": "#/components/schemas/PODMembershipResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request - User not in POD",
             "content": {
               "application/json": {
                 "schema": {
@@ -1219,8 +1256,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
             "content": {
               "application/json": {
                 "schema": {
@@ -1230,7 +1267,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "User, DAO or POD not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1280,50 +1317,21 @@
         }
       ]
     },
-    "/data/items": {
+    "/treasury/daos/{dao_id}": {
       "get": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "date_start",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "date_end",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "source",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          }
-        ],
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
-            "description": "OK",
+            "description": "Treasury information for a specific DAO",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemsResponse"
+                  "$ref": "#/components/schemas/Treasury"
                 }
               }
             }
           },
-          "400": {
-            "description": "BadRequest",
+          "404": {
+            "description": "DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1336,57 +1344,59 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get data",
+        "summary": "Get Treasury information for a specific DAO",
         "tags": [
-          "data"
+          "treasury"
         ],
-        "operationId": "GetItems"
-      }
+        "operationId": "GetDAOTreasury"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     },
-    "/data/summary": {
-      "get": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "date_start",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "date_end",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "source",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          }
-        ],
+    "/treasury/daos/{dao_id}/update-percentages": {
+      "put": {
         "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
           "200": {
-            "description": "OK",
+            "description": "Token percentages updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SummaryResponse"
+                  "$ref": "#/components/schemas/TreasuryUpdatePercentages"
                 }
               }
             }
           },
           "400": {
-            "description": "BadRequest",
+            "description": "Bad Request - Error updating token percentages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1399,12 +1409,229 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get data",
+        "summary": "Update the percentages of tokens in the DAO's treasury without changing prices",
         "tags": [
-          "data"
+          "treasury"
         ],
-        "operationId": "GetSummary"
-      }
+        "operationId": "UpdateDAOTokenPercentages"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/treasury/daos/{dao_id}/tokens": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of all tokens for the DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Token"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all tokens for a specific DAO",
+        "tags": [
+          "treasury"
+        ],
+        "operationId": "GetDAOTokens"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Token created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenCreate"
+              }
+            }
+          }
+        },
+        "summary": "Create a new token for a specific DAO",
+        "tags": [
+          "treasury"
+        ],
+        "operationId": "CreateToken"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/treasury/daos/{dao_id}/transfers": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of all transfers for the DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transfer"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all transfers for a specific DAO",
+        "tags": [
+          "treasury"
+        ],
+        "operationId": "GetDAOTransfers"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Transfer created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferSchemaResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferCreate"
+              }
+            }
+          }
+        },
+        "summary": "Create a new transfer for a specific DAO",
+        "tags": [
+          "treasury"
+        ],
+        "operationId": "CreateDAOTransfer"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     }
   },
   "info": {
@@ -1425,8 +1652,8 @@
       "description": "Operations on DAOs"
     },
     {
-      "name": "data",
-      "description": "Data handler"
+      "name": "treasury",
+      "description": "Operations on Treasury"
     }
   ],
   "openapi": "3.0.2",
@@ -1764,6 +1991,40 @@
           "owner_id"
         ]
       },
+      "InputCreateDAO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "owner_id"
+        ]
+      },
+      "DAOSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "dao": {
+            "$ref": "#/components/schemas/DAO"
+          }
+        },
+        "required": [
+          "action",
+          "dao"
+        ]
+      },
       "DAOUpdate": {
         "type": "object",
         "properties": {
@@ -1779,6 +2040,21 @@
             "type": "boolean"
           }
         }
+      },
+      "DAOMembershipResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "dao": {
+            "$ref": "#/components/schemas/DAO"
+          }
+        },
+        "required": [
+          "action",
+          "dao"
+        ]
       },
       "DAOMembership": {
         "type": "object",
@@ -1823,6 +2099,40 @@
           "name"
         ]
       },
+      "InputCreatePOD": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dao_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dao_id",
+          "description",
+          "name"
+        ]
+      },
+      "PODSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "pod": {
+            "$ref": "#/components/schemas/POD"
+          }
+        },
+        "required": [
+          "action",
+          "pod"
+        ]
+      },
       "PODUpdate": {
         "type": "object",
         "properties": {
@@ -1839,6 +2149,21 @@
           }
         }
       },
+      "PODMembershipResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "pod": {
+            "$ref": "#/components/schemas/POD"
+          }
+        },
+        "required": [
+          "action",
+          "pod"
+        ]
+      },
       "PODMembership": {
         "type": "object",
         "properties": {
@@ -1850,78 +2175,239 @@
           "user_id"
         ]
       },
-      "Item": {
+      "Token": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
+          "token_id": {
+            "type": "string",
             "readOnly": true
           },
-          "cid": {
+          "dao_id": {
             "type": "string"
           },
-          "type": {
+          "name": {
             "type": "string"
           },
-          "source": {
-            "description": "Source field that can be either a string (for items) or a dict (for summary)"
-          },
-          "title": {
+          "symbol": {
             "type": "string"
           },
-          "text": {
+          "contract": {
             "type": "string"
           },
-          "link": {
+          "amount": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "value": {
+            "readOnly": true
+          }
+        },
+        "required": [
+          "contract",
+          "dao_id",
+          "name",
+          "symbol"
+        ]
+      },
+      "Transfer": {
+        "type": "object",
+        "properties": {
+          "transfer_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "dao_id": {
             "type": "string"
           },
-          "topics": {
+          "token_id": {
             "type": "string"
           },
-          "date": {
-            "type": "integer"
+          "from_address": {
+            "type": "string"
           },
-          "metadata": {
+          "to_address": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "token": {
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Token"
+              }
+            ]
+          }
+        },
+        "required": [
+          "amount",
+          "dao_id",
+          "from_address",
+          "to_address",
+          "token_id"
+        ]
+      },
+      "Treasury": {
+        "type": "object",
+        "properties": {
+          "total_value": {
+            "readOnly": true
+          },
+          "daily_change": {
+            "readOnly": true
+          },
+          "daily_change_percentage": {
+            "readOnly": true
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Token"
+            }
+          },
+          "recent_transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          }
+        }
+      },
+      "TreasuryUpdatePercentages": {
+        "type": "object",
+        "properties": {
+          "total_value": {
+            "readOnly": true
+          },
+          "daily_change": {
+            "readOnly": true
+          },
+          "daily_change_percentage": {
+            "readOnly": true
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Token"
+            }
+          },
+          "recent_transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          },
+          "action": {
+            "type": "string"
+          },
+          "message": {
             "type": "string"
           }
         },
         "required": [
-          "date",
-          "source",
-          "text",
-          "type"
-        ],
-        "description": "Informations about the data from SQLite"
+          "action",
+          "message"
+        ]
       },
-      "ItemsResponse": {
+      "TokenCreate": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Item"
-            }
+          "dao_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
           }
         },
-        "description": "Items response schema"
+        "required": [
+          "amount",
+          "contract",
+          "dao_id",
+          "name",
+          "symbol"
+        ]
       },
-      "SummaryResponse": {
+      "TokenSchemaResponse": {
         "type": "object",
         "properties": {
-          "summary": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Item"
-                }
-              }
-            }
+          "action": {
+            "type": "string"
+          },
+          "token": {
+            "$ref": "#/components/schemas/Token"
           }
         },
-        "description": "Summary response schema"
+        "required": [
+          "action",
+          "token"
+        ]
+      },
+      "TransferCreate": {
+        "type": "object",
+        "properties": {
+          "dao_id": {
+            "type": "string"
+          },
+          "token_id": {
+            "type": "string"
+          },
+          "from_address": {
+            "type": "string"
+          },
+          "to_address": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "amount",
+          "dao_id",
+          "from_address",
+          "to_address",
+          "token_id"
+        ]
+      },
+      "TransferSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "transfer": {
+            "$ref": "#/components/schemas/Transfer"
+          }
+        },
+        "required": [
+          "action",
+          "transfer"
+        ]
       }
     },
     "responses": {

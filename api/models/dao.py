@@ -53,6 +53,14 @@ class DAO(Base):
     # Add explicit relationship to PODs
     pods = relationship('POD', back_populates='dao', cascade='all, delete-orphan')
     """ PODs of the DAO """
+    
+    # Add relationship to tokens (Treasury)
+    tokens = relationship('Token', back_populates='dao', cascade='all, delete-orphan')
+    """ Tokens in the DAO's treasury """
+    
+    # Add relationship to transfers
+    transfers = relationship('Transfer', back_populates='dao', cascade='all, delete-orphan')
+    """ Transfers in the DAO's treasury """
 
     @classmethod
     def create(cls, input_data: dict) -> "DAO":

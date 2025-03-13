@@ -15,12 +15,14 @@ def test_update_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO
     assert res.status_code == 200
     data = res.json
     assert data == {
-        'dao_id': dao.dao_id,
-        'name': dao.name,
-        'description': dao.description,
-        'owner_id': dao.owner_id,
-        'is_active': True,
-        'admins': [
+        'action': 'updated',
+        'dao': {
+            'dao_id': dao.dao_id,
+            'name': dao.name,
+            'description': dao.description,
+            'owner_id': dao.owner_id,
+            'is_active': True,
+            'admins': [
             {
                 'user_id': victor.user_id,
                 'username': victor.username,
@@ -31,7 +33,8 @@ def test_update_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO
                 'user_id': victor.user_id,
                 'username': victor.username,
             }
-        ]
+            ]
+        }
     }
 
 def test_unauthorized_dao_update(client: Flask, victor: User, sayori: User, sayori_logged_in: str, dao: DAO):
