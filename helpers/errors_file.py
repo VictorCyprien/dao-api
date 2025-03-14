@@ -88,4 +88,5 @@ class ErrorHandler():
     TRANSFER_NOT_FOUND = "This transfer doesn't exist !"
     TRANSFER_CREATE_ERROR = "Unable to create the transfer"
     INVALID_TRANSFER_AMOUNT = "The transfer amount is invalid"
-    
+    DISCORD_CHANNEL_NOT_FOUND = "This Discord channel doesn't exist !"
+    DISCORD_CHANNEL_ALREADY_LINKED = "This Discord channel is already linked to a POD !"
