@@ -69,6 +69,7 @@ class POD(Base):
         name = input_data.get("name", None)
         description = input_data.get("description", None)
         is_active = input_data.get("is_active", None)
+        discord_channel_id = input_data.get("discord_channel_id", None)
 
         if name is not None:
             self.name = name
@@ -76,6 +77,8 @@ class POD(Base):
             self.description = description
         if is_active is not None:
             self.is_active = is_active
+        if discord_channel_id is not None:
+            self.discord_channel_id = discord_channel_id
 
 
     def add_member(self, user) -> bool:

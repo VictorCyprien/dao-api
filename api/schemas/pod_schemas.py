@@ -31,6 +31,7 @@ class PODUpdateSchema(Schema):
     name = fields.Str(validate=validate.Length(min=1))
     description = fields.Str(validate=validate.Length(min=1))
     is_active = fields.Bool()
+    discord_channel_id = fields.Str()
 
 class PODMembershipSchema(Schema):
     user_id = fields.Str(required=True)
