@@ -14,6 +14,8 @@ from api.models.user import User
 from api.models.dao import DAO
 from api.models.pod import POD
 from api.models.treasury import Token, Transfer
+from api.models.discord_channel import DiscordChannel
+from api.models.discord_message import DiscordMessage
 
 from environs import Env
 
@@ -272,5 +274,85 @@ def transfer(app, dao, token, victor, db: SQLAlchemy) -> Iterator[Transfer]:
         db.session.commit()
         yield transfer
         db.session.delete(transfer)
+        db.session.commit()
+
+
+@pytest.fixture
+def discord_channel(app, pod, db: SQLAlchemy) -> Iterator[DiscordChannel]:
+    with app.app_context():
+        channel = DiscordChannel(
+            channel_id="123456789",
+            name="general",
+            pod_id=pod.pod_id,
+            created_at=freezegun.freeze_time(creation_date).time_to_freeze
+        )
+        db.session.add(channel)
+        db.session.commit()
+        yield channel
+        db.session.delete(channel)
+        db.session.commit()
+
+
+@pytest.fixture
+def unlinked_discord_channel(app, db: SQLAlchemy) -> Iterator[DiscordChannel]:
+    with app.app_context():
+        channel = DiscordChannel(
+            channel_id="987654321",
+            name="announcements",
+            pod_id=None,
+            created_at=freezegun.freeze_time(creation_date).time_to_freeze
+        )
+        db.session.add(channel)
+        db.session.commit()
+        yield channel
+        db.session.delete(channel)
+        db.session.commit()
+
+
+@pytest.fixture
+def discord_message(app, discord_channel, db: SQLAlchemy) -> Iterator[DiscordMessage]:
+    with app.app_context():
+        message = DiscordMessage(
+            message_id="123456789012345",
+            channel_id=discord_channel.channel_id,
+            username="testuser",
+            user_id="98765432101",
+            text="Hello, world!",
+            has_media=False,
+            media_urls=None,
+            created_at=freezegun.freeze_time(creation_date).time_to_freeze,
+            indexed_at=freezegun.freeze_time(creation_date).time_to_freeze
+        )
+        db.session.add(message)
+        db.session.commit()
+        yield message
+        db.session.delete(message)
+        db.session.commit()
+
+
+@pytest.fixture
+def discord_messages(app, discord_channel, db: SQLAlchemy) -> Iterator[list]:
+    with app.app_context():
+        messages = []
+        for i in range(5):
+            message = DiscordMessage(
+                message_id=f"12345678901234{i}",
+                channel_id=discord_channel.channel_id,
+                username="testuser",
+                user_id="98765432101",
+                text=f"Test message {i}",
+                has_media=False,
+                media_urls=None,
+                created_at=freezegun.freeze_time(creation_date).time_to_freeze,
+                indexed_at=freezegun.freeze_time(creation_date).time_to_freeze
+            )
+            db.session.add(message)
+            messages.append(message)
+        
+        db.session.commit()
+        yield messages
+        
+        for message in messages:
+            db.session.delete(message)
         db.session.commit()
 
