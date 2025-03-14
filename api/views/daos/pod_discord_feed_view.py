@@ -29,6 +29,9 @@ from api.views.daos.daos_blp import blp as daos_blp
 
 from helpers.errors_file import BadRequest, ErrorHandler, NotFound, Unauthorized
 from helpers.logging_file import Logger
+from helpers.cache_decorator import cached_view, invalidate_view_cache
+from helpers.build_cache_key import make_discord_feed_key, make_pod_discord_channels_key, make_channel_messages_key
+
 
 logger = Logger()
 
@@ -42,6 +45,7 @@ class PodFeedView(MethodView):
     @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
     @daos_blp.response(200, DiscordMessagesResponseSchema, description="Discord feed retrieved successfully")
     @jwt_required(fresh=True)
+    @cached_view(timeout=300, make_key=make_discord_feed_key)
     def get(self, dao_id: str, pod_id: str):
         """Get Discord feed for a POD"""
         db: SQLAlchemy = current_app.db
@@ -61,7 +65,7 @@ class PodFeedView(MethodView):
         if not pod:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         if pod.dao_id != dao_id:
-            raise BadRequest(ErrorHandler.POD_NOT_IN_DAO)
+            raise BadRequest(ErrorHandler.POD_NOT_FOUND)
         
         # Get limit from query params, default to 50
         limit = request.args.get('limit', default=50, type=int)
@@ -75,6 +79,7 @@ class PodFeedView(MethodView):
         }
 
 
+
 @daos_blp.route("<string:dao_id>/pods/<string:pod_id>/discord-channels")
 class PodDiscordChannelsView(MethodView):
     """View for managing Discord channels associated with a POD"""
@@ -84,6 +89,7 @@ class PodDiscordChannelsView(MethodView):
     @daos_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
     @daos_blp.response(200, DiscordChannelsResponseSchema, description="Discord channels retrieved successfully")
     @jwt_required(fresh=True)
+    @cached_view(timeout=300, make_key=make_pod_discord_channels_key)  # Cache for 5 minutes
     def get(self, dao_id: str, pod_id: str):
         """Get all Discord channels for a POD"""
         db: SQLAlchemy = current_app.db
@@ -139,20 +145,23 @@ class PodDiscordChannelsView(MethodView):
         if not pod:
             raise NotFound(ErrorHandler.POD_NOT_FOUND)
         if pod.dao_id != dao_id:
-            raise BadRequest(ErrorHandler.POD_NOT_IN_DAO)
+            raise BadRequest(ErrorHandler.POD_NOT_FOUND)
         
         # Get the Discord channel
         channel_id = input_data["channel_id"]
         channel = DiscordChannel.get_by_id(channel_id, db.session)
         
         if not channel:
-            raise NotFound("Discord channel not found")
+            raise NotFound(ErrorHandler.DISCORD_CHANNEL_NOT_FOUND)
         
         # Link the channel to the POD
         channel.pod_id = pod_id
         
         try:
             db.session.commit()
+            # Invalidate caches
+            invalidate_view_cache(key_pattern=f"discord_feed_{dao_id}_{pod_id}")
+            invalidate_view_cache(key_pattern=f"pod_discord_channels_{dao_id}_{pod_id}")
         except IntegrityError as e:
             db.session.rollback()
             raise BadRequest(f"Error linking Discord channel: {str(e)}")
@@ -208,6 +217,10 @@ class PodDiscordChannelView(MethodView):
         
         try:
             db.session.commit()
+            # Invalidate all related caches
+            invalidate_view_cache(key_pattern=f"discord_feed_{dao_id}_{pod_id}")
+            invalidate_view_cache(key_pattern=f"channel_messages_{dao_id}_{pod_id}_{channel_id}")
+            invalidate_view_cache(key_pattern=f"pod_discord_channels_{dao_id}_{pod_id}")
         except IntegrityError as e:
             db.session.rollback()
             raise BadRequest(f"Error unlinking Discord channel: {str(e)}")
@@ -228,6 +241,7 @@ class DiscordChannelMessagesView(MethodView):
     @daos_blp.response(400, PagingError, description="Bad Request - Channel not linked to this POD")
     @daos_blp.response(200, DiscordMessagesResponseSchema, description="Discord messages retrieved successfully")
     @jwt_required(fresh=True)
+    @cached_view(timeout=300, make_key=make_channel_messages_key)  # Cache for 5 minutes
     def get(self, dao_id: str, pod_id: str, channel_id: str):
         """Get messages from a specific Discord channel"""
         db: SQLAlchemy = current_app.db
