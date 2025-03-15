@@ -176,3 +176,7 @@ dao_schema.sql
 dao.sqlite
 cov.xml
 pg_to_sqlite.py
+cov.xml
+report.xml
+oauth_docs.md
+Discord Schema.excalidraw
