@@ -218,9 +218,19 @@ def create_flask_app(config: Config) -> Flask:
     from .views.treasury import treasury_blp
     rest_api.register_blueprint(treasury_blp)
 
-    from .views.discord_admin_view import blp as discord_blp
-    rest_api.register_blueprint(discord_blp)
+    # Import OAuth blueprints from their respective files
+    from .views.auth.discord_oauth import discord_oauth_blp
+    rest_api.register_blueprint(discord_oauth_blp)
 
+    from .views.auth.twitter_oauth import twitter_oauth_blp
+    rest_api.register_blueprint(twitter_oauth_blp)
+
+    from .views.auth.telegram_auth import telegram_auth_blp
+    rest_api.register_blueprint(telegram_auth_blp)
+    
+    from .views.auth.social_connections_view import social_connections_blp
+    rest_api.register_blueprint(social_connections_blp)
+    
     # from .views.data import data_blp
     # rest_api.register_blueprint(data_blp)
 
