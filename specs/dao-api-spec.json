@@ -1992,35 +1992,18 @@
         }
       ]
     },
-    "/discord/channels": {
+    "/auth/discord/connect": {
       "get": {
         "responses": {
-          "200": {
-            "description": "Discord channels retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelsResponse"
-                }
-              }
-            }
+          "302": {
+            "description": "Redirect to Discord authorization page"
           },
           "401": {
-            "description": "Unauthorized - Invalid or missing token",
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
+                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
@@ -2029,53 +2012,290 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Get all Discord channels",
+        "summary": "Initiate Discord OAuth flow",
         "tags": [
-          "discord"
+          "discord_oauth"
         ],
-        "operationId": "GetAllDiscordChannels"
-      },
+        "operationId": "ConnectDiscord",
+        "description": "Redirects the user to Discord's authorization page to begin the OAuth flow."
+      }
+    },
+    "/auth/discord/callback": {
+      "get": {
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with success or error status"
+          },
+          "500": {
+            "description": "Database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User info retrieval failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfoError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Handle Discord OAuth callback",
+        "tags": [
+          "discord_oauth"
+        ],
+        "operationId": "DiscordCallback",
+        "description": "Processes the callback from Discord after user authorization."
+      }
+    },
+    "/auth/discord/disconnect": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Connection successfully removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisconnectResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No connection found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error disconnecting account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Disconnect Discord account",
+        "tags": [
+          "discord_oauth"
+        ],
+        "operationId": "DisconnectDiscord",
+        "description": "Removes the connection between the user's account and their Discord account."
+      }
+    },
+    "/auth/twitter/connect": {
+      "get": {
+        "responses": {
+          "302": {
+            "description": "Redirect to Twitter authorization page"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Initiate Twitter OAuth flow",
+        "tags": [
+          "twitter_oauth"
+        ],
+        "operationId": "ConnectTwitter",
+        "description": "Redirects the user to Twitter's authorization page to begin the OAuth 2.0 PKCE flow."
+      }
+    },
+    "/auth/twitter/callback": {
+      "get": {
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with success or error status"
+          },
+          "500": {
+            "description": "Database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User info retrieval failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfoError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Handle Twitter OAuth callback",
+        "tags": [
+          "twitter_oauth"
+        ],
+        "operationId": "TwitterCallback",
+        "description": "Processes the callback from Twitter after user authorization."
+      }
+    },
+    "/auth/twitter/disconnect": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Connection successfully removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisconnectResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error disconnecting account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No connection found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Disconnect Twitter account",
+        "tags": [
+          "twitter_oauth"
+        ],
+        "operationId": "DisconnectTwitter",
+        "description": "Removes the connection between the user's account and their Twitter account."
+      }
+    },
+    "/auth/telegram/callback": {
       "post": {
         "responses": {
           "422": {
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
           },
-          "201": {
-            "description": "Discord channel created successfully",
+          "200": {
+            "description": "Account successfully linked",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelResponse"
+                  "$ref": "#/components/schemas/ConnectionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error saving connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Invalid data",
+            "description": "Invalid or missing data",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagingError"
+                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized - Invalid or missing token",
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
+                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
@@ -2089,208 +2309,58 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateDiscordChannel"
+                "$ref": "#/components/schemas/TelegramAuth"
               }
             }
           }
         },
-        "summary": "Create a new Discord channel in the system",
+        "summary": "Process Telegram authentication data",
         "tags": [
-          "discord"
+          "telegram_auth"
         ],
-        "operationId": "CreateDiscordChannel"
+        "operationId": "TelegramCallback",
+        "description": "Handles the authentication data from the Telegram Login Widget."
       }
     },
-    "/discord/channels/unlinked": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Unlinked Discord channels retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid or missing token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Get all Discord channels that are not linked to any POD",
-        "tags": [
-          "discord"
-        ],
-        "operationId": "GetUnlinkedDiscordChannels"
-      }
-    },
-    "/discord/channels/{channel_id}": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Discord channel retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid or missing token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User or Discord channel not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Get a specific Discord channel",
-        "tags": [
-          "discord"
-        ],
-        "operationId": "GetDiscordChannel"
-      },
-      "put": {
-        "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
-          "200": {
-            "description": "Discord channel updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid or missing token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User or Discord channel not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDiscordChannel"
-              }
-            }
-          }
-        },
-        "summary": "Update a Discord channel",
-        "tags": [
-          "discord"
-        ],
-        "operationId": "UpdateDiscordChannel"
-      },
+    "/auth/telegram/disconnect": {
       "delete": {
         "responses": {
-          "200": {
-            "description": "Discord channel deleted successfully",
+          "500": {
+            "description": "Error disconnecting account",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DiscordChannelResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Error deleting channel",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid or missing token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
+                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
           },
           "404": {
-            "description": "User or Discord channel not found",
+            "description": "No connection found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagingError"
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Connection successfully removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisconnectResponse"
                 }
               }
             }
@@ -2299,23 +2369,68 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Delete a Discord channel",
+        "summary": "Disconnect Telegram account",
         "tags": [
-          "discord"
+          "telegram_auth"
         ],
-        "operationId": "DeleteDiscordChannel"
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "channel_id",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "minLength": 1
+        "operationId": "DisconnectTelegram",
+        "description": "Removes the connection between the user's account and their Telegram account."
+      }
+    },
+    "/auth/connections": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of social connections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionsList"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
           }
-        }
-      ]
+        },
+        "summary": "Get user's social connections",
+        "tags": [
+          "social_connections"
+        ],
+        "operationId": "GetSocialConnections",
+        "description": "Returns all social connections for the authenticated user."
+      }
     }
   },
   "info": {
@@ -2340,8 +2455,20 @@
       "description": "Operations on Treasury"
     },
     {
-      "name": "discord",
-      "description": "Operations on Discord channels and messages"
+      "name": "discord_oauth",
+      "description": "Discord OAuth integration"
+    },
+    {
+      "name": "twitter_oauth",
+      "description": "Twitter OAuth integration"
+    },
+    {
+      "name": "telegram_auth",
+      "description": "Telegram authentication integration"
+    },
+    {
+      "name": "social_connections",
+      "description": "Social Connections Management"
     }
   ],
   "openapi": "3.0.2",
@@ -2877,6 +3004,9 @@
           },
           "is_active": {
             "type": "boolean"
+          },
+          "discord_channel_id": {
+            "type": "string"
           }
         }
       },
@@ -3248,36 +3378,163 @@
           "transfer"
         ]
       },
-      "CreateDiscordChannel": {
+      "OAuthError": {
         "type": "object",
         "properties": {
-          "channel_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "pod_id": {
+          "error": {
             "type": "string",
-            "nullable": true
+            "description": "Error message"
+          },
+          "code": {
+            "type": "integer",
+            "description": "Error code"
           }
         },
         "required": [
-          "channel_id",
-          "name"
+          "error"
         ]
       },
-      "UpdateDiscordChannel": {
+      "UserInfoError": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "pod_id": {
+          "error": {
             "type": "string",
-            "nullable": true
+            "description": "User info retrieval error"
           }
-        }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "DisconnectResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "TelegramAuth": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Telegram user ID"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "User's first name"
+          },
+          "username": {
+            "type": "string",
+            "description": "Telegram username"
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "URL of the user's profile photo"
+          },
+          "auth_date": {
+            "type": "integer",
+            "description": "Authentication date (Unix time)"
+          },
+          "hash": {
+            "type": "string",
+            "description": "Authentication hash"
+          }
+        },
+        "required": [
+          "auth_date",
+          "first_name",
+          "hash",
+          "id",
+          "username"
+        ]
+      },
+      "SocialConnection": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "Social provider name (discord, twitter, telegram)"
+          },
+          "provider_user_id": {
+            "type": "string",
+            "description": "User ID from the provider"
+          },
+          "provider_username": {
+            "type": "string",
+            "description": "Username from the provider"
+          },
+          "connected_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the connection was established"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the connection was last updated"
+          }
+        },
+        "required": [
+          "provider",
+          "provider_user_id",
+          "provider_username"
+        ]
+      },
+      "ConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message"
+          },
+          "connection": {
+            "description": "Connection details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SocialConnection"
+              }
+            ]
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ConnectionsList": {
+        "type": "object",
+        "properties": {
+          "connections": {
+            "type": "array",
+            "description": "List of social connections",
+            "items": {
+              "$ref": "#/components/schemas/SocialConnection"
+            }
+          },
+          "discord_connected": {
+            "type": "boolean",
+            "description": "Whether Discord is connected"
+          },
+          "twitter_connected": {
+            "type": "boolean",
+            "description": "Whether Twitter is connected"
+          },
+          "telegram_connected": {
+            "type": "boolean",
+            "description": "Whether Telegram is connected"
+          }
+        },
+        "required": [
+          "connections",
+          "discord_connected",
+          "telegram_connected",
+          "twitter_connected"
+        ]
       }
     },
     "responses": {
