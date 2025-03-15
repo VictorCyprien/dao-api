@@ -77,6 +77,9 @@ class User(Base):
     member_pods = relationship('POD', secondary='pod_members', back_populates='members')
     """ PODs that the user is a member of """
 
+    social_connections = relationship('SocialConnection', back_populates='user', cascade="all, delete-orphan")
+    """ Social media connections for this user """
+
 
     @classmethod
     def create(cls, input_data: dict) -> "User":
@@ -287,7 +290,8 @@ class User(Base):
             "last_login": self.last_login,
             "last_interaction": self.last_interaction,
             "email_verified": self.email_verified,
-            "is_active": self.is_active
+            "is_active": self.is_active,
+            "social_connections": [conn.to_dict() for conn in self.social_connections] if self.social_connections else []
         }
         
     def __iter__(self):
@@ -304,5 +308,6 @@ class User(Base):
             "last_login": self.last_login,
             "last_interaction": self.last_interaction,
             "email_verified": self.email_verified,
-            "is_active": self.is_active
+            "is_active": self.is_active,
+            "social_connections": [conn.to_dict() for conn in self.social_connections] if self.social_connections else []
         }.items()
