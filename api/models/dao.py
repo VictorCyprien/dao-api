@@ -61,6 +61,10 @@ class DAO(Base):
     # Add relationship to transfers
     transfers = relationship('Transfer', back_populates='dao', cascade='all, delete-orphan')
     """ Transfers in the DAO's treasury """
+    
+    # Add relationship to proposals
+    proposals = relationship('Proposal', back_populates='dao', cascade='all, delete-orphan')
+    """ Proposals in the DAO """
 
     @classmethod
     def create(cls, input_data: dict) -> "DAO":
