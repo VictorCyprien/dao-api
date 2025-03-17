@@ -1,5 +1,6 @@
 from environs import Env
 import os
+from cryptography.fernet import Fernet
 
 
 class Config:
@@ -70,6 +71,23 @@ class Config:
         self.OPENAPI_URL_PREFIX = env.str('OPENAPI_URL_PREFIX', '/')
         self.OPENAPI_SWAGGER_UI_PATH = env.str('OPENAPI_SWAGGER_UI_PATH', '/api/swagger')
         self.OPENAPI_SWAGGER_UI_URL = env.str('OPENAPI_SWAGGER_UI_URL', 'https://cdn.jsdelivr.net/npm/swagger-ui-dist/')
+
+        # OAuth configuration
+        self.DISCORD_CLIENT_ID = env.str('DISCORD_CLIENT_ID', "")
+        self.DISCORD_CLIENT_SECRET = env.str('DISCORD_CLIENT_SECRET', "")
+        self.DISCORD_REDIRECT_URI = env.str('DISCORD_REDIRECT_URI', "http://localhost:5000/auth/discord/callback")
+        
+        self.TWITTER_CLIENT_ID = env.str('TWITTER_CLIENT_ID', "")
+        self.TWITTER_CLIENT_SECRET = env.str('TWITTER_CLIENT_SECRET', "")
+        self.TWITTER_REDIRECT_URI = env.str('TWITTER_REDIRECT_URI', "http://localhost:5000/auth/twitter/callback")
+        
+        self.TELEGRAM_BOT_TOKEN = env.str('TELEGRAM_BOT_TOKEN', "")
+        
+        # OAuth token encryption key (generate one if not provided)
+        self.OAUTH_ENCRYPTION_KEY = env.str('OAUTH_ENCRYPTION_KEY', Fernet.generate_key().decode())
+        
+        # Frontend URL for redirects after OAuth
+        self.FRONTEND_URL = env.str('FRONTEND_URL', "http://localhost:5173")
 
     @property
     def mongodb_settings(self):
