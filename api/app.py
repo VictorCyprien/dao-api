@@ -231,6 +231,9 @@ def create_flask_app(config: Config) -> Flask:
     from .views.auth.social_connections_view import social_connections_blp
     rest_api.register_blueprint(social_connections_blp)
     
+    from .views.proposals import proposals_blp
+    rest_api.register_blueprint(proposals_blp)
+    
     # from .views.data import data_blp
     # rest_api.register_blueprint(data_blp)
 
