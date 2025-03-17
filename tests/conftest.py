@@ -13,6 +13,7 @@ from api import Base
 from api.models.user import User
 from api.models.dao import DAO
 from api.models.pod import POD
+from api.models.proposal import Proposal
 from api.models.treasury import Token, Transfer
 from api.models.discord_channel import DiscordChannel
 from api.models.discord_message import DiscordMessage
@@ -217,6 +218,64 @@ def dao(app, victor, db: SQLAlchemy) -> Iterator[DAO]:
             db.session.commit()
         yield dao
         db.session.delete(dao)
+        db.session.commit()
+
+
+@pytest.fixture
+def proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create a test proposal for testing"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=1)
+    end_time = datetime.now() + timedelta(days=5)
+    
+    proposal_data = {
+        "name": "Test Proposal",
+        "description": "A test proposal for the DAO",
+        "dao_id": dao.dao_id,
+        "created_by": victor.user_id,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "add_wallet", "target_address": "0xNewWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
+        db.session.commit()
+
+
+@pytest.fixture
+def inactive_proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create an inactive test proposal (past end time) for testing"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=10)
+    end_time = datetime.now() - timedelta(days=5)
+    
+    proposal_data = {
+        "name": "Inactive Proposal",
+        "description": "An inactive test proposal for the DAO",
+        "dao_id": dao.dao_id,
+        "created_by": victor.user_id,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "remove_wallet", "target_address": "0xOldWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
         db.session.commit()
 
 
