@@ -59,6 +59,10 @@ class ConnectionResponseSchema(Schema):
     message = fields.String(required=True, description="Success message")
     connection = fields.Nested(SocialConnectionSchema, description="Connection details")
 
+class OAuthResponseSchema(Schema):
+    auth_url = fields.String(required=True, description="Authorization URL")
+    message = fields.String(required=True, description="Success message")
+
 class DisconnectResponseSchema(Schema):
     message = fields.String(required=True, description="Success message")
 

@@ -16,6 +16,7 @@ from api.schemas.auth_schemas import (
     ConnectionResponseSchema,
     DisconnectResponseSchema,
     OAuthErrorSchema,
+    OAuthResponseSchema,
     StateValidationErrorSchema,
     TokenExchangeErrorSchema,
     UserInfoErrorSchema
@@ -36,7 +37,7 @@ class DiscordConnectView(OAuthViewHandler):
                            summary="Initiate Discord OAuth flow",
                            description="Redirects the user to Discord's authorization page to begin the OAuth flow.")
     @discord_oauth_blp.response(401, OAuthErrorSchema, description="Unauthorized")
-    @discord_oauth_blp.response(302, description="Redirect to Discord authorization page")
+    @discord_oauth_blp.response(200, OAuthResponseSchema, description="Return Discord authorization URL")
     def get(self):
         """
         Initiate Discord OAuth flow for linking a Discord account
@@ -45,8 +46,14 @@ class DiscordConnectView(OAuthViewHandler):
         user_id = get_jwt_identity()
         
         # Generate and store state token to prevent CSRF
-        state = secrets.token_urlsafe(32)
-        session[f'discord_oauth_state_{user_id}'] = state
+        state_token = secrets.token_urlsafe(32)
+        
+        # Combine state token with user_id for stateless validation
+        # Format: "random_token:user_id"
+        state = f"{state_token}:{user_id}"
+        
+        # Store only the token part in the session
+        session[f'discord_oauth_state_{user_id}'] = state_token
         
         # Define Discord OAuth parameters
         params = {
@@ -58,17 +65,19 @@ class DiscordConnectView(OAuthViewHandler):
             'prompt': 'consent'
         }
         
-        # Redirect to Discord authorization page
+        # Instead of redirecting, return the URL for the frontend to use
         auth_url = f"{self.DISCORD_API_URL}/oauth2/authorize?{urlencode(params)}"
-        return redirect(auth_url)
+        return {
+            "auth_url": auth_url,
+            "message": "Use this URL to redirect the user to Discord's authorization page"
+        }
+
 
 @discord_oauth_blp.route('/callback', methods=['GET'])
 class DiscordCallbackView(OAuthViewHandler):
-    @jwt_required()
     @discord_oauth_blp.doc(operationId='DiscordCallback',
-                           summary="Handle Discord OAuth callback",
-                           description="Processes the callback from Discord after user authorization.")
-    @discord_oauth_blp.response(401, OAuthErrorSchema, description="Unauthorized")
+                       summary="Handle Discord OAuth callback",
+                       description="Processes the callback from Discord after user authorization.")
     @discord_oauth_blp.response(400, StateValidationErrorSchema, description="Invalid state")
     @discord_oauth_blp.response(400, TokenExchangeErrorSchema, description="Token exchange failed")
     @discord_oauth_blp.response(400, UserInfoErrorSchema, description="User info retrieval failed")
@@ -84,10 +93,21 @@ class DiscordCallbackView(OAuthViewHandler):
         
         code = request.args.get('code')
         state = request.args.get('state')
-        user_id = get_jwt_identity()
+        
+        if not state or not code:
+            return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=missing_parameters")
+        
+        # Retrieve user_id from state
+        # The state should be in the format: "random_token:user_id"
+        state_parts = state.split(':', 1)
+        if len(state_parts) != 2:
+            return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=invalid_state_format")
+            
+        state_token, user_id = state_parts
         
         # Verify state to prevent CSRF
-        if not state or state != session.get(f'discord_oauth_state_{user_id}'):
+        session_state = session.get(f'discord_oauth_state_{user_id}')
+        if not session_state or state_token != session_state:
             return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=invalid_state")
         
         # Clear state from session
