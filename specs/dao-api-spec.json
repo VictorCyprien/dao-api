@@ -1995,8 +1995,15 @@
     "/auth/discord/connect": {
       "get": {
         "responses": {
-          "302": {
-            "description": "Redirect to Discord authorization page"
+          "200": {
+            "description": "Return Discord authorization URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthResponse"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -2042,16 +2049,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserInfoError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
@@ -2126,8 +2123,15 @@
     "/auth/twitter/connect": {
       "get": {
         "responses": {
-          "302": {
-            "description": "Redirect to Twitter authorization page"
+          "200": {
+            "description": "Redirect to Twitter authorization page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthResponse"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -3376,6 +3380,23 @@
         "required": [
           "action",
           "transfer"
+        ]
+      },
+      "OAuthResponse": {
+        "type": "object",
+        "properties": {
+          "auth_url": {
+            "type": "string",
+            "description": "Authorization URL"
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message"
+          }
+        },
+        "required": [
+          "auth_url",
+          "message"
         ]
       },
       "OAuthError": {
