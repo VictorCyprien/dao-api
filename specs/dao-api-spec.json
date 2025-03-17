@@ -2124,7 +2124,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "Redirect to Twitter authorization page",
+            "description": "Return Twitter authorization URL",
             "content": {
               "application/json": {
                 "schema": {
@@ -2177,16 +2177,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserInfoError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OAuthError"
                 }
               }
             }
@@ -2435,6 +2425,579 @@
         "operationId": "GetSocialConnections",
         "description": "Returns all social connections for the authenticated user."
       }
+    },
+    "/proposals/dao/{dao_id}/proposals": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of proposals for the DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Proposal"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all proposals for a specific DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetProposalsByDAO"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Proposal created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not a member of this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputCreateProposal"
+              }
+            }
+          }
+        },
+        "summary": "Create a new proposal for this specific DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "CreateProposalForDAO"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/dao/{dao_id}/proposals/active": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of active proposals for the DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Proposal"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all active proposals for a specific DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetActiveProposalsByDAO"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/dao/{dao_id}/proposals/{proposal_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Proposal retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get a specific proposal for a DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetDAOProposalById"
+      },
+      "put": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Proposal updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data or Proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not the creator or an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalUpdate"
+              }
+            }
+          }
+        },
+        "summary": "Update a proposal for a DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "UpdateDAOProposal"
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Proposal deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Error deleting proposal or Proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not the creator or an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Delete a proposal for a DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "DeleteDAOProposal"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "proposal_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/dao/{dao_id}/proposals/{proposal_id}/vote": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Vote counts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get vote counts for a proposal",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetProposalVotes"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Vote recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal is not active, user has already voted, or proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not a member of this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalVote"
+              }
+            }
+          }
+        },
+        "summary": "Vote on a proposal for a DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "VoteOnDAOProposal"
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Vote removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal is not active, user has not voted, or proposal does not belong to this DAO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DAO or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Remove vote from a proposal for a DAO",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "RemoveVoteFromDAOProposal"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "proposal_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     }
   },
   "info": {
@@ -2473,6 +3036,10 @@
     {
       "name": "social_connections",
       "description": "Social Connections Management"
+    },
+    {
+      "name": "proposals",
+      "description": "Operations on DAO proposals"
     }
   ],
   "openapi": "3.0.2",
@@ -3555,6 +4122,211 @@
           "discord_connected",
           "telegram_connected",
           "twitter_connected"
+        ]
+      },
+      "UserBasic1": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "Proposal": {
+        "type": "object",
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dao_id": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          },
+          "for_votes_count": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "against_votes_count": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "for_voters": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBasic1"
+            }
+          },
+          "against_voters": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBasic1"
+            }
+          },
+          "is_active": {
+            "readOnly": true
+          },
+          "has_passed": {
+            "readOnly": true
+          }
+        },
+        "required": [
+          "created_by",
+          "dao_id",
+          "description",
+          "end_time",
+          "name",
+          "start_time"
+        ]
+      },
+      "InputCreateProposal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dao_id": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          }
+        },
+        "required": [
+          "dao_id",
+          "description",
+          "end_time",
+          "name",
+          "start_time"
+        ]
+      },
+      "ProposalSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          }
+        },
+        "required": [
+          "action",
+          "proposal"
+        ]
+      },
+      "ProposalUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          }
+        }
+      },
+      "ProposalVoteResponse": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "vote_status": {
+            "type": "string",
+            "enum": [
+              "none",
+              "for",
+              "against"
+            ]
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          },
+          "for_votes_count": {
+            "type": "integer"
+          },
+          "against_votes_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action",
+          "against_votes_count",
+          "for_votes_count",
+          "proposal",
+          "vote_status"
+        ]
+      },
+      "ProposalVote": {
+        "type": "object",
+        "properties": {
+          "vote": {
+            "type": "string",
+            "enum": [
+              "for",
+              "against"
+            ]
+          }
+        },
+        "required": [
+          "vote"
         ]
       }
     },
