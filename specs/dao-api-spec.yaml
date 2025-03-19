@@ -2998,6 +2998,573 @@
           }
         }
       ]
+    },
+    "/proposals/pod/{pod_id}/proposals": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of proposals for the POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PodProposalListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all proposals for a specific POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetProposalsByPOD"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Proposal created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not a member of this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputCreateProposal"
+              }
+            }
+          }
+        },
+        "summary": "Create a new proposal for this specific POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "CreateProposalForPOD"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/pod/{pod_id}/proposals/active": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of active proposals for the POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PodProposalListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get all active proposals for a specific POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetActiveProposalsByPOD"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/pod/{pod_id}/proposals/{proposal_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Proposal retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get a specific proposal for a POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetPODProposalById"
+      },
+      "put": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Proposal updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data or Proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not the creator or a POD member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalUpdate"
+              }
+            }
+          }
+        },
+        "summary": "Update a proposal for a POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "UpdatePODProposal"
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Proposal deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalSchemaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Error deleting proposal or Proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not the creator of the proposal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Delete a proposal for a POD",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "DeletePODProposal"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "proposal_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/proposals/pod/{pod_id}/proposals/{proposal_id}/vote": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Vote counts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get vote counts for a POD proposal",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "GetPODProposalVotes"
+      },
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "Vote recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal is not active, user has already voted, or proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not a member of this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalVote"
+              }
+            }
+          }
+        },
+        "summary": "Vote on a POD proposal",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "VoteOnPODProposal"
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Vote removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalVoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Proposal is not active, user has not voted, or proposal does not belong to this POD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "POD or Proposal not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagingError"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Remove a vote from a POD proposal",
+        "tags": [
+          "proposals"
+        ],
+        "operationId": "RemoveVoteFromPODProposal"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "pod_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "proposal_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
     }
   },
   "info": {
@@ -4151,6 +4718,10 @@
           "dao_id": {
             "type": "string"
           },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          },
           "created_by": {
             "type": "string"
           },
@@ -4219,6 +4790,10 @@
           "dao_id": {
             "type": "string"
           },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          },
           "start_time": {
             "type": "string",
             "format": "date-time"
@@ -4275,6 +4850,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "pod_id": {
+            "type": "string",
+            "nullable": true
+          },
           "actions": {
             "type": "object",
             "additionalProperties": {},
@@ -4327,6 +4906,28 @@
         },
         "required": [
           "vote"
+        ]
+      },
+      "PodProposalListResponse": {
+        "type": "object",
+        "properties": {
+          "pod_id": {
+            "type": "string"
+          },
+          "proposals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            }
+          },
+          "total_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pod_id",
+          "proposals",
+          "total_count"
         ]
       }
     },
