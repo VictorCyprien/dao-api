@@ -5,11 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy.exc import IntegrityError
 
-from .users_blp import users_blp
-from ...models.user import User
+from api.views.users.users_blp import users_blp
+from api.models.user import User
 
-from ...schemas.users_schemas import UserResponseSchema, InputCreateUserSchema
-from ...schemas.communs_schemas import PagingError
+from api.schemas.users_schemas import UserResponseSchema, InputCreateUserSchema
+from api.schemas.communs_schemas import PagingError
 
 from helpers.errors_file import BadRequest, ErrorHandler
 from helpers.logging_file import Logger

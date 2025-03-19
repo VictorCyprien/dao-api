@@ -8,11 +8,11 @@ from sqlalchemy.exc import IntegrityError
 
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from .users_blp import users_blp
-from ...models.user import User
+from api.views.users.users_blp import users_blp
+from api.models.user import User
 
-from ...schemas.users_schemas import InputUpdateUserSchema, UserSchema, UserResponseSchema, UserExistResponseSchema
-from ...schemas.communs_schemas import PagingError
+from api.schemas.users_schemas import InputUpdateUserSchema, UserSchema, UserResponseSchema, UserExistResponseSchema
+from api.schemas.communs_schemas import PagingError
 
 from helpers.errors_file import BadRequest, NotFound, ErrorHandler
 from helpers.logging_file import Logger
