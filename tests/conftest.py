@@ -415,3 +415,46 @@ def discord_messages(app, discord_channel, db: SQLAlchemy) -> Iterator[list]:
             db.session.delete(message)
         db.session.commit()
 
+
+@pytest.fixture
+def pod_proposal(app, dao, pod, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create a test proposal for a POD"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=1)
+    end_time = datetime.now() + timedelta(days=5)
+    
+    proposal_data = {
+        "name": "POD Test Proposal",
+        "description": "A test proposal for the POD",
+        "dao_id": dao.dao_id,
+        "pod_id": pod.pod_id,
+        "created_by": victor.user_id,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "add_wallet", "target_address": "0xPodWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
+        db.session.commit()
+
+
+@pytest.fixture
+def victor_in_pod(app, db, pod, victor):
+    """Add Victor to the POD as a member"""
+    with app.app_context():
+        current_pod = db.session.merge(pod)
+        current_victor = db.session.merge(victor)
+        current_pod.add_member(current_victor)
+        db.session.commit()
+        yield
+        current_pod.remove_member(current_victor)
+        db.session.commit()
+
