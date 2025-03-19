@@ -27,15 +27,20 @@ from helpers.logging_file import Logger
 logger = Logger()
 
 
-@proposals_blp.route("/pod/<string:pod_id>/proposals")
+@proposals_blp.route("/dao/<string:dao_id>/pod/<string:pod_id>/proposals")
 class PODProposalsView(MethodView):
     
     @proposals_blp.doc(operationId='GetProposalsByPOD')
     @proposals_blp.response(404, PagingError, description="POD not found")
     @proposals_blp.response(200, PodProposalListResponse, description="List of proposals for the POD")
-    def get(self, pod_id: str):
+    def get(self, dao_id: str, pod_id: str):
         """Get all proposals for a specific POD"""
         db: SQLAlchemy = current_app.db
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -59,7 +64,7 @@ class PODProposalsView(MethodView):
     @proposals_blp.response(403, PagingError, description="Forbidden - User is not a member of this POD")
     @proposals_blp.response(201, ProposalSchemaResponse, description="Proposal created successfully")
     @jwt_required()
-    def post(self, input_data: Dict, pod_id: str):
+    def post(self, input_data: Dict, dao_id: str, pod_id: str):
         """Create a new proposal for this specific POD"""
         db: SQLAlchemy = current_app.db
         
@@ -76,13 +81,16 @@ class PODProposalsView(MethodView):
             raise Unauthorized("User is not a member of this POD")
         
         # Get the DAO this POD belongs to
-        dao = DAO.get_by_id(pod.dao_id, db.session)
+        dao = DAO.get_by_id(dao_id, db.session)
         if dao is None:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
+        if dao.dao_id != pod.dao_id:
+            raise BadRequest("POD does not belong to this DAO")
+        
         # Add required fields to the input data
         input_data["pod_id"] = pod_id
-        input_data["dao_id"] = pod.dao_id
+        input_data["dao_id"] = dao_id
         input_data["created_by"] = auth_user.user_id
         
         try:
@@ -104,15 +112,20 @@ class PODProposalsView(MethodView):
             raise BadRequest("Failed to create POD proposal")
 
 
-@proposals_blp.route("/pod/<string:pod_id>/proposals/active")
+@proposals_blp.route("/dao/<string:dao_id>/pod/<string:pod_id>/proposals/active")
 class PODActiveProposalsView(MethodView):
     
     @proposals_blp.doc(operationId='GetActiveProposalsByPOD')
     @proposals_blp.response(404, PagingError, description="POD not found")
     @proposals_blp.response(200, PodProposalListResponse, description="List of active proposals for the POD")
-    def get(self, pod_id: str):
+    def get(self, dao_id: str, pod_id: str):
         """Get all active proposals for a specific POD"""
         db: SQLAlchemy = current_app.db
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -132,16 +145,21 @@ class PODActiveProposalsView(MethodView):
         }
 
 
-@proposals_blp.route("/pod/<string:pod_id>/proposals/<string:proposal_id>")
+@proposals_blp.route("/dao/<string:dao_id>/pod/<string:pod_id>/proposals/<string:proposal_id>")
 class OnePODProposalView(MethodView):
     
     @proposals_blp.doc(operationId='GetPODProposalById')
     @proposals_blp.response(404, PagingError, description="POD or Proposal not found")
     @proposals_blp.response(400, PagingError, description="Proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalSchema, description="Proposal retrieved successfully")
-    def get(self, pod_id: str, proposal_id: str):
+    def get(self, dao_id: str, pod_id: str, proposal_id: str):
         """Get a specific proposal for a POD"""
         db: SQLAlchemy = current_app.db
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -167,12 +185,17 @@ class OnePODProposalView(MethodView):
     @proposals_blp.response(400, PagingError, description="Bad Request - Invalid data or Proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalSchemaResponse, description="Proposal updated successfully")
     @jwt_required()
-    def put(self, input_data: Dict, pod_id: str, proposal_id: str):
+    def put(self, input_data: Dict, dao_id: str, pod_id: str, proposal_id: str):
         """Update a proposal for a POD"""
         db: SQLAlchemy = current_app.db
         
         # Get authenticated user
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -213,12 +236,17 @@ class OnePODProposalView(MethodView):
     @proposals_blp.response(400, PagingError, description="Bad Request - Error deleting proposal or Proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalSchemaResponse, description="Proposal deleted successfully")
     @jwt_required()
-    def delete(self, pod_id: str, proposal_id: str):
+    def delete(self, dao_id: str, pod_id: str, proposal_id: str):
         """Delete a proposal for a POD"""
         db: SQLAlchemy = current_app.db
         
         # Get authenticated user
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -253,7 +281,7 @@ class OnePODProposalView(MethodView):
             raise BadRequest("Failed to delete POD proposal")
 
 
-@proposals_blp.route("/pod/<string:pod_id>/proposals/<string:proposal_id>/vote")
+@proposals_blp.route("/dao/<string:dao_id>/pod/<string:pod_id>/proposals/<string:proposal_id>/vote")
 class PODProposalVoteView(MethodView):
     
     @proposals_blp.doc(operationId='GetPODProposalVotes')
@@ -262,12 +290,17 @@ class PODProposalVoteView(MethodView):
     @proposals_blp.response(400, PagingError, description="Bad Request - Proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalVoteResponse, description="Vote counts retrieved successfully")
     @jwt_required()
-    def get(self, pod_id: str, proposal_id: str):
+    def get(self, dao_id: str, pod_id: str, proposal_id: str):
         """Get vote counts for a POD proposal"""
         db: SQLAlchemy = current_app.db
         
         # Get authenticated user
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -306,12 +339,17 @@ class PODProposalVoteView(MethodView):
     @proposals_blp.response(400, PagingError, description="Bad Request - Proposal is not active, user has already voted, or proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalVoteResponse, description="Vote recorded successfully")
     @jwt_required()
-    def post(self, input_data: Dict, pod_id: str, proposal_id: str):
+    def post(self, input_data: Dict, dao_id: str, pod_id: str, proposal_id: str):
         """Vote on a POD proposal"""
         db: SQLAlchemy = current_app.db
         
         # Get authenticated user
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
@@ -368,12 +406,17 @@ class PODProposalVoteView(MethodView):
     @proposals_blp.response(400, PagingError, description="Bad Request - Proposal is not active, user has not voted, or proposal does not belong to this POD")
     @proposals_blp.response(200, ProposalVoteResponse, description="Vote removed successfully")
     @jwt_required()
-    def delete(self, pod_id: str, proposal_id: str):
+    def delete(self, dao_id: str, pod_id: str, proposal_id: str):
         """Remove a vote from a POD proposal"""
         db: SQLAlchemy = current_app.db
         
         # Get authenticated user
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+
+        # Verify DAO exists
+        dao = DAO.get_by_id(dao_id, db.session)
+        if dao is None:
+            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
         # Verify POD exists
         pod = POD.get_by_id(pod_id, db.session)
