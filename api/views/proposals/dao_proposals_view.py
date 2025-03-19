@@ -39,8 +39,8 @@ class DAOProposalsView(MethodView):
         if dao is None:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
-        # Get proposals for this DAO
-        proposals = Proposal.get_by_dao_id(dao_id, db.session)
+        # Get proposals for this DAO (exclude POD-level proposals)
+        proposals = Proposal.get_dao_only_proposals(dao_id, db.session)
         return proposals
     
     @proposals_blp.arguments(InputCreateProposalSchema)

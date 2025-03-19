@@ -47,8 +47,8 @@ class PODProposalsView(MethodView):
         if pod is None:
             raise NotFound("POD not found")
         
-        # Get proposals for this POD
-        proposals = Proposal.get_by_pod_id(pod_id, db.session)
+        # Get proposals for this POD (exclude DAO-level proposals)
+        proposals = Proposal.get_dao_only_pods_proposals(dao_id, pod_id, db.session)
         
         return {
             "pod_id": pod_id,

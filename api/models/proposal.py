@@ -186,6 +186,22 @@ class Proposal(Base):
         return session.query(Proposal).filter(Proposal.pod_id == pod_id).all()
     
     @classmethod
+    def get_dao_only_proposals(cls, dao_id: str, session: Session) -> List["Proposal"]:
+        """ Get all DAO-level proposals (proposals without a pod_id) for a specific DAO """
+        return session.query(Proposal).filter(
+            Proposal.dao_id == dao_id,
+            Proposal.pod_id == None
+        ).all()
+    
+    @classmethod
+    def get_dao_only_pods_proposals(cls, dao_id: str, pod_id: str, session: Session) -> List["Proposal"]:
+        """ Get all POD-level proposals (proposals with a pod_id) for a specific POD """
+        return session.query(Proposal).filter(
+            Proposal.pod_id == pod_id,
+            Proposal.dao_id == dao_id
+        ).all()
+    
+    @classmethod
     def get_all(cls, session: Session) -> List["Proposal"]:
         """ Get all proposals """
         return session.query(Proposal).all()
