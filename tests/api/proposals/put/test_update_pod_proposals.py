@@ -11,7 +11,7 @@ def test_update_pod_proposal(client, pod, pod_proposal, victor_in_pod, victor_lo
     
     headers = {"Authorization": f"Bearer {victor_logged_in}"}
     response = client.put(
-        f"/proposals/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}",
+        f"/proposals/dao/{pod.dao_id}/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}",
         json=update_data,
         headers=headers
     )

@@ -6,7 +6,7 @@ def test_delete_pod_proposal(client, pod, pod_proposal, victor_in_pod, victor_lo
     """Test deleting a POD proposal"""
     headers = {"Authorization": f"Bearer {victor_logged_in}"}
     response = client.delete(
-        f"/proposals/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}",
+        f"/proposals/dao/{pod.dao_id}/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}",
         headers=headers
     )
     
@@ -30,7 +30,7 @@ def test_remove_vote(client, pod, pod_proposal, victor, sayori, sayori_logged_in
     headers = {"Authorization": f"Bearer {sayori_logged_in}"}
     
     response = client.delete(
-        f"/proposals/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
+        f"/proposals/dao/{pod.dao_id}/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
         headers=headers
     )
     

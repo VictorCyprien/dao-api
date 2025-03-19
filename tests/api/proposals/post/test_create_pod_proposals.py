@@ -22,7 +22,7 @@ def test_create_pod_proposal(client, pod: POD, victor_in_pod, victor_logged_in, 
     
     headers = {"Authorization": f"Bearer {victor_logged_in}"}
     response = client.post(
-        f"/proposals/pod/{pod.pod_id}/proposals",
+        f"/proposals/dao/{dao.dao_id}/pod/{pod.pod_id}/proposals",
         json=proposal_data,
         headers=headers
     )
@@ -50,7 +50,7 @@ def test_create_pod_proposal_unauthorized(client, pod: POD, natsuki_logged_in, d
     
     headers = {"Authorization": f"Bearer {natsuki_logged_in}"}
     response = client.post(
-        f"/proposals/pod/{pod.pod_id}/proposals",
+        f"/proposals/dao/{dao.dao_id}/pod/{pod.pod_id}/proposals",
         json=proposal_data,
         headers=headers
     )
@@ -70,7 +70,7 @@ def test_vote_on_pod_proposal(client, pod, pod_proposal, victor, sayori, sayori_
     headers = {"Authorization": f"Bearer {sayori_logged_in}"}
     
     response = client.post(
-        f"/proposals/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
+        f"/proposals/dao/{pod.dao_id}/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
         json=vote_data,
         headers=headers
     )
@@ -89,7 +89,7 @@ def test_vote_unauthorized(client, pod, pod_proposal, natsuki_logged_in):
     headers = {"Authorization": f"Bearer {natsuki_logged_in}"}
     
     response = client.post(
-        f"/proposals/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
+        f"/proposals/dao/{pod.dao_id}/pod/{pod.pod_id}/proposals/{pod_proposal.proposal_id}/vote",
         json=vote_data,
         headers=headers
     )
