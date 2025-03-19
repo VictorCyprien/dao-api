@@ -5,5 +5,21 @@ from api.views.proposals.dao_proposals_view import (
     OneDAOProposalView,
     DAOProposalVoteView
 )
+from api.views.proposals.pod_proposals_view import (
+    PODProposalsView,
+    PODActiveProposalsView,
+    OnePODProposalView,
+    PODProposalVoteView
+)
 
-__all__ = ["blp", "DAOProposalsView", "DAOActiveProposalsView", "OneDAOProposalView", "DAOProposalVoteView"] 
+__all__ = [
+    "blp", 
+    "DAOProposalsView", 
+    "DAOActiveProposalsView", 
+    "OneDAOProposalView", 
+    "DAOProposalVoteView",
+    "PODProposalsView",
+    "PODActiveProposalsView",
+    "OnePODProposalView",
+    "PODProposalVoteView"
+] 
