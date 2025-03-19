@@ -19,6 +19,7 @@ class ProposalSchema(Schema):
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     dao_id = fields.Str(required=True)
+    pod_id = fields.Str(required=False, allow_none=True)
     created_by = fields.Str(required=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
@@ -44,9 +45,15 @@ class InputCreateProposalSchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(min=1))
     description = fields.Str(required=True, validate=validate.Length(min=1))
     dao_id = fields.Str(required=True)
+    pod_id = fields.Str(required=False, allow_none=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     actions = fields.Dict(required=False, allow_none=True)
+
+class PodProposalQuerySchema(Schema):
+    """Schema for querying proposals by POD"""
+    pod_id = fields.Str(required=True)
+    active_only = fields.Boolean(required=False, default=False)
 
 class ProposalUpdateSchema(Schema):
     """Schema for updating a Proposal"""
@@ -54,6 +61,7 @@ class ProposalUpdateSchema(Schema):
     description = fields.Str(validate=validate.Length(min=1))
     start_time = fields.DateTime()
     end_time = fields.DateTime()
+    pod_id = fields.Str(allow_none=True)
     actions = fields.Dict(allow_none=True)
 
 class ProposalVoteSchema(Schema):
@@ -71,4 +79,10 @@ class ProposalVoteResponse(Schema):
     vote_status = fields.Str(required=True, validate=validate.OneOf(["none", "for", "against"]))
     proposal = fields.Nested(ProposalSchema, required=True)
     for_votes_count = fields.Int(required=True)
-    against_votes_count = fields.Int(required=True) 
+    against_votes_count = fields.Int(required=True)
+
+class PodProposalListResponse(Schema):
+    """Schema for listing POD proposals"""
+    pod_id = fields.Str(required=True)
+    proposals = fields.Nested(ProposalSchema, many=True, required=True)
+    total_count = fields.Int(required=True) 
