@@ -320,6 +320,10 @@ class DAOProposalVoteView(MethodView):
         if not proposal.is_active():
             raise BadRequest("This proposal is not currently active for voting")
         
+        # Check if user has already voted
+        if auth_user in proposal.for_voters or auth_user in proposal.against_voters:
+            raise BadRequest("User has already voted on this proposal")
+        
         try:
             # Process the vote
             vote_type = input_data["vote"]
