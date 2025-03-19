@@ -78,6 +78,7 @@ class RootPODView(MethodView):
         try:
             # Ensure dao_id in the body matches the URL parameter
             pod = POD.create(input_data)
+            pod.add_member(auth_user)
             db.session.add(pod)
             db.session.commit()
             
