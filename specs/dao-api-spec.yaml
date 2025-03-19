@@ -2999,7 +2999,7 @@
         }
       ]
     },
-    "/proposals/pod/{pod_id}/proposals": {
+    "/proposals/dao/{dao_id}/pod/{pod_id}/proposals": {
       "get": {
         "responses": {
           "200": {
@@ -3110,6 +3110,15 @@
       "parameters": [
         {
           "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
           "name": "pod_id",
           "required": true,
           "schema": {
@@ -3119,7 +3128,7 @@
         }
       ]
     },
-    "/proposals/pod/{pod_id}/proposals/active": {
+    "/proposals/dao/{dao_id}/pod/{pod_id}/proposals/active": {
       "get": {
         "responses": {
           "200": {
@@ -3155,6 +3164,15 @@
       "parameters": [
         {
           "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
           "name": "pod_id",
           "required": true,
           "schema": {
@@ -3164,7 +3182,7 @@
         }
       ]
     },
-    "/proposals/pod/{pod_id}/proposals/{proposal_id}": {
+    "/proposals/dao/{dao_id}/pod/{pod_id}/proposals/{proposal_id}": {
       "get": {
         "responses": {
           "200": {
@@ -3347,6 +3365,15 @@
       "parameters": [
         {
           "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
           "name": "pod_id",
           "required": true,
           "schema": {
@@ -3365,7 +3392,7 @@
         }
       ]
     },
-    "/proposals/pod/{pod_id}/proposals/{proposal_id}/vote": {
+    "/proposals/dao/{dao_id}/pod/{pod_id}/proposals/{proposal_id}/vote": {
       "get": {
         "responses": {
           "200": {
@@ -3546,6 +3573,15 @@
         "operationId": "RemoveVoteFromPODProposal"
       },
       "parameters": [
+        {
+          "in": "path",
+          "name": "dao_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         {
           "in": "path",
           "name": "pod_id",
