@@ -41,6 +41,9 @@ class Proposal(Base):
     dao_id: Mapped[str] = mapped_column(String, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
     """ ID of the DAO this proposal belongs to """
 
+    pod_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey('pods.pod_id', ondelete='CASCADE'), nullable=True)
+    """ ID of the POD this proposal belongs to (optional) """
+
     created_by: Mapped[str] = mapped_column(String, ForeignKey('users.user_id'), nullable=False)
     """ ID of the user who created the proposal """
 
@@ -63,6 +66,9 @@ class Proposal(Base):
     dao = relationship('DAO', back_populates='proposals')
     """ The DAO this proposal belongs to """
 
+    pod = relationship('POD', backref='proposals')
+    """ The POD this proposal belongs to (if any) """
+
     creator = relationship('User', foreign_keys=[created_by], backref='created_proposals')
     """ The user who created this proposal """
 
@@ -80,6 +86,7 @@ class Proposal(Base):
             name=input_data["name"],
             description=input_data["description"],
             dao_id=input_data["dao_id"],
+            pod_id=input_data.get("pod_id"),  # Optional pod_id
             created_by=input_data["created_by"],
             start_time=input_data["start_time"],
             end_time=input_data["end_time"],
@@ -97,6 +104,7 @@ class Proposal(Base):
         start_time = input_data.get("start_time")
         end_time = input_data.get("end_time")
         actions = input_data.get("actions")
+        pod_id = input_data.get("pod_id")
 
         if name is not None:
             self.name = name
@@ -108,9 +116,22 @@ class Proposal(Base):
             self.end_time = end_time
         if actions is not None:
             self.actions = actions
+        if pod_id is not None:
+            self.pod_id = pod_id
+
+    def can_vote(self, user) -> bool:
+        """ Check if a user is allowed to vote on this proposal """
+        # If the proposal is linked to a POD, only POD members can vote
+        if self.pod_id is not None:
+            return user in self.pod.members
+        # Otherwise, any DAO member can vote (assuming this check happens elsewhere)
+        return True
 
     def vote_for(self, user) -> bool:
         """ Register a vote in favor of the proposal """
+        if not self.can_vote(user):
+            return False
+            
         if user not in self.for_voters and user not in self.against_voters:
             self.for_voters.append(user)
             self.for_votes_count += 1
@@ -119,6 +140,9 @@ class Proposal(Base):
 
     def vote_against(self, user) -> bool:
         """ Register a vote against the proposal """
+        if not self.can_vote(user):
+            return False
+            
         if user not in self.for_voters and user not in self.against_voters:
             self.against_voters.append(user)
             self.against_votes_count += 1
@@ -157,6 +181,11 @@ class Proposal(Base):
         return session.query(Proposal).filter(Proposal.dao_id == dao_id).all()
     
     @classmethod
+    def get_by_pod_id(cls, pod_id: str, session: Session) -> List["Proposal"]:
+        """ Get all proposals for a specific POD """
+        return session.query(Proposal).filter(Proposal.pod_id == pod_id).all()
+    
+    @classmethod
     def get_all(cls, session: Session) -> List["Proposal"]:
         """ Get all proposals """
         return session.query(Proposal).all()
@@ -182,6 +211,7 @@ class Proposal(Base):
             "name": self.name,
             "description": self.description,
             "dao_id": self.dao_id,
+            "pod_id": self.pod_id,
             "created_by": self.created_by,
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
@@ -202,6 +232,7 @@ class Proposal(Base):
             "name": self.name,
             "description": self.description,
             "dao_id": self.dao_id,
+            "pod_id": self.pod_id,
             "created_by": self.created_by,
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
