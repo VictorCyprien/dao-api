@@ -92,6 +92,7 @@ class PODProposalsView(MethodView):
         input_data["pod_id"] = pod_id
         input_data["dao_id"] = dao_id
         input_data["created_by"] = auth_user.user_id
+        input_data["created_by_username"] = auth_user.username
         
         try:
             # Create the proposal

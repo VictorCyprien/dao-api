@@ -71,6 +71,7 @@ class DAOProposalsView(MethodView):
         input_data["dao_id"] = dao_id
         # Add the user ID to the input data
         input_data["created_by"] = auth_user.user_id
+        input_data["created_by_username"] = auth_user.username
         
         try:
             # Create the proposal

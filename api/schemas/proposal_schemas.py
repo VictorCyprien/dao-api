@@ -21,6 +21,7 @@ class ProposalSchema(Schema):
     dao_id = fields.Str(required=True)
     pod_id = fields.Str(required=False, allow_none=True)
     created_by = fields.Str(required=True)
+    created_by_username = fields.Str(required=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     actions = fields.Dict(required=False, allow_none=True)

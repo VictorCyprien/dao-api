@@ -47,6 +47,9 @@ class Proposal(Base):
     created_by: Mapped[str] = mapped_column(String, ForeignKey('users.user_id'), nullable=False)
     """ ID of the user who created the proposal """
 
+    created_by_username: Mapped[str] = mapped_column(String, nullable=False)
+    """ Username of the user who created the proposal """
+
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     """ Start time of the voting period """
 
