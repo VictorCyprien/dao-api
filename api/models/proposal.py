@@ -91,6 +91,7 @@ class Proposal(Base):
             dao_id=input_data["dao_id"],
             pod_id=input_data.get("pod_id"),  # Optional pod_id
             created_by=input_data["created_by"],
+            created_by_username=input_data["created_by_username"],
             start_time=input_data["start_time"],
             end_time=input_data["end_time"],
             actions=input_data.get("actions"),  # Optional
