@@ -4761,6 +4761,9 @@
           "created_by": {
             "type": "string"
           },
+          "created_by_username": {
+            "type": "string"
+          },
           "start_time": {
             "type": "string",
             "format": "date-time"
@@ -4805,6 +4808,7 @@
         },
         "required": [
           "created_by",
+          "created_by_username",
           "dao_id",
           "description",
           "end_time",
