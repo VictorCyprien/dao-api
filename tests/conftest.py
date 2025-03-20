@@ -235,6 +235,7 @@ def proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
         "description": "A test proposal for the DAO",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time,
         "actions": {"action_type": "add_wallet", "target_address": "0xNewWallet"}
@@ -264,6 +265,7 @@ def inactive_proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
         "description": "An inactive test proposal for the DAO",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time,
         "actions": {"action_type": "remove_wallet", "target_address": "0xOldWallet"}
@@ -431,6 +433,7 @@ def pod_proposal(app, dao, pod, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
         "dao_id": dao.dao_id,
         "pod_id": pod.pod_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time,
         "actions": {"action_type": "add_wallet", "target_address": "0xPodWallet"}

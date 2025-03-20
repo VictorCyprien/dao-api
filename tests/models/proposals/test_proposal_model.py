@@ -18,6 +18,7 @@ def test_model_create_proposal(app, victor: User, dao: DAO):
         "description": "Testing proposal model creation",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time,
         "actions": {"action_type": "add_wallet", "target_address": "0xTestWallet"}
@@ -32,6 +33,7 @@ def test_model_create_proposal(app, victor: User, dao: DAO):
     assert proposal.description == "Testing proposal model creation"
     assert proposal.dao_id == dao.dao_id
     assert proposal.created_by == victor.user_id
+    assert proposal.created_by_username == victor.username
     assert proposal.start_time == start_time
     assert proposal.end_time == end_time
     assert proposal.actions == {"action_type": "add_wallet", "target_address": "0xTestWallet"}
@@ -52,6 +54,7 @@ def test_model_update_proposal(app, victor: User, dao: DAO):
         "description": "Original proposal description",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -95,6 +98,7 @@ def test_model_partial_update_proposal(app, victor: User, dao: DAO):
         "description": "Original proposal description",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -126,6 +130,7 @@ def test_model_vote_for_proposal(app, victor: User, sayori: User, dao: DAO):
         "description": "Testing voting functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -158,6 +163,7 @@ def test_model_vote_against_proposal(app, victor: User, sayori: User, dao: DAO):
         "description": "Testing voting functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -190,6 +196,7 @@ def test_model_remove_vote(app, victor: User, sayori: User, dao: DAO):
         "description": "Testing vote removal functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -238,6 +245,7 @@ def test_model_vote_duplicate_prevention(app, victor: User, dao: DAO):
         "description": "Testing duplicate vote prevention",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -269,6 +277,7 @@ def test_model_proposal_is_active(app, victor: User, dao: DAO):
         "description": "Testing is_active functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -284,6 +293,7 @@ def test_model_proposal_is_active(app, victor: User, dao: DAO):
         "description": "Testing is_active functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() + timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -299,6 +309,7 @@ def test_model_proposal_is_active(app, victor: User, dao: DAO):
         "description": "Testing is_active functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=10),
         "end_time": datetime.now() - timedelta(days=5)
     }
@@ -317,6 +328,7 @@ def test_model_proposal_has_passed(app, victor: User, sayori: User, natsuki: Use
         "description": "Testing has_passed functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -364,6 +376,7 @@ def test_model_proposal_static_methods(app, db, victor: User, dao: DAO):
         "description": "First active proposal",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -373,6 +386,7 @@ def test_model_proposal_static_methods(app, db, victor: User, dao: DAO):
         "description": "Second active proposal",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=2),
         "end_time": datetime.now() + timedelta(days=3)
     }
@@ -382,6 +396,7 @@ def test_model_proposal_static_methods(app, db, victor: User, dao: DAO):
         "description": "An inactive proposal",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=10),
         "end_time": datetime.now() - timedelta(days=5)
     }
@@ -441,6 +456,7 @@ def test_model_proposal_to_dict(app, victor: User, dao: DAO):
         "description": "Testing to_dict functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time,
         "actions": {"action_type": "add_wallet", "target_address": "0xTestWallet"}
@@ -460,6 +476,7 @@ def test_model_proposal_to_dict(app, victor: User, dao: DAO):
     assert proposal_dict["description"] == "Testing to_dict functionality"
     assert proposal_dict["dao_id"] == dao.dao_id
     assert proposal_dict["created_by"] == victor.user_id
+    assert proposal_dict["created_by_username"] == victor.username
     assert proposal_dict["start_time"] == start_time.isoformat()
     assert proposal_dict["end_time"] == end_time.isoformat()
     assert proposal_dict["actions"] == {"action_type": "add_wallet", "target_address": "0xTestWallet"}
@@ -479,6 +496,7 @@ def test_model_proposal_iter(app, victor: User, dao: DAO):
         "description": "Testing __iter__ functionality",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -494,6 +512,7 @@ def test_model_proposal_iter(app, victor: User, dao: DAO):
     assert proposal_dict["description"] == "Testing __iter__ functionality"
     assert proposal_dict["dao_id"] == dao.dao_id
     assert proposal_dict["created_by"] == victor.user_id
+    assert proposal_dict["created_by_username"] == victor.username
     assert proposal_dict["for_votes_count"] == 0
     assert proposal_dict["against_votes_count"] == 0
     assert proposal_dict["is_active"] is True

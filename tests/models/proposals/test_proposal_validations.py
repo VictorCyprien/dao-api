@@ -30,6 +30,7 @@ def test_proposal_actions_optional(app, victor: User, dao: DAO):
         "description": "Testing optional actions field",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now(),
         "end_time": datetime.now() + timedelta(days=7)
         # No actions field
@@ -56,6 +57,7 @@ def test_proposal_date_validation(app, victor: User, dao: DAO):
         "description": "Testing date validation",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -80,6 +82,7 @@ def test_proposal_vote_count_consistency(app, victor: User, sayori: User, natsuk
         "description": "Testing vote count consistency",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -111,6 +114,7 @@ def test_proposal_vote_state_transitions(app, victor: User, dao: DAO):
         "description": "Testing vote state transitions",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -163,6 +167,7 @@ def test_proposal_extreme_time_values(app, victor: User, dao: DAO):
         "description": "Testing extreme future dates",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": far_future_start,
         "end_time": far_future_end
     }
@@ -183,6 +188,7 @@ def test_proposal_extreme_time_values(app, victor: User, dao: DAO):
         "description": "Testing extreme past dates",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": far_past_start,
         "end_time": far_past_end
     }

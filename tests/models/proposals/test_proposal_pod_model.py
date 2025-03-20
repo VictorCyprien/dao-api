@@ -16,6 +16,7 @@ def test_pod_proposal_creation(app, db, dao, pod, victor):
         "dao_id": dao.dao_id,
         "pod_id": pod.pod_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -46,6 +47,7 @@ def test_pod_proposal_voting_restrictions(app, db, dao, pod, victor, sayori, nat
         "dao_id": dao.dao_id,
         "pod_id": pod.pod_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -95,6 +97,7 @@ def test_dao_proposal_no_pod_restrictions(app, db, dao, victor, sayori, natsuki)
         "description": "A test proposal for the DAO only",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -128,6 +131,7 @@ def test_update_pod_id(app, db, dao, pod, victor):
         "description": "A test proposal for the DAO only",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -165,6 +169,7 @@ def test_get_proposals_by_pod(app, db, dao, pod, victor):
         "dao_id": dao.dao_id,
         "pod_id": pod.pod_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }
@@ -175,6 +180,7 @@ def test_get_proposals_by_pod(app, db, dao, pod, victor):
         "description": "A proposal for the DAO only",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": start_time,
         "end_time": end_time
     }

@@ -15,6 +15,7 @@ def test_proposal_dao_relationship(app, db, victor: User, dao: DAO):
         "description": "Testing proposal-DAO relationship",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -50,6 +51,7 @@ def test_proposal_creator_relationship(app, db, victor: User, dao: DAO):
         "description": "Testing proposal-creator relationship",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -85,6 +87,7 @@ def test_proposal_voters_relationship(app, db, victor: User, sayori: User, dao: 
         "description": "Testing proposal-voters relationship",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -138,6 +141,7 @@ def test_cascade_delete_dao(app, db, victor: User, dao: DAO):
         "description": "Testing cascade delete 1",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -147,6 +151,7 @@ def test_cascade_delete_dao(app, db, victor: User, dao: DAO):
         "description": "Testing cascade delete 2",
         "dao_id": dao.dao_id,
         "created_by": victor.user_id,
+        "created_by_username": victor.username,
         "start_time": datetime.now() - timedelta(days=1),
         "end_time": datetime.now() + timedelta(days=5)
     }
@@ -188,6 +193,7 @@ def test_multiple_proposals_per_dao(app, db, victor: User, dao: DAO):
             "description": f"Testing multiple proposals per DAO {i}",
             "dao_id": dao.dao_id,
             "created_by": victor.user_id,
+            "created_by_username": victor.username,
             "start_time": datetime.now() - timedelta(days=1),
             "end_time": datetime.now() + timedelta(days=5)
         }
