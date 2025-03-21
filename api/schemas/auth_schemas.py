@@ -76,6 +76,7 @@ class ConnectionsListSchema(Schema):
 class TelegramAuthSchema(Schema):
     id = fields.Integer(required=True, description="Telegram user ID")
     first_name = fields.String(required=True, description="User's first name")
+    last_name = fields.String(required=True, description="User's last name")
     username = fields.String(required=True, description="Telegram username")
     photo_url = fields.String(description="URL of the user's profile photo")
     auth_date = fields.Integer(required=True, description="Authentication date (Unix time)")

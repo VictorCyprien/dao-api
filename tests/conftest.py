@@ -13,6 +13,7 @@ from api import Base
 from api.models.user import User
 from api.models.dao import DAO
 from api.models.pod import POD
+from api.models.proposal import Proposal
 from api.models.treasury import Token, Transfer
 from api.models.discord_channel import DiscordChannel
 from api.models.discord_message import DiscordMessage
@@ -221,6 +222,66 @@ def dao(app, victor, db: SQLAlchemy) -> Iterator[DAO]:
 
 
 @pytest.fixture
+def proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create a test proposal for testing"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=1)
+    end_time = datetime.now() + timedelta(days=5)
+    
+    proposal_data = {
+        "name": "Test Proposal",
+        "description": "A test proposal for the DAO",
+        "dao_id": dao.dao_id,
+        "created_by": victor.user_id,
+        "created_by_username": victor.username,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "add_wallet", "target_address": "0xNewWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
+        db.session.commit()
+
+
+@pytest.fixture
+def inactive_proposal(app, dao, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create an inactive test proposal (past end time) for testing"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=10)
+    end_time = datetime.now() - timedelta(days=5)
+    
+    proposal_data = {
+        "name": "Inactive Proposal",
+        "description": "An inactive test proposal for the DAO",
+        "dao_id": dao.dao_id,
+        "created_by": victor.user_id,
+        "created_by_username": victor.username,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "remove_wallet", "target_address": "0xOldWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
+        db.session.commit()
+
+
+@pytest.fixture
 def pod(app, dao, db: SQLAlchemy) -> Iterator[POD]:
     pod_data = {
         "name": "Backend Learning Group",
@@ -354,5 +415,49 @@ def discord_messages(app, discord_channel, db: SQLAlchemy) -> Iterator[list]:
         
         for message in messages:
             db.session.delete(message)
+        db.session.commit()
+
+
+@pytest.fixture
+def pod_proposal(app, dao, pod, victor, db: SQLAlchemy) -> Iterator["Proposal"]:
+    """Create a test proposal for a POD"""
+    from api.models.proposal import Proposal
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now() - timedelta(days=1)
+    end_time = datetime.now() + timedelta(days=5)
+    
+    proposal_data = {
+        "name": "POD Test Proposal",
+        "description": "A test proposal for the POD",
+        "dao_id": dao.dao_id,
+        "pod_id": pod.pod_id,
+        "created_by": victor.user_id,
+        "created_by_username": victor.username,
+        "start_time": start_time,
+        "end_time": end_time,
+        "actions": {"action_type": "add_wallet", "target_address": "0xPodWallet"}
+    }
+    
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            proposal = Proposal.create(proposal_data)
+            db.session.add(proposal)
+            db.session.commit()
+        yield proposal
+        db.session.delete(proposal)
+        db.session.commit()
+
+
+@pytest.fixture
+def victor_in_pod(app, db, pod, victor):
+    """Add Victor to the POD as a member"""
+    with app.app_context():
+        current_pod = db.session.merge(pod)
+        current_victor = db.session.merge(victor)
+        current_pod.add_member(current_victor)
+        db.session.commit()
+        yield
+        current_pod.remove_member(current_victor)
         db.session.commit()
 

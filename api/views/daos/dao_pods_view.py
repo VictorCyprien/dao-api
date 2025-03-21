@@ -78,6 +78,7 @@ class RootPODView(MethodView):
         try:
             # Ensure dao_id in the body matches the URL parameter
             pod = POD.create(input_data)
+            pod.add_member(auth_user)
             db.session.add(pod)
             db.session.commit()
             
@@ -280,10 +281,6 @@ class PODMembersView(MethodView):
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
             
-        # Check if user is admin
-        if auth_user not in dao.admins:
-            raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
-            
         # Get POD
         pod = POD.get_by_id(pod_id, db.session)
         if not pod or pod.dao_id != dao_id:
@@ -293,7 +290,11 @@ class PODMembersView(MethodView):
         user_to_remove = User.get_by_id(input_data["user_id"], db.session)
         if not user_to_remove:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
-            
+        
+        if user_to_remove.user_id != auth_user.user_id:
+            if dao.owner_id != auth_user.user_id and auth_user not in dao.admins:
+                raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
+
         # Remove user from POD
         if not pod.remove_member(user_to_remove):
             raise BadRequest(ErrorHandler.USER_NOT_MEMBER)

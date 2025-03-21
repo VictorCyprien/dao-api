@@ -73,9 +73,6 @@ class DAOMembershipView(MethodView):
         dao = DAO.get_by_id(dao_id, db.session)
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
-            
-        if dao.owner_id != auth_user.user_id and auth_user not in dao.admins:
-            raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
         
         target_user = User.get_by_id(input_data["user_id"], db.session)
         if not target_user:
@@ -83,6 +80,10 @@ class DAOMembershipView(MethodView):
         
         if target_user.user_id == dao.owner_id:
             raise BadRequest(ErrorHandler.CANNOT_REMOVE_OWNER)
+        
+        if target_user.user_id != auth_user.user_id:
+            if dao.owner_id != auth_user.user_id and auth_user not in dao.admins:
+                raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
             
         if not dao.remove_member(target_user):
             raise BadRequest(ErrorHandler.USER_NOT_MEMBER)

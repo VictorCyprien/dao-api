@@ -52,7 +52,7 @@ def test_user_not_member(client: Flask, victor: User, sayori: User, victor_logge
     assert res.json["message"] == "This user is not a member of this DAO !"
 
 
-def test_unauthorized_member_operations(client: Flask, victor: User, sayori: User, natsuki: User, natsuki_logged_in: str, dao: DAO):
+def test_unauthorized_member_operations(client: Flask, victor: User, sayori: User, sayori_logged_in: str, natsuki: User, natsuki_logged_in: str, dao: DAO):
     """Test that non-admins cannot add/remove members"""
     # This should add auth user and not anyone else
     res = client.post(
@@ -64,10 +64,30 @@ def test_unauthorized_member_operations(client: Flask, victor: User, sayori: Use
     assert sayori not in dao.members
     assert natsuki in dao.members
 
+    res = client.post(
+        f"/daos/{dao.dao_id}/members",
+        json={"user_id": sayori.user_id},
+        headers={"Authorization": f"Bearer {sayori_logged_in}"}
+    )
+    assert res.status_code == 200
+    assert sayori in dao.members
+    assert natsuki in dao.members
+
     res = client.delete(
         f"/daos/{dao.dao_id}/members",
         json={"user_id": victor.user_id},
         headers={"Authorization": f"Bearer {natsuki_logged_in}"}
     )
+    print(res.json)
+    assert res.status_code == 400
+    assert res.json["message"] == "The owner cannot be removed as admin"
+
+    res = client.delete(
+        f"/daos/{dao.dao_id}/members",
+        json={"user_id": sayori.user_id},
+        headers={"Authorization": f"Bearer {natsuki_logged_in}"}
+    )
+    print(res.json)
     assert res.status_code == 401
     assert res.json["message"] == "You are not an admin of this DAO !"
+

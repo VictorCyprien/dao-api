@@ -9,15 +9,15 @@ from datetime import timedelta
 
 from .auth_blp import auth_blp
 
-from ...schemas.communs_schemas import PagingError
-from ...schemas.auth_schemas import (
+from api.schemas.communs_schemas import PagingError
+from api.schemas.auth_schemas import (
     ChallengeResponseSchema,
     LoginResponseSchema,
     ChallengeRequestSchema,
     VerifySignatureSchema,
 )
 
-from ...models.user import User
+from api.models.user import User
 from helpers.errors_file import Unauthorized, ErrorHandler, NotFound
 from helpers.logging_file import Logger
 from helpers.redis_file import RedisToken

@@ -2,13 +2,13 @@ from flask import current_app
 from flask.views import MethodView
 from flask_jwt_extended import get_jwt, jwt_required
 
-from .auth_blp import auth_blp
+from api.views.auth.auth_blp import auth_blp
 
-from ...schemas.communs_schemas import PagingError
-from ...schemas.auth_schemas import LogoutResponseSchema
+from api.schemas.communs_schemas import PagingError
+from api.schemas.auth_schemas import LogoutResponseSchema
 
-from ...models.user import User
-from ...config import config
+from api.models.user import User
+from api.config import config
 
 from helpers.errors_file import ErrorHandler
 from helpers.logging_file import Logger
