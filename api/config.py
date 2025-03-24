@@ -32,6 +32,14 @@ class Config:
         self.REDIS_URI = env.str('REDIS_URI', "localhost")
         self.REDIS_PORT = env.int('REDIS_PORT', 6379)
 
+        # MINIO (S3-compatible object storage)
+        self.MINIO_ENDPOINT = env.str('MINIO_ENDPOINT', 'minio:9000')
+        self.MINIO_ACCESS_KEY = env.str('MINIO_ACCESS_KEY', 'minio')
+        self.MINIO_SECRET_KEY = env.str('MINIO_SECRET_KEY', 'minio123')
+        self.MINIO_SECURE = env.bool('MINIO_SECURE', False)
+        self.MINIO_BUCKET_DAOS = env.str('MINIO_BUCKET_DAOS', 'bucket-daos')
+        self.MINIO_REGION = env.str('MINIO_REGION', 'us-east-1')
+
         # SMTP
         self.SMTP_SERVER = env.str('SMTP_SERVER', "localhost")
         self.SMTP_PORT = env.int('SMTP_PORT', 1025)
@@ -106,6 +114,17 @@ class Config:
             'CACHE_REDIS_PORT': self.CACHE_REDIS_PORT,
             'CACHE_DEFAULT_TIMEOUT': self.CACHE_DEFAULT_TIMEOUT,
             'CACHE_KEY_PREFIX': self.CACHE_KEY_PREFIX,
+        }
+    
+    @property
+    def minio_config(self):
+        """Get the Minio configuration dictionary"""
+        return {
+            'endpoint': self.MINIO_ENDPOINT,
+            'access_key': self.MINIO_ACCESS_KEY,
+            'secret_key': self.MINIO_SECRET_KEY,
+            'secure': self.MINIO_SECURE,
+            'region': self.MINIO_REGION,
         }
 
     @property
