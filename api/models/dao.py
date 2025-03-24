@@ -28,6 +28,7 @@ class DAO(Base):
     __tablename__ = "daos"
     __table_args__ = {'extend_existing': True}
 
+    # Required fields without defaults (must be first)
     dao_id: Mapped[str] = mapped_column(String, primary_key=True)
     """ ID of the DAO """
 
@@ -39,9 +40,36 @@ class DAO(Base):
 
     owner_id: Mapped[str] = mapped_column(String, ForeignKey('users.user_id'), nullable=False)
     """ ID of the DAO owner """
-
+    
+    # Fields with defaults or nullable=True (must be after required fields)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     """ Whether the DAO is active """
+    
+    # Social media and website attributes (all optional)
+    discord_server: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Discord server of the DAO (optional) """
+    
+    twitter: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Twitter account of the DAO (optional) """
+    
+    telegram: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Telegram channel/group of the DAO (optional) """
+    
+    instagram: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Instagram account of the DAO (optional) """
+    
+    tiktok: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ TikTok account of the DAO (optional) """
+    
+    website: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Website of the DAO (optional) """
+    
+    # Profile and banner pictures (optional)
+    profile_picture: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Path to profile picture in S3 bucket (optional) """
+    
+    banner_picture: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Path to banner picture in S3 bucket (optional) """
 
     # Relationships
     admins = relationship('User', secondary=dao_admins, back_populates='administered_daos')
@@ -69,12 +97,26 @@ class DAO(Base):
     @classmethod
     def create(cls, input_data: dict) -> "DAO":
         """ Create a new DAO instance """
+        dao_id = cls.generate_dao_id()
+        
+        # Set default paths for profile and banner pictures if not provided
+        profile_picture = input_data.get("profile_picture")
+        banner_picture = input_data.get("banner_picture")
+        
         dao = DAO(
-            dao_id=cls.generate_dao_id(),
+            dao_id=dao_id,
             name=input_data["name"],
             description=input_data["description"],
             owner_id=input_data["owner_id"],
-            is_active=True
+            is_active=True,
+            discord_server=input_data.get("discord_server"),
+            twitter=input_data.get("twitter"),
+            telegram=input_data.get("telegram"),
+            instagram=input_data.get("instagram"),
+            tiktok=input_data.get("tiktok"),
+            website=input_data.get("website"),
+            profile_picture=profile_picture,
+            banner_picture=banner_picture
         )
             
         return dao
@@ -83,9 +125,17 @@ class DAO(Base):
     def update(self, input_data: dict):
         """ Update the current instance of a DAO
         """
-        name = input_data.get("name", None)
-        description = input_data.get("description", None)
-        is_active = input_data.get("is_active", None)
+        name = input_data.get("name")
+        description = input_data.get("description")
+        is_active = input_data.get("is_active")
+        discord_server = input_data.get("discord_server")
+        twitter = input_data.get("twitter")
+        telegram = input_data.get("telegram")
+        instagram = input_data.get("instagram")
+        tiktok = input_data.get("tiktok")
+        website = input_data.get("website")
+        profile_picture = input_data.get("profile_picture")
+        banner_picture = input_data.get("banner_picture")
 
         if name is not None:
             self.name = name
@@ -93,6 +143,22 @@ class DAO(Base):
             self.description = description
         if is_active is not None:
             self.is_active = is_active
+        if discord_server is not None:
+            self.discord_server = discord_server
+        if twitter is not None:
+            self.twitter = twitter
+        if telegram is not None:
+            self.telegram = telegram
+        if instagram is not None:
+            self.instagram = instagram
+        if tiktok is not None:
+            self.tiktok = tiktok
+        if website is not None:
+            self.website = website
+        if profile_picture is not None:
+            self.profile_picture = profile_picture
+        if banner_picture is not None:
+            self.banner_picture = banner_picture
 
 
     def add_admin(self, user) -> bool:
@@ -155,6 +221,14 @@ class DAO(Base):
             "description": self.description,
             "owner_id": self.owner_id,
             "is_active": self.is_active,
+            "discord_server": self.discord_server,
+            "twitter": self.twitter,
+            "telegram": self.telegram,
+            "instagram": self.instagram,
+            "tiktok": self.tiktok,
+            "website": self.website,
+            "profile_picture": self.profile_picture,
+            "banner_picture": self.banner_picture,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }
@@ -168,6 +242,14 @@ class DAO(Base):
             "description": self.description,
             "owner_id": self.owner_id,
             "is_active": self.is_active,
+            "discord_server": self.discord_server,
+            "twitter": self.twitter,
+            "telegram": self.telegram,
+            "instagram": self.instagram,
+            "tiktok": self.tiktok,
+            "website": self.website,
+            "profile_picture": self.profile_picture,
+            "banner_picture": self.banner_picture,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }.items()
