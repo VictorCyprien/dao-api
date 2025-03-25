@@ -57,8 +57,6 @@ class RootDAOsView(DaoViewHandler):
             dao = DAO.create(input_data)
             dao.admins.append(auth_user)
             dao.members.append(auth_user)
-            minio_manager.upload_file(dao.dao_id, "profile_picture", input_data["profile"])
-            minio_manager.upload_file(dao.dao_id, "banner_picture", input_data["banner"])
             db.session.add(dao)
             db.session.commit()
         except Exception as error:

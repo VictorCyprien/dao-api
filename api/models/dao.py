@@ -6,7 +6,7 @@ from sqlalchemy import BigInteger, String, Boolean, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 
 from api import Base
-
+from helpers.minio_file import minio_manager
 # Association tables for many-to-many relationships
 dao_admins = Table(
     'dao_admins',
@@ -98,11 +98,6 @@ class DAO(Base):
     def create(cls, input_data: dict) -> "DAO":
         """ Create a new DAO instance """
         dao_id = cls.generate_dao_id()
-        
-        # Set default paths for profile and banner pictures if not provided
-        profile_picture = input_data.get("profile_picture")
-        banner_picture = input_data.get("banner_picture")
-        
         dao = DAO(
             dao_id=dao_id,
             name=input_data["name"],
@@ -115,9 +110,12 @@ class DAO(Base):
             instagram=input_data.get("instagram"),
             tiktok=input_data.get("tiktok"),
             website=input_data.get("website"),
-            profile_picture=profile_picture,
-            banner_picture=banner_picture
         )
+
+        if input_data.get("profile", None) is not None:
+            dao.profile_picture = dao.upload_picture("profile_picture", input_data["profile"])
+        if input_data.get("banner", None) is not None:
+            dao.banner_picture = dao.upload_picture("banner_picture", input_data["banner"])
             
         return dao
     
@@ -134,8 +132,6 @@ class DAO(Base):
         instagram = input_data.get("instagram")
         tiktok = input_data.get("tiktok")
         website = input_data.get("website")
-        profile_picture = input_data.get("profile_picture")
-        banner_picture = input_data.get("banner_picture")
 
         if name is not None:
             self.name = name
@@ -155,10 +151,16 @@ class DAO(Base):
             self.tiktok = tiktok
         if website is not None:
             self.website = website
-        if profile_picture is not None:
-            self.profile_picture = profile_picture
-        if banner_picture is not None:
-            self.banner_picture = banner_picture
+
+        if input_data.get("profile", None) is not None:
+            self.profile_picture = self.upload_picture("profile_picture", input_data["profile"])
+        if input_data.get("banner", None) is not None:
+            self.banner_picture = self.upload_picture("banner_picture", input_data["banner"])
+
+    
+    def upload_picture(self, file_type: str, file_data: dict) -> str:
+        """ Upload a picture to the DAO """
+        return minio_manager.upload_file(self.dao_id, file_type, file_data)
 
 
     def add_admin(self, user) -> bool:

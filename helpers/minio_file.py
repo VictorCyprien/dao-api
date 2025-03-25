@@ -102,7 +102,7 @@ class MinioManager:
         return binary_io, content_length
     
     
-    def upload_file(self, dao_id: str, file_type: str, file_data: Dict[str, Any]) -> Tuple[bool, str]:
+    def upload_file(self, dao_id: str, file_type: str, file_data: Dict[str, Any]) -> str:
         """
         Upload a file to the Minio bucket
         
@@ -112,7 +112,7 @@ class MinioManager:
             file_data: A dictionary with file data
             
         Returns:
-            Tuple of (success, path or error message)
+            The path of the uploaded file
         """
         try:
             # Generate path
@@ -121,11 +121,6 @@ class MinioManager:
             
             # Get content type
             content_type = file_data["content_type"] or 'application/octet-stream'
-
-            print(f"Content type: {content_type}")
-            assert file_data["stream"] is not None
-
-            print(f"Uploading file to Minio: {file_path}")
 
             # Convert base64 to binary io
             binary_io, content_length = self.base64_to_binary_io(file_data["stream"])
@@ -138,10 +133,10 @@ class MinioManager:
                 content_type=content_type
             )
             
-            return True, file_path
+            return file_path
         except Exception as e:
             print(f"Error uploading file to Minio: {e}")
-            return False, str(e)
+            return None
     
     def delete_file(self, file_path: str) -> Tuple[bool, str]:
         """
