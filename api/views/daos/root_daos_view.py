@@ -21,6 +21,7 @@ from api.views.daos.dao_view_handler import DaoViewHandler
 
 from helpers.errors_file import ErrorHandler, NotFound, BadRequest
 from helpers.logging_file import Logger
+from helpers.minio_file import minio_manager
 
 
 logger = Logger()
