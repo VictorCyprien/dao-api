@@ -148,8 +148,14 @@ class DAO(Base):
         self.website = website if website != "" else None
 
         if input_data.get("profile", None) is not None:
+            # Remove old profile picture    
+            if self.profile_picture is not None:
+                minio_manager.delete_file(self.profile_picture)
             self.profile_picture = self.upload_picture("profile_picture", input_data["profile"])
         if input_data.get("banner", None) is not None:
+            # Remove old banner picture
+            if self.banner_picture is not None:
+                minio_manager.delete_file(self.banner_picture)
             self.banner_picture = self.upload_picture("banner_picture", input_data["banner"])
 
     
