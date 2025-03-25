@@ -1,13 +1,20 @@
 import io
 import os
-import uuid
+import datetime
 import base64
 from typing import Optional, Tuple, BinaryIO, Dict, Any, Union
-from werkzeug.datastructures import FileStorage
+
 from minio import Minio
 from minio.error import S3Error
 
 from api.config import config
+
+from helpers.redis_file import RedisToken
+
+
+redis_client = RedisToken()
+
+
 
 class MinioManager:
     """
@@ -70,11 +77,6 @@ class MinioManager:
         _, ext = os.path.splitext(filename)
         return f"{dao_id}/{file_type}{ext}"
     
-    def convert_dict_to_file_storage(self, file_dict: Dict[str, Any]) -> FileStorage:
-        """
-        Convert a dictionary to a FileStorage object
-        """
-        return FileStorage(file_dict)
     
     def base64_to_binary_io(self, base64_string: str) -> Tuple[BinaryIO, int]:
         """
@@ -173,12 +175,46 @@ class MinioManager:
             url = self.client.presigned_get_object(
                 self.bucket_daos,
                 file_path,
-                expires=expires
+                expires=datetime.timedelta(seconds=expires)
             )
             
             return True, url
         except Exception as e:
             print(f"Error generating presigned URL: {e}")
+            return False, str(e)
+
+    def get_cached_file_url(self, file_path: str, expires: int = 3600) -> Tuple[bool, str]:
+        """
+        Get a presigned URL for a file in the Minio bucket with Redis caching
+        
+        Args:
+            file_path: Path to the file
+            expires: URL expiration time in seconds (default: 1 hour)
+            
+        Returns:
+            Tuple of (success, URL or error message)
+        """
+        try:
+            # Create a unique cache key for this file path
+            cache_key = f"minio:url:{file_path}"
+            
+            # Try to get the URL from Redis cache
+            cached_url = redis_client.get_token(cache_key)
+            
+            if cached_url:
+                # Return the cached URL if it exists
+                return True, cached_url
+            
+            # If no cached URL exists, generate a new presigned URL
+            success, url = self.get_file_url(file_path, expires)
+            
+            if success:
+                # Cache the URL in Redis with the same expiration time
+                redis_client.set_token(cache_key, url, expires)
+            
+            return success, url
+        except Exception as e:
+            print(f"Error in get_cached_file_url: {e}")
             return False, str(e)
 
 
@@ -204,10 +240,10 @@ class MinioHelper:
         return minio_manager.generate_file_path(dao_id, file_type, filename)
     
     @classmethod
-    def upload_file(cls, dao_id: str, file_type: str, file_data: Union[Dict[str, Any], str, FileStorage]) -> Tuple[bool, str]:
+    def upload_file(cls, dao_id: str, file_type: str, file_data: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Delegate to MinioManager
-        Supports FileStorage objects, data dictionaries, or base64 strings
+        Supports data dictionaries
         """
         return minio_manager.upload_file(dao_id, file_type, file_data)
     
@@ -220,3 +256,17 @@ class MinioHelper:
     def get_file_url(cls, file_path: str, expires: int = 3600) -> Tuple[bool, str]:
         """Delegate to MinioManager"""
         return minio_manager.get_file_url(file_path, expires) 
+        
+    @classmethod
+    def get_cached_file_url(cls, file_path: str, expires: int = 3600) -> str:
+        """
+        Get a presigned URL for a file with Redis caching
+        
+        Args:
+            file_path: Path to the file
+            expires: URL expiration time in seconds (default: 1 hour)
+            
+        Returns:
+            URL or error message
+        """
+        return minio_manager.get_cached_file_url(file_path, expires)[1]
