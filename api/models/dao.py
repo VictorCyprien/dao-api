@@ -123,15 +123,15 @@ class DAO(Base):
     def update(self, input_data: dict):
         """ Update the current instance of a DAO
         """
-        name = input_data.get("name")
-        description = input_data.get("description")
-        is_active = input_data.get("is_active")
-        discord_server = input_data.get("discord_server")
-        twitter = input_data.get("twitter")
-        telegram = input_data.get("telegram")
-        instagram = input_data.get("instagram")
-        tiktok = input_data.get("tiktok")
-        website = input_data.get("website")
+        name = input_data.get("name", None)
+        description = input_data.get("description", None)
+        is_active = input_data.get("is_active", None)
+        discord_server = input_data.get("discord_server", "")
+        twitter = input_data.get("twitter", "")
+        telegram = input_data.get("telegram", "")
+        instagram = input_data.get("instagram", "")
+        tiktok = input_data.get("tiktok", "")
+        website = input_data.get("website", "")
 
         if name is not None:
             self.name = name
@@ -139,18 +139,13 @@ class DAO(Base):
             self.description = description
         if is_active is not None:
             self.is_active = is_active
-        if discord_server is not None:
-            self.discord_server = discord_server
-        if twitter is not None:
-            self.twitter = twitter
-        if telegram is not None:
-            self.telegram = telegram
-        if instagram is not None:
-            self.instagram = instagram
-        if tiktok is not None:
-            self.tiktok = tiktok
-        if website is not None:
-            self.website = website
+
+        self.discord_server = discord_server if discord_server != "" else None
+        self.twitter = twitter if twitter != "" else None
+        self.telegram = telegram if telegram != "" else None
+        self.instagram = instagram if instagram != "" else None
+        self.tiktok = tiktok if tiktok != "" else None
+        self.website = website if website != "" else None
 
         if input_data.get("profile", None) is not None:
             self.profile_picture = self.upload_picture("profile_picture", input_data["profile"])
