@@ -1,10 +1,13 @@
 import io
 import os
 import uuid
+import base64
 from typing import Optional, Tuple, BinaryIO, Dict, Any, Union
 from werkzeug.datastructures import FileStorage
 from minio import Minio
 from minio.error import S3Error
+
+from api.config import config
 
 class MinioManager:
     """
@@ -18,60 +21,23 @@ class MinioManager:
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self):
         if self._initialized:
             return
-            
-        self.config = config or {}
-        self.client = None
-        self.bucket_daos = self.config.get('bucket_daos', 'bucket-daos')
-        self._initialized = True
-        
-        if config:
-            self.initialize()
-            
-    def initialize(self, config: Dict[str, Any] = None):
-        """
-        Initialize the Minio client
-        
-        Args:
-            config: Configuration dictionary with endpoint, access_key, secret_key, etc.
-                   If None, uses the config from initialization
-        """
-        if config:
-            self.config.update(config)
-            
         # Create a Minio client
         self.client = Minio(
-            endpoint=self.config.get('endpoint', 'localhost:9000'),
-            access_key=self.config.get('access_key', 'minio'),
-            secret_key=self.config.get('secret_key', 'minio123'),
-            secure=self.config.get('secure', False),
-            region=self.config.get('region', 'us-east-1')
+            endpoint=config.MINIO_ENDPOINT,
+            access_key=config.MINIO_ACCESS_KEY,
+            secret_key=config.MINIO_SECRET_KEY,
+            secure=config.MINIO_SECURE,
+            region=config.MINIO_REGION,
         )
         
         # Create buckets if they don't exist
+        self.bucket_daos = config.MINIO_BUCKET_DAOS
         self.ensure_buckets()
+        self._initialized = True
         
-        return self.client
-    
-    def from_flask_config(self, app_config):
-        """
-        Initialize from Flask app config
-        
-        Args:
-            app_config: Flask app config object
-        """
-        config = {
-            'endpoint': app_config.get('MINIO_ENDPOINT', 'localhost:9000'),
-            'access_key': app_config.get('MINIO_ACCESS_KEY', 'minio'),
-            'secret_key': app_config.get('MINIO_SECRET_KEY', 'minio123'),
-            'secure': app_config.get('MINIO_SECURE', False),
-            'region': app_config.get('MINIO_REGION', 'us-east-1'),
-            'bucket_daos': app_config.get('MINIO_BUCKET_DAOS', 'bucket-daos')
-        }
-        self.bucket_daos = config['bucket_daos']
-        return self.initialize(config)
     
     def ensure_buckets(self):
         """Create required buckets if they don't exist"""
@@ -104,38 +70,71 @@ class MinioManager:
         _, ext = os.path.splitext(filename)
         return f"{dao_id}/{file_type}{ext}"
     
-    def upload_file(self, 
-                    dao_id: str, 
-                    file_type: str, 
-                    file_data: FileStorage) -> Tuple[bool, str]:
+    def convert_dict_to_file_storage(self, file_dict: Dict[str, Any]) -> FileStorage:
+        """
+        Convert a dictionary to a FileStorage object
+        """
+        return FileStorage(file_dict)
+    
+    def base64_to_binary_io(self, base64_string: str) -> Tuple[BinaryIO, int]:
+        """
+        Convert a base64 string to a BinaryIO object
+        
+        Args:
+            base64_string: The base64 encoded string
+            
+        Returns:
+            Tuple of (BinaryIO object, content length)
+        """
+        # If the base64 string includes the data URL prefix, remove it
+        if ',' in base64_string:
+            base64_string = base64_string.split(',', 1)[1]
+            
+        # Decode the base64 string to bytes
+        image_data = base64.b64decode(base64_string)
+        
+        # Create a BytesIO object from the decoded data
+        binary_io = io.BytesIO(image_data)
+        
+        # Get the content length
+        content_length = len(image_data)
+        
+        return binary_io, content_length
+    
+    
+    def upload_file(self, dao_id: str, file_type: str, file_data: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Upload a file to the Minio bucket
         
         Args:
             dao_id: The ID of the DAO
             file_type: Type of file (profile_picture, banner_picture, etc.)
-            file_data: The file data to upload
+            file_data: A dictionary with file data
             
         Returns:
             Tuple of (success, path or error message)
         """
         try:
             # Generate path
-            filename = file_data.filename
+            filename = file_data["filename"]
             file_path = self.generate_file_path(dao_id, file_type, filename)
             
             # Get content type
-            content_type = file_data.content_type or 'application/octet-stream'
-            
-            # Upload the file
-            file_size = file_data.content_length or 0
-            file_data.seek(0)  # Ensure we're at the start of the file
+            content_type = file_data["content_type"] or 'application/octet-stream'
+
+            print(f"Content type: {content_type}")
+            assert file_data["stream"] is not None
+
+            print(f"Uploading file to Minio: {file_path}")
+
+            # Convert base64 to binary io
+            binary_io, content_length = self.base64_to_binary_io(file_data["stream"])
             
             self.client.put_object(
-                self.bucket_daos,
-                file_path,
-                file_data,
-                file_size,
+                bucket_name="daos",
+                object_name=file_path,
+                data=binary_io,
+                length=content_length,
                 content_type=content_type
             )
             
@@ -210,8 +209,11 @@ class MinioHelper:
         return minio_manager.generate_file_path(dao_id, file_type, filename)
     
     @classmethod
-    def upload_file(cls, dao_id: str, file_type: str, file_data: FileStorage) -> Tuple[bool, str]:
-        """Delegate to MinioManager"""
+    def upload_file(cls, dao_id: str, file_type: str, file_data: Union[Dict[str, Any], str, FileStorage]) -> Tuple[bool, str]:
+        """
+        Delegate to MinioManager
+        Supports FileStorage objects, data dictionaries, or base64 strings
+        """
         return minio_manager.upload_file(dao_id, file_type, file_data)
     
     @classmethod
