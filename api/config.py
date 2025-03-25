@@ -38,6 +38,7 @@ class Config:
         self.MINIO_SECRET_KEY = env.str('MINIO_SECRET_KEY', 'minio123')
         self.MINIO_SECURE = env.bool('MINIO_SECURE', False)
         self.MINIO_BUCKET_DAOS = env.str('MINIO_BUCKET_DAOS', 'daos')
+        self.MINIO_BUCKET_USERS = env.str('MINIO_BUCKET_USERS', 'users')
         self.MINIO_REGION = env.str('MINIO_REGION', 'us-east-1')
 
         # SMTP
