@@ -33,11 +33,11 @@ class Config:
         self.REDIS_PORT = env.int('REDIS_PORT', 6379)
 
         # MINIO (S3-compatible object storage)
-        self.MINIO_ENDPOINT = env.str('MINIO_ENDPOINT', 'minio:9000')
+        self.MINIO_ENDPOINT = env.str('MINIO_ENDPOINT', 'localhost:9000')
         self.MINIO_ACCESS_KEY = env.str('MINIO_ACCESS_KEY', 'minio')
         self.MINIO_SECRET_KEY = env.str('MINIO_SECRET_KEY', 'minio123')
         self.MINIO_SECURE = env.bool('MINIO_SECURE', False)
-        self.MINIO_BUCKET_DAOS = env.str('MINIO_BUCKET_DAOS', 'bucket-daos')
+        self.MINIO_BUCKET_DAOS = env.str('MINIO_BUCKET_DAOS', 'daos')
         self.MINIO_REGION = env.str('MINIO_REGION', 'us-east-1')
 
         # SMTP
