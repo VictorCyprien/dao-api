@@ -3959,6 +3959,30 @@
           "is_active": {
             "type": "boolean"
           },
+          "discord_server": {
+            "type": "string"
+          },
+          "twitter": {
+            "type": "string"
+          },
+          "telegram": {
+            "type": "string"
+          },
+          "instagram": {
+            "type": "string"
+          },
+          "tiktok": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "profile_picture": {
+            "type": "string"
+          },
+          "banner_picture": {
+            "type": "string"
+          },
           "admins": {
             "readOnly": true,
             "type": "array",
@@ -3991,6 +4015,32 @@
           },
           "owner_id": {
             "type": "string"
+          },
+          "discord_server": {
+            "type": "string"
+          },
+          "twitter": {
+            "type": "string"
+          },
+          "telegram": {
+            "type": "string"
+          },
+          "instagram": {
+            "type": "string"
+          },
+          "tiktok": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string",
+            "format": "binary"
+          },
+          "banner": {
+            "type": "string",
+            "format": "binary"
           }
         },
         "required": [
@@ -4027,7 +4077,27 @@
           },
           "is_active": {
             "type": "boolean"
-          }
+          },
+          "discord_server": {
+            "type": "string"
+          },
+          "twitter": {
+            "type": "string"
+          },
+          "telegram": {
+            "type": "string"
+          },
+          "instagram": {
+            "type": "string"
+          },
+          "tiktok": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "profile": {},
+          "banner": {}
         }
       },
       "DAOMembershipResponse": {
