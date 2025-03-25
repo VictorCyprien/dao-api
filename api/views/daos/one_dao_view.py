@@ -17,6 +17,8 @@ from api.schemas.communs_schemas import PagingError
 from api.views.daos.daos_blp import blp as daos_blp
 from helpers.errors_file import BadRequest, NotFound, ErrorHandler, Unauthorized
 from helpers.logging_file import Logger
+from helpers.minio_file import MinioHelper
+
 
 logger = Logger()
 
@@ -32,6 +34,11 @@ class OneDAOView(MethodView):
         dao = DAO.get_by_id(dao_id, db.session)
         if dao is None:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
+        
+        if dao.profile_picture is not None:
+            dao.profile_picture = MinioHelper.get_cached_file_url(dao.profile_picture)
+        if dao.banner_picture is not None:
+            dao.banner_picture = MinioHelper.get_cached_file_url(dao.banner_picture)
         
         return dao
     
