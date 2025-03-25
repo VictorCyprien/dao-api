@@ -6,7 +6,11 @@ from sqlalchemy import BigInteger, String, Boolean, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 
 from api import Base
-from helpers.minio_file import minio_manager
+from api.config import config
+
+from helpers.minio_file import MinioHelper
+
+
 # Association tables for many-to-many relationships
 dao_admins = Table(
     'dao_admins',
@@ -150,18 +154,18 @@ class DAO(Base):
         if input_data.get("profile", None) is not None:
             # Remove old profile picture    
             if self.profile_picture is not None:
-                minio_manager.delete_file(self.profile_picture)
+                MinioHelper.delete_file(self.profile_picture, entity_type=config.MINIO_BUCKET_DAOS)
             self.profile_picture = self.upload_picture("profile_picture", input_data["profile"])
         if input_data.get("banner", None) is not None:
             # Remove old banner picture
             if self.banner_picture is not None:
-                minio_manager.delete_file(self.banner_picture)
+                MinioHelper.delete_file(self.banner_picture, entity_type=config.MINIO_BUCKET_DAOS)
             self.banner_picture = self.upload_picture("banner_picture", input_data["banner"])
 
     
     def upload_picture(self, file_type: str, file_data: dict) -> str:
         """ Upload a picture to the DAO """
-        return minio_manager.upload_file(self.dao_id, file_type, file_data)
+        return MinioHelper.upload_file(self.dao_id, file_type, file_data, entity_type=config.MINIO_BUCKET_DAOS)
 
 
     def add_admin(self, user) -> bool:

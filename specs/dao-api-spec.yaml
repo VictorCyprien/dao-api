@@ -3803,6 +3803,11 @@
             "type": "string",
             "description": "Display name of the user"
           },
+          "profile_picture": {
+            "description": "Profile picture of the user",
+            "type": "string",
+            "format": "binary"
+          },
           "discord_username": {
             "type": "string",
             "description": "Discord username of the user"
@@ -3844,6 +3849,10 @@
           "member_name": {
             "type": "string",
             "description": "Display name of the user"
+          },
+          "profile_picture": {
+            "type": "string",
+            "description": "Profile picture of the user"
           },
           "discord_username": {
             "type": "string",
@@ -3913,6 +3922,11 @@
           "member_name": {
             "type": "string",
             "description": "New display name of the user"
+          },
+          "profile_picture": {
+            "description": "New profile picture of the user",
+            "type": "string",
+            "format": "binary"
           },
           "discord_username": {
             "type": "string",
@@ -4096,8 +4110,14 @@
           "website": {
             "type": "string"
           },
-          "profile": {},
-          "banner": {}
+          "profile": {
+            "type": "string",
+            "format": "binary"
+          },
+          "banner": {
+            "type": "string",
+            "format": "binary"
+          }
         }
       },
       "DAOMembershipResponse": {
