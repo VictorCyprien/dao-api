@@ -11,8 +11,11 @@ import base58
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
+from api.config import config
+
 from helpers.logging_file import Logger
 from helpers.smtp_file import send_email
+from helpers.minio_file import MinioHelper
 
 logger = Logger()
 
@@ -59,6 +62,10 @@ class User(Base):
     last_interaction: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     """ Last interaction timestamp """
 
+    profile_picture: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Path to profile picture in S3 bucket (optional)
+    """
+
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     """ Is the email verified
     """
@@ -98,6 +105,10 @@ class User(Base):
             last_login=datetime.now(pytz.utc),
             last_interaction=datetime.now(pytz.utc)
         )
+
+        if input_data.get("profile_picture", None) is not None:
+            user.profile_picture = user.upload_picture("profile_picture", input_data["profile_picture"])
+
         return user
 
     
@@ -110,6 +121,7 @@ class User(Base):
         member_name = input_data.get("member_name", None)
         twitter_username = input_data.get("twitter_username", None)
         telegram_username = input_data.get("telegram_username", None)
+        profile_picture = input_data.get("profile_picture", None)
 
         if username is not None:
             self.username = username
@@ -124,6 +136,16 @@ class User(Base):
             self.twitter_username = twitter_username
         if telegram_username is not None:
             self.telegram_username = telegram_username
+
+        if profile_picture is not None:
+            if self.profile_picture is not None:
+                MinioHelper.delete_file(self.profile_picture, entity_type=config.MINIO_BUCKET_USERS)
+            self.profile_picture = self.upload_picture("profile_picture", profile_picture)
+
+    
+    def upload_picture(self, file_type: str, file_data: dict) -> str:
+        """ Upload a picture to the User """
+        return MinioHelper.upload_file(self.user_id, file_type, file_data, entity_type=config.MINIO_BUCKET_USERS)
 
 
     @classmethod
@@ -284,6 +306,7 @@ class User(Base):
             "wallet_address": self.wallet_address,
             "email": self.email,
             "member_name": self.member_name,
+            "profile_picture": self.profile_picture,
             "discord_username": self.discord_username,
             "twitter_username": self.twitter_username,
             "telegram_username": self.telegram_username,
@@ -302,6 +325,7 @@ class User(Base):
             "wallet_address": self.wallet_address,
             "email": self.email,
             "member_name": self.member_name,
+            "profile_picture": self.profile_picture,
             "discord_username": self.discord_username,
             "twitter_username": self.twitter_username,
             "telegram_username": self.telegram_username,

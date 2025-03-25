@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
+from api.config import config
 from api.views.users.users_blp import users_blp
 from api.models.user import User
 
@@ -16,6 +17,7 @@ from api.schemas.communs_schemas import PagingError
 
 from helpers.errors_file import BadRequest, NotFound, ErrorHandler
 from helpers.logging_file import Logger
+from helpers.minio_file import MinioHelper
 
 
 logger = Logger()
@@ -31,6 +33,8 @@ class OneUserWalletView(MethodView):
         """Get authenticated user informations"""
         db: SQLAlchemy = current_app.db
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+        if auth_user.profile_picture is not None:
+            auth_user.profile_picture = MinioHelper.get_cached_file_url(auth_user.profile_picture, config.MINIO_BUCKET_USERS)
         return auth_user
 
 
