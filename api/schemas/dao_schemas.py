@@ -51,8 +51,8 @@ class InputCreateDAOSchema(Schema):
     tiktok = fields.Str()
     website = fields.Str()
     # File upload fields for images (optional)
-    profile = fields.Raw()  # For profile picture upload
-    banner = fields.Raw()   # For banner picture upload
+    profile = fields.Raw(metadata={'type': 'string', 'format': 'binary'})  # For profile picture upload
+    banner = fields.Raw(metadata={'type': 'string', 'format': 'binary'})   # For banner picture upload
 
 class DAOSchemaResponse(Schema):
     """Schema for DAO response"""
