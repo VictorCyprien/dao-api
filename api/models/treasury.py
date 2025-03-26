@@ -4,122 +4,123 @@ import sys
 from datetime import datetime
 import pytz
 
-from sqlalchemy import String, Float, ForeignKey, DateTime, Integer
+from sqlalchemy import String, Float, ForeignKey, DateTime, Integer, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 
 from api import Base
+from api.models.wallet_monitor import WalletMonitor
 
 class Token(Base):
-    __tablename__ = "tokens"
+    __tablename__ = "token_accounts"
     __table_args__ = {'extend_existing': True}
 
     token_id: Mapped[str] = mapped_column(String, primary_key=True)
-    """ ID of the token """
-
-    dao_id: Mapped[str] = mapped_column(String, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
-    """ ID of the DAO this token belongs to """
-
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    """ Name of the token (e.g., Steakhouse USDT) """
-
-    symbol: Mapped[str] = mapped_column(String, nullable=False)
-    """ Symbol of the token (e.g., USDT, SOL) """
+    """ Unique identifier for the token account """
     
-    contract: Mapped[str] = mapped_column(String, nullable=True)
-    """ Contract address of the token on the blockchain (e.g., Solana: So11111111111111111111111111111111111111111) """
-
-    amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    """ Amount of tokens owned """
-
-    price: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    """ Current price of the token """
+    wallet_address: Mapped[str] = mapped_column(String, ForeignKey('wallets_to_monitor.wallet_address'), nullable=True)
+    """ Wallet address that holds the token """
     
-    percentage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    """ Percentage of the treasury this token represents (0-100) """
-
+    token_mint: Mapped[str] = mapped_column(String, nullable=False)
+    """ Token mint address (contract) """
+    
+    balance: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    """ Token balance """
+    
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    """ When the token account was last updated """
+    
+    symbol: Mapped[str] = mapped_column(String, nullable=True)
+    """ Symbol of the token """
+    
+    decimals: Mapped[int] = mapped_column(Integer, nullable=True)
+    """ Number of decimal places for the token """
+    
     # Relationships
-    dao = relationship('DAO', back_populates='tokens')
-    transfers = relationship('Transfer', back_populates='token', cascade='all, delete-orphan')
+    wallet = relationship('WalletMonitor', foreign_keys=[wallet_address], back_populates='tokens')
 
     @classmethod
     def create(cls, input_data: dict) -> "Token":
         """ Create a new Token instance """
+        token_id = cls.generate_token_id()
         token = Token(
-            token_id=cls.generate_token_id(),
-            dao_id=input_data["dao_id"],
-            name=input_data["name"],
-            symbol=input_data["symbol"],
-            contract=input_data.get("contract"),
-            amount=input_data.get("amount", 0.0),
-            price=input_data.get("price", 0.0),
-            percentage=input_data.get("percentage", 0)
+            token_id=token_id,
+            wallet_address=input_data.get("wallet_address"),
+            token_mint=input_data["token_mint"],
+            balance=input_data["balance"],
+            last_updated=input_data.get("last_updated", datetime.now(pytz.utc)),
+            symbol=input_data.get("symbol"),
+            decimals=input_data.get("decimals")
         )
             
         return token
 
     def update(self, input_data: dict):
         """ Update the current instance of a Token """
-        name = input_data.get("name")
+        wallet_address = input_data.get("wallet_address")
+        token_mint = input_data.get("token_mint")
+        balance = input_data.get("balance")
         symbol = input_data.get("symbol")
-        contract = input_data.get("contract")
-        amount = input_data.get("amount")
-        price = input_data.get("price")
-        percentage = input_data.get("percentage")
+        decimals = input_data.get("decimals")
 
-        if name is not None:
-            self.name = name
+        if wallet_address is not None:
+            self.wallet_address = wallet_address
+        if token_mint is not None:
+            self.token_mint = token_mint
+        if balance is not None:
+            self.balance = balance
         if symbol is not None:
             self.symbol = symbol
-        if contract is not None:
-            self.contract = contract
-        if amount is not None:
-            self.amount = amount
-        if price is not None:
-            self.price = price
-        if percentage is not None:
-            self.percentage = percentage
+        if decimals is not None:
+            self.decimals = decimals
+            
+        # Update the last_updated timestamp automatically
+        self.last_updated = datetime.now(pytz.utc)
 
-    @classmethod
-    def get_by_id(cls, id: str, session: Session) -> "Token":
-        """ Token getter with an ID """
-        return session.query(Token).filter(Token.token_id == id).first()
-    
-    @classmethod
-    def get_by_dao_id(cls, dao_id: str, session: Session) -> List["Token"]:
-        """ Get all tokens for a specific DAO """
-        return session.query(Token).filter(Token.dao_id == dao_id).all()
-    
     @classmethod
     def generate_token_id(cls) -> str:
         """ Generate a random token_id """
         return str(random.randint(1, sys.maxsize))
 
+    @classmethod
+    def get_by_id(cls, token_id: str, session: Session) -> "Token":
+        """ Token getter with an ID """
+        return session.query(Token).filter(Token.token_id == token_id).first()
+    
+    @classmethod
+    def get_by_wallet_address(cls, wallet_address: str, session: Session) -> List["Token"]:
+        """ Get all tokens for a specific wallet """
+        return session.query(Token).filter(Token.wallet_address == wallet_address).all()
+    
+    @classmethod
+    def get_by_wallet_and_mint(cls, wallet_address: str, token_mint: str, session: Session) -> "Token":
+        """ Get token by wallet address and token mint """
+        return session.query(Token).filter(
+            Token.wallet_address == wallet_address,
+            Token.token_mint == token_mint
+        ).first()
+
     def to_dict(self):
         """Convert Token model to dictionary for Pydantic serialization"""
         return {
             "token_id": self.token_id,
-            "dao_id": self.dao_id,
-            "name": self.name,
+            "wallet_address": self.wallet_address,
+            "token_mint": self.token_mint,
+            "balance": self.balance,
+            "last_updated": self.last_updated.isoformat() if self.last_updated else None,
             "symbol": self.symbol,
-            "contract": self.contract,
-            "amount": self.amount,
-            "price": self.price,
-            "percentage": self.percentage,
-            "value": self.amount * self.price
+            "decimals": self.decimals
         }
         
     def __iter__(self):
         """Make the model iterable for dict() conversion"""
         yield from {
             "token_id": self.token_id,
-            "dao_id": self.dao_id,
-            "name": self.name,
+            "wallet_address": self.wallet_address,
+            "token_mint": self.token_mint,
+            "balance": self.balance,
+            "last_updated": self.last_updated.isoformat() if self.last_updated else None,
             "symbol": self.symbol,
-            "contract": self.contract,
-            "amount": self.amount,
-            "price": self.price,
-            "percentage": self.percentage,
-            "value": self.amount * self.price
+            "decimals": self.decimals
         }.items()
 
 
@@ -133,8 +134,8 @@ class Transfer(Base):
     dao_id: Mapped[str] = mapped_column(String, ForeignKey('daos.dao_id', ondelete='CASCADE'), nullable=False)
     """ ID of the DAO this transfer belongs to """
 
-    token_id: Mapped[str] = mapped_column(String, ForeignKey('tokens.token_id', ondelete='CASCADE'), nullable=False)
-    """ ID of the token being transferred """
+    token_id: Mapped[str] = mapped_column(String, nullable=False)
+    """ ID of the token being transferred (token mint address) """
 
     from_address: Mapped[str] = mapped_column(String, nullable=False)
     """ Wallet address that sent the tokens """
@@ -149,7 +150,6 @@ class Transfer(Base):
     """ When the transfer occurred """
 
     # Relationships
-    token = relationship('Token', back_populates='transfers')
     dao = relationship('DAO', back_populates='transfers')
 
     @classmethod
@@ -196,8 +196,7 @@ class Transfer(Base):
             "from_address": self.from_address,
             "to_address": self.to_address,
             "amount": self.amount,
-            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
-            "token": self.token.to_dict() if self.token else None
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }
         
     def __iter__(self):
@@ -209,6 +208,5 @@ class Transfer(Base):
             "from_address": self.from_address,
             "to_address": self.to_address,
             "amount": self.amount,
-            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
-            "token": self.token.to_dict() if self.token else None
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }.items() 

@@ -75,7 +75,7 @@ class DAO(Base):
     banner_picture: Mapped[str] = mapped_column(String, nullable=True, default=None)
     """ Path to banner picture in S3 bucket (optional) """
     
-    treasury: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    treasury_address: Mapped[str] = mapped_column(String, nullable=True, default=None)
     """ Wallet address of the DAO's treasury (optional) """
 
     # Relationships
@@ -89,9 +89,15 @@ class DAO(Base):
     pods = relationship('POD', back_populates='dao', cascade='all, delete-orphan')
     """ PODs of the DAO """
     
-    # Add relationship to tokens (Treasury)
-    tokens = relationship('Token', back_populates='dao', cascade='all, delete-orphan')
-    """ Tokens in the DAO's treasury """
+    # Relationship to treasury wallet
+    treasury = relationship(
+        'WalletMonitor', 
+        foreign_keys=[treasury_address], 
+        primaryjoin="DAO.treasury_address == WalletMonitor.wallet_address", 
+        back_populates='dao',
+        uselist=False
+    )
+    """ Treasury wallet of the DAO """
     
     # Add relationship to transfers
     transfers = relationship('Transfer', back_populates='dao', cascade='all, delete-orphan')
@@ -117,7 +123,7 @@ class DAO(Base):
             instagram=input_data.get("instagram"),
             tiktok=input_data.get("tiktok"),
             website=input_data.get("website"),
-            treasury=input_data.get("treasury"),
+            treasury_address=input_data.get("treasury"),
         )
 
         if input_data.get("profile", None) is not None:
@@ -140,7 +146,7 @@ class DAO(Base):
         instagram = input_data.get("instagram", "")
         tiktok = input_data.get("tiktok", "")
         website = input_data.get("website", "")
-        treasury = input_data.get("treasury", "")
+        treasury_address = input_data.get("treasury", "")
 
         if name is not None:
             self.name = name
@@ -155,7 +161,7 @@ class DAO(Base):
         self.instagram = instagram if instagram != "" else None
         self.tiktok = tiktok if tiktok != "" else None
         self.website = website if website != "" else None
-        self.treasury = treasury if treasury != "" else None
+        self.treasury_address = treasury_address if treasury_address != "" else None
 
         if input_data.get("profile", None) is not None:
             # Remove old profile picture    
@@ -242,7 +248,7 @@ class DAO(Base):
             "website": self.website,
             "profile_picture": self.profile_picture,
             "banner_picture": self.banner_picture,
-            "treasury": self.treasury,
+            "treasury_address": self.treasury_address,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }
@@ -264,7 +270,7 @@ class DAO(Base):
             "website": self.website,
             "profile_picture": self.profile_picture,
             "banner_picture": self.banner_picture,
-            "treasury": self.treasury,
+            "treasury_address": self.treasury_address,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }.items()

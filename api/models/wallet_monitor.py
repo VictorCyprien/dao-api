@@ -2,7 +2,7 @@ from typing import List
 import datetime
 import pytz
 from sqlalchemy import String, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 
 from api import Base
 
@@ -22,10 +22,24 @@ class WalletMonitor(Base):
     )
     """ Timestamp when the wallet was added for monitoring """
     
+    # Relationship back to DAO
+    dao = relationship(
+        'DAO', 
+        primaryjoin="WalletMonitor.wallet_address == foreign(DAO.treasury_address)",
+        back_populates='treasury', 
+        uselist=False
+    )
+    """ The DAO that uses this wallet as treasury """
+    
+    # Relationship to tokens
+    tokens = relationship('Token', back_populates='wallet', cascade='all, delete-orphan')
+    """ Tokens in this wallet """
+    
     @classmethod
     def create(cls, wallet_address: str) -> "WalletMonitor":
         """Create a new wallet monitoring entry with explicit timezone"""
         now = datetime.datetime.now(pytz.utc)
+        print(now)
         return WalletMonitor(
             wallet_address=wallet_address,
             added_at=now
