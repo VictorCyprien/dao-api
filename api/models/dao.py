@@ -74,6 +74,9 @@ class DAO(Base):
     
     banner_picture: Mapped[str] = mapped_column(String, nullable=True, default=None)
     """ Path to banner picture in S3 bucket (optional) """
+    
+    treasury: Mapped[str] = mapped_column(String, nullable=True, default=None)
+    """ Wallet address of the DAO's treasury (optional) """
 
     # Relationships
     admins = relationship('User', secondary=dao_admins, back_populates='administered_daos')
@@ -114,6 +117,7 @@ class DAO(Base):
             instagram=input_data.get("instagram"),
             tiktok=input_data.get("tiktok"),
             website=input_data.get("website"),
+            treasury=input_data.get("treasury"),
         )
 
         if input_data.get("profile", None) is not None:
@@ -136,6 +140,7 @@ class DAO(Base):
         instagram = input_data.get("instagram", "")
         tiktok = input_data.get("tiktok", "")
         website = input_data.get("website", "")
+        treasury = input_data.get("treasury", "")
 
         if name is not None:
             self.name = name
@@ -150,6 +155,7 @@ class DAO(Base):
         self.instagram = instagram if instagram != "" else None
         self.tiktok = tiktok if tiktok != "" else None
         self.website = website if website != "" else None
+        self.treasury = treasury if treasury != "" else None
 
         if input_data.get("profile", None) is not None:
             # Remove old profile picture    
@@ -236,6 +242,7 @@ class DAO(Base):
             "website": self.website,
             "profile_picture": self.profile_picture,
             "banner_picture": self.banner_picture,
+            "treasury": self.treasury,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }
@@ -257,6 +264,7 @@ class DAO(Base):
             "website": self.website,
             "profile_picture": self.profile_picture,
             "banner_picture": self.banner_picture,
+            "treasury": self.treasury,
             "admins": [{"user_id": admin.user_id, "username": admin.username} for admin in self.admins],
             "members": [{"user_id": member.user_id, "username": member.username} for member in self.members]
         }.items()
