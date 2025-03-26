@@ -29,9 +29,6 @@ def test_create_user(client: Flask, db: SQLAlchemy):
             'is_active': True,
             'last_interaction': ANY,
             'last_login': ANY,
-            'member_name': None,
-            'telegram_username': None,
-            'twitter_username': None,
             'user_id': ANY,
             'username': 'Chara',
             'wallet_address': '8D1234567890'
