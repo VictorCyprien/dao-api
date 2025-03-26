@@ -1,12 +1,7 @@
-from marshmallow import Schema, fields, validate, missing
+from marshmallow import Schema, fields, validate
 
-# Custom field that will be omitted from serialized output if the value is None
-class OmitNoneField(fields.Field):
-    def _serialize(self, value, attr, obj, **kwargs):
-        if value is None:
-            # Skip this field in serialization
-            return missing
-        return super()._serialize(value, attr, obj, **kwargs)
+from helpers.schemas_file import OmitNoneField
+
 
 # String field that will be omitted if None
 class OmitNoneString(OmitNoneField, fields.String):
@@ -34,6 +29,8 @@ class DAOSchema(Schema):
     # Media fields
     profile_picture = OmitNoneString()
     banner_picture = OmitNoneString()
+    # Treasury field
+    treasury = OmitNoneString()
     # Relationship fields
     admins = fields.Nested(UserBasicSchema, many=True, dump_only=True)
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)
@@ -50,6 +47,8 @@ class InputCreateDAOSchema(Schema):
     instagram = fields.Str()
     tiktok = fields.Str()
     website = fields.Str()
+    # Treasury field (optional)
+    treasury = fields.Str()
     # File upload fields for images (optional)
     profile = fields.Raw(metadata={'type': 'string', 'format': 'binary'})  # For profile picture upload
     banner = fields.Raw(metadata={'type': 'string', 'format': 'binary'})   # For banner picture upload
@@ -76,6 +75,8 @@ class DAOUpdateSchema(Schema):
     instagram = fields.Str()
     tiktok = fields.Str()
     website = fields.Str()
+    # Treasury field (optional)
+    treasury = fields.Str()
     # File upload fields for images (optional)
     profile = fields.Raw(metadata={'type': 'string', 'format': 'binary'})  # For profile picture upload
     banner = fields.Raw(metadata={'type': 'string', 'format': 'binary'})   # For banner picture upload
