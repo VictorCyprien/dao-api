@@ -10,7 +10,7 @@ from api.models.user import User
 from api.models.treasury import Token
 from helpers.errors_file import ErrorHandler
 
-from api.views.treasury.dao_treasury_view import make_get_treasury_key, make_put_treasury_key, DAOTokensPercentagesView
+from api.views.treasury.dao_treasury_view import make_get_treasury_key, make_put_treasury_key
 from helpers.build_cache_key import make_token_key
 
 
