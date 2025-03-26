@@ -3843,27 +3843,21 @@
             "description": "Wallet address of the user"
           },
           "email": {
-            "type": "string",
             "description": "Email of the user"
           },
           "member_name": {
-            "type": "string",
             "description": "Display name of the user"
           },
           "profile_picture": {
-            "type": "string",
             "description": "Profile picture of the user"
           },
           "discord_username": {
-            "type": "string",
             "description": "Discord username of the user"
           },
           "twitter_username": {
-            "type": "string",
             "description": "Twitter username of the user"
           },
           "telegram_username": {
-            "type": "string",
             "description": "Telegram username of the user"
           },
           "last_login": {
@@ -3997,6 +3991,9 @@
           "banner_picture": {
             "type": "string"
           },
+          "treasury": {
+            "type": "string"
+          },
           "admins": {
             "readOnly": true,
             "type": "array",
@@ -4046,6 +4043,9 @@
             "type": "string"
           },
           "website": {
+            "type": "string"
+          },
+          "treasury": {
             "type": "string"
           },
           "profile": {
@@ -4108,6 +4108,9 @@
             "type": "string"
           },
           "website": {
+            "type": "string"
+          },
+          "treasury": {
             "type": "string"
           },
           "profile": {
