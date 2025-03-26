@@ -20,6 +20,8 @@ from api.models.discord_message import DiscordMessage
 
 from environs import Env
 
+from api.models.wallet_monitor import WalletMonitor
+
 env = Env()
 env.read_env()
 
@@ -206,7 +208,8 @@ def dao(app, victor, db: SQLAlchemy) -> Iterator[DAO]:
     dao_data = {
         "name": "Test DAO",
         "description": "A test DAO",
-        "owner_id": victor.user_id
+        "owner_id": victor.user_id,
+        "treasury": "BAGek78CDYQ8phuDqNk7sQzD7LdJeKkb7jD4y2AyR3tJ"
     }
     with app.app_context():
         current_victor = db.session.merge(victor)
@@ -300,24 +303,36 @@ def pod(app, dao, db: SQLAlchemy) -> Iterator[POD]:
 
 # Add Treasury fixtures
 @pytest.fixture
-def token(app, dao, db: SQLAlchemy) -> Iterator[Token]:
+def treasury_wallet(app, dao: DAO, db: SQLAlchemy) -> Iterator[WalletMonitor]:
+    wallet_address = dao.treasury_address
+    with app.app_context():
+        with freezegun.freeze_time(creation_date):
+            wallet = WalletMonitor.create(wallet_address)
+            db.session.add(wallet)
+            db.session.commit()
+            yield wallet
+            db.session.delete(wallet)
+            db.session.commit()
+
+
+@pytest.fixture
+def token(app, treasury_wallet: WalletMonitor, db: SQLAlchemy) -> Iterator[Token]:
     token_data = {
-        "dao_id": dao.dao_id,
-        "name": "Test Token",
+        "wallet_address": treasury_wallet.wallet_address,
+        "token_mint": "So11111111111111111111111111111111111111111",
+        "balance": 1000.0,
         "symbol": "TEST",
-        "contract": "So11111111111111111111111111111111111111111",
-        "amount": 1000.0,
-        "price": 1.0,
-        "percentage": 100
+        "decimals": 9
     }
     
     with app.app_context():
-        token = Token.create(token_data)
-        db.session.add(token)
-        db.session.commit()
-        yield token
-        db.session.delete(token)
-        db.session.commit()
+        with freezegun.freeze_time(creation_date):
+            token = Token.create(token_data)
+            db.session.add(token)
+            db.session.commit()
+            yield token
+            db.session.delete(token)
+            db.session.commit()
 
 @pytest.fixture
 def transfer(app, dao, token, victor, db: SQLAlchemy) -> Iterator[Transfer]:
