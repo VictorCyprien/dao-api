@@ -30,7 +30,7 @@ class DAOSchema(Schema):
     profile_picture = OmitNoneString()
     banner_picture = OmitNoneString()
     # Treasury field
-    treasury = OmitNoneString()
+    treasury_address = OmitNoneString()
     # Relationship fields
     admins = fields.Nested(UserBasicSchema, many=True, dump_only=True)
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)

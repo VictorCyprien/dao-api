@@ -5,18 +5,13 @@ import pytz
 class TokenSchema(Schema):
     """Schema for Token model"""
     token_id = fields.Str(dump_only=True)
-    dao_id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    symbol = fields.Str(required=True)
-    contract = fields.Str(required=True)
-    amount = fields.Float(dump_default=0.0)
-    price = fields.Float(dump_default=0.0)
-    percentage = fields.Int(dump_default=0, validate=validate.Range(min=0, max=100))
-    value = fields.Method("get_value", dump_only=True)
+    wallet_address = fields.Str(dump_only=True)
+    token_mint = fields.Str(dump_only=True)
+    balance = fields.Float(dump_only=True)
+    last_updated = fields.DateTime(dump_only=True)
+    symbol = fields.Str(dump_only=True)
+    decimals = fields.Int(dump_only=True)
 
-    def get_value(self, obj):
-        """Calculate the token value"""
-        return obj.amount * obj.price if hasattr(obj, "amount") and hasattr(obj, "price") else 0.0
     
 class TokenCreateSchema(Schema):
     """Schema for creating a Token"""
@@ -75,7 +70,8 @@ class TreasurySchema(Schema):
 
     def get_total_value(self, obj):
         """Calculate the total value of all tokens"""
-        return sum(token.amount * token.price for token in obj.get("tokens", []))
+        #return sum(token.amount * token.price for token in obj.get("tokens", []))
+        return 0
 
     def get_daily_change(self, obj):
         """Calculate the daily change value (placeholder)"""
