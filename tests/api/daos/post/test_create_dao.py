@@ -1,4 +1,6 @@
 from flask.app import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 from unittest.mock import ANY
 
 from api.models.user import User
@@ -44,9 +46,8 @@ def test_create_dao(client: Flask, victor: User, victor_logged_in: str):
     }
 
 
-def test_create_dao_with_treasury_adds_to_monitor(client: Flask, victor: User, victor_logged_in: str):
+def test_create_dao_with_treasury_adds_to_monitor(client: Flask, victor: User, victor_logged_in: str, db: SQLAlchemy):
     """Test that creating a DAO with a treasury wallet adds it to wallet monitoring"""
-    db = client.application.db
     
     # Valid Solana wallet address for testing
     valid_wallet = "6VDivnFWVRdFemYjgPbGPQ8kzRe3WBcew6tEJePWq8WJ"
@@ -71,7 +72,8 @@ def test_create_dao_with_treasury_adds_to_monitor(client: Flask, victor: User, v
     
     data = res.json
     assert res.status_code == 201
-    assert data["dao"]["treasury"] == valid_wallet
+    print(data)
+    assert data["dao"]["treasury_address"] == valid_wallet
     
     # Verify that the wallet was added to the monitoring table
     wallet_monitor = WalletMonitor.get_by_address(valid_wallet, db.session)
@@ -111,7 +113,7 @@ def test_update_dao_treasury_adds_to_monitor(client: Flask, victor: User, victor
     
     data = res.json
     assert res.status_code == 200
-    assert data["dao"]["treasury"] == valid_wallet
+    assert data["dao"]["treasury_address"] == valid_wallet
     
     # Verify that the wallet was added to the monitoring table
     wallet_monitor = WalletMonitor.get_by_address(valid_wallet, db.session)

@@ -25,6 +25,7 @@ def test_get_all_daos(client: Flask, victor: User, victor_logged_in: str, dao: D
                 }
             ],
             'name': dao.name,
-            'owner_id': dao.owner_id
+            'owner_id': dao.owner_id,
+            'treasury_address': dao.treasury_address
         }
     ] 

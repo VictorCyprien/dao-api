@@ -55,7 +55,7 @@ def test_update_dao_with_valid_treasury(client: Flask, victor: User, victor_logg
     
     data = res.json
     assert res.status_code == 200
-    assert data["dao"]["treasury"] == valid_wallet
+    assert data["dao"]["treasury_address"] == valid_wallet
     assert data["action"] == "updated"
 
 def test_update_dao_with_invalid_treasury(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
@@ -124,7 +124,7 @@ def test_update_dao_with_same_treasury(client: Flask, victor: User, victor_logge
     
     data = res.json
     assert res.status_code == 200
-    assert data["dao"]["treasury"] == valid_wallet
+    assert data["dao"]["treasury_address"] == valid_wallet
     assert data["action"] == "updated"
 
 
