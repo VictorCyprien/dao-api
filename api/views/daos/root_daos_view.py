@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from api.models.dao import DAO
 from api.models.user import User
+from api.models.wallet_monitor import WalletMonitor
 from api.schemas.dao_schemas import (
     DAOSchema, 
     InputCreateDAOSchema,
@@ -67,43 +68,15 @@ class RootDAOsView(DaoViewHandler):
             db.session.add(dao)
             
             # Check if a treasury wallet address was provided
-            if dao.treasury:
-                # Add the treasury wallet to wallets_to_monitor table
-                from api.models.wallet_monitor import WalletMonitor
-                
-                # First, check if wallet already exists
-                existing_wallet = WalletMonitor.get_by_address(dao.treasury, db.session)
-                if not existing_wallet:
-                    # Create new wallet monitor with explicit pytz.utc
-                    import datetime
-                    import pytz
-                    
-                    wallet_monitor = WalletMonitor(
-                        wallet_address=dao.treasury,
-                        added_at=datetime.datetime.now(pytz.utc)
-                    )
-                    db.session.add(wallet_monitor)
-                    logger.info(f"Added treasury wallet {dao.treasury} to monitoring for DAO {dao.dao_id}")
+            if dao.treasury_address:
+                self._add_wallet_to_surveillance(dao, db)
+            
             
             db.session.commit()
         except Exception as error:
             db.session.rollback()
             logger.error(f"Error creating DAO: {error}")
             raise BadRequest(f"Unable to create the DAO: {str(error)}")
-        
-        # Try to fetch wallet data and add tokens to the DAO's treasury
-        try:
-            wallet_data = self._fetch_wallet_data(auth_user.wallet_address)
-            
-            # Add tokens from wallet to DAO treasury
-            tokens_added = self._add_tokens_to_treasury(wallet_data, dao.dao_id, db)
-            
-            # Update token percentages
-            if tokens_added > 0:
-                self._update_token_percentages(dao.dao_id, db)
-            
-        except Exception as wallet_error:
-            logger.error(f"Error processing wallet data: {wallet_error}")
         
         return {
             "action": "created",

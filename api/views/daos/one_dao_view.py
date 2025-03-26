@@ -70,19 +70,24 @@ class OneDAOView(DaoViewHandler):
             raise Unauthorized(ErrorHandler.DAO_NOT_ADMIN)
         
         # Validate treasury wallet address if provided
-        if input_data.get("treasury", None) is not None:
+        if input_data.get("treasury", "") is not "":
             if not self._check_if_wallet_is_valid(input_data["treasury"]):
                 raise BadRequest(ErrorHandler.INVALID_WALLET_ADDRESS)
         
         try:
             # Store the old treasury value to check if it changed
-            old_treasury = dao.treasury
+            old_treasury_address = dao.treasury_address
             
             # Update DAO
             dao.update(input_data)
             
             # Check if treasury wallet address was updated
-            if dao.treasury and dao.treasury != old_treasury:
+            if dao.treasury_address and dao.treasury_address != old_treasury_address:
+                # Delete the old treasury wallet from wallets_to_monitor table
+                if old_treasury_address is not None:
+                    deleted = self._delete_wallet_from_surveillance(dao, old_treasury_address, db)
+                    if not deleted:
+                        raise BadRequest(ErrorHandler.DAO_UPDATE)
                 # Add the new treasury wallet to wallets_to_monitor table
                 self._add_wallet_to_surveillance(dao, db)
             
