@@ -2,12 +2,20 @@ from typing import Dict
 
 from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 import requests
 from requests.exceptions import Timeout, RequestException
 
+import datetime
+import pytz
+
+import re
+
 from api.models import Token
 from api.config import config
+from api.models.dao import DAO
+from api.models.wallet_monitor import WalletMonitor
 
 from helpers.logging_file import Logger
 
@@ -15,6 +23,60 @@ from helpers.logging_file import Logger
 logger = Logger()
 
 class DaoViewHandler(MethodView):
+    def _check_if_wallet_is_valid(self, wallet_address: str) -> bool:
+        """
+        Check if a wallet address is a valid Solana address
+        
+        Solana addresses:
+        - Are base58 encoded
+        - Are 32-44 characters long
+        - Should not contain invalid base58 characters
+        """
+        if wallet_address is None or wallet_address == "":
+            return False
+        
+        # Base58 alphabet: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
+        # Check length (typical Solana addresses are 32-44 chars)
+        if not (32 <= len(wallet_address) <= 44):
+            return False
+            
+        # Check if it only contains valid base58 characters
+        base58_pattern = re.compile(r'^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$')
+        if not base58_pattern.match(wallet_address):
+            return False
+            
+        return True
+
+
+    def _add_wallet_to_surveillance(self, dao: DAO, db: SQLAlchemy) -> bool:
+        """
+        Add a wallet address to the wallets_to_monitor table using the WalletMonitor model
+        
+        Args:
+            dao: The DAO object that contains the treasury wallet address
+            db: SQLAlchemy database instance
+            
+        Returns:
+            True if the wallet was added successfully, False otherwise
+        """
+        try:
+            # Check if wallet is already being monitored
+            existing = WalletMonitor.get_by_address(dao.treasury, db.session)
+            if existing:
+                logger.info(f"Wallet {dao.treasury} is already being monitored")
+                return True
+                
+            # Create and add the new wallet monitor entry
+            wallet_monitor = WalletMonitor.create(dao.treasury)
+            db.session.add(wallet_monitor)
+            
+            logger.info(f"Added treasury wallet {dao.treasury} to monitoring for DAO {dao.dao_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error adding wallet to monitoring: {e}")
+            return False
+
+
     def _fetch_wallet_data(self, wallet_address: str) -> Dict:
         """
         Fetch wallet data from the wallet API

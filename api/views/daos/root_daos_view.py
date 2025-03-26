@@ -1,6 +1,8 @@
 from typing import Dict, List
 import requests
 import json
+import datetime
+import pytz
 
 from flask import current_app
 from flask.views import MethodView
@@ -51,6 +53,11 @@ class RootDAOsView(DaoViewHandler):
         auth_user = User.get_by_id(get_jwt_identity(), db.session)
         if not auth_user:
             raise NotFound(ErrorHandler.USER_NOT_FOUND)
+        
+        # Validate treasury wallet address if provided
+        if input_data.get("treasury", None) is not None:
+            if not self._check_if_wallet_is_valid(input_data["treasury"]):
+                raise BadRequest(ErrorHandler.INVALID_WALLET_ADDRESS)
 
         try:
             # Create the DAO and assign admin/member roles
@@ -58,6 +65,26 @@ class RootDAOsView(DaoViewHandler):
             dao.admins.append(auth_user)
             dao.members.append(auth_user)
             db.session.add(dao)
+            
+            # Check if a treasury wallet address was provided
+            if dao.treasury:
+                # Add the treasury wallet to wallets_to_monitor table
+                from api.models.wallet_monitor import WalletMonitor
+                
+                # First, check if wallet already exists
+                existing_wallet = WalletMonitor.get_by_address(dao.treasury, db.session)
+                if not existing_wallet:
+                    # Create new wallet monitor with explicit pytz.utc
+                    import datetime
+                    import pytz
+                    
+                    wallet_monitor = WalletMonitor(
+                        wallet_address=dao.treasury,
+                        added_at=datetime.datetime.now(pytz.utc)
+                    )
+                    db.session.add(wallet_monitor)
+                    logger.info(f"Added treasury wallet {dao.treasury} to monitoring for DAO {dao.dao_id}")
+            
             db.session.commit()
         except Exception as error:
             db.session.rollback()

@@ -90,3 +90,5 @@ class ErrorHandler():
     INVALID_TRANSFER_AMOUNT = "The transfer amount is invalid"
     DISCORD_CHANNEL_NOT_FOUND = "This Discord channel doesn't exist !"
     DISCORD_CHANNEL_ALREADY_LINKED = "This Discord channel is already linked to a POD !"
+    INVALID_WALLET_ADDRESS = "The provided wallet address is invalid"
+    

@@ -15,6 +15,7 @@ from api.schemas.dao_schemas import (
 )
 from api.schemas.communs_schemas import PagingError
 from api.views.daos.daos_blp import blp as daos_blp
+from api.views.daos.dao_view_handler import DaoViewHandler
 from helpers.errors_file import BadRequest, NotFound, ErrorHandler, Unauthorized
 from helpers.logging_file import Logger
 from helpers.minio_file import MinioHelper
@@ -26,7 +27,7 @@ logger = Logger()
 
 
 @daos_blp.route("/<string:dao_id>")
-class OneDAOView(MethodView):
+class OneDAOView(DaoViewHandler):
     @daos_blp.doc(operationId='GetDAOById')
     @daos_blp.response(404, PagingError, description="DAO not found")
     @daos_blp.response(200, DAOSchema, description="DAO retrieved successfully")
@@ -68,9 +69,23 @@ class OneDAOView(MethodView):
         if dao.owner_id != auth_user.user_id or auth_user not in dao.admins:
             raise Unauthorized(ErrorHandler.DAO_NOT_ADMIN)
         
+        # Validate treasury wallet address if provided
+        if input_data.get("treasury", None) is not None:
+            if not self._check_if_wallet_is_valid(input_data["treasury"]):
+                raise BadRequest(ErrorHandler.INVALID_WALLET_ADDRESS)
+        
         try:
+            # Store the old treasury value to check if it changed
+            old_treasury = dao.treasury
+            
             # Update DAO
             dao.update(input_data)
+            
+            # Check if treasury wallet address was updated
+            if dao.treasury and dao.treasury != old_treasury:
+                # Add the new treasury wallet to wallets_to_monitor table
+                self._add_wallet_to_surveillance(dao, db)
+            
             db.session.commit()
             
             return {
