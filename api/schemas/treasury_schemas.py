@@ -11,6 +11,9 @@ class TokenSchema(Schema):
     last_updated = fields.DateTime(dump_only=True)
     symbol = fields.Str(dump_only=True)
     decimals = fields.Int(dump_only=True)
+    price = fields.Float(dump_only=True)
+    price_change_percentage = fields.Float(dump_only=True)
+    photo_url = fields.Str(dump_only=True)
 
     
 class TokenCreateSchema(Schema):
