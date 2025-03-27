@@ -4322,6 +4322,18 @@
           "decimals": {
             "type": "integer",
             "readOnly": true
+          },
+          "price": {
+            "type": "number",
+            "readOnly": true
+          },
+          "price_change_percentage": {
+            "type": "number",
+            "readOnly": true
+          },
+          "photo_url": {
+            "type": "string",
+            "readOnly": true
           }
         }
       },
