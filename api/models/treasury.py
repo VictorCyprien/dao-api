@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Dict
 import random
 import sys
 from datetime import datetime
 import pytz
 
-from sqlalchemy import String, Float, ForeignKey, DateTime, Integer, BigInteger
+from sqlalchemy import String, Float, ForeignKey, DateTime, Integer, BigInteger, text
 from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
 
 from api import Base
@@ -87,9 +87,26 @@ class Token(Base):
         return session.query(Token).filter(Token.token_id == token_id).first()
     
     @classmethod
-    def get_by_wallet_address(cls, wallet_address: str, session: Session) -> List["Token"]:
+    def get_by_wallet_address(cls, wallet_address: str, session: Session) -> List[Dict]:
         """ Get all tokens for a specific wallet """
-        return session.query(Token).filter(Token.wallet_address == wallet_address).all()
+        tokens = session.query(Token).filter(Token.wallet_address == wallet_address).all()
+        tokens_list = []
+        for token in tokens:
+            token_info = Token.get_more_token_info(token.token_mint, session)
+            tokens_list.append(
+                {
+                    "token_id": token.token_id,
+                    "wallet_address": token.wallet_address,
+                    "token_mint": token.token_mint,
+                    "balance": token.balance,
+                    "last_updated": token.last_updated,
+                    "symbol": token.symbol,
+                    "price": token_info.get("price", None),
+                    "price_change_percentage": token_info.get("price_24h_change", None),
+                    "photo_url": token_info.get("image_url", None)
+                }
+            )
+        return tokens_list
     
     @classmethod
     def get_by_wallet_and_mint(cls, wallet_address: str, token_mint: str, session: Session) -> "Token":
@@ -98,6 +115,27 @@ class Token(Base):
             Token.wallet_address == wallet_address,
             Token.token_mint == token_mint
         ).first()
+    
+    @classmethod
+    def get_more_token_info(cls, token_mint: str, session: Session) -> Dict:
+        """ Get more token info """
+        query = text(
+        """
+        SELECT 
+            ta.*,
+            te.symbol,
+            te.price,
+            te.price_24h_change,
+            te.image_url
+        FROM 
+            token_accounts ta
+        JOIN 
+            token_entity te ON ta.token_mint = te.token_id
+        WHERE 
+            ta.token_mint = :token_mint
+        """)
+        result = session.execute(query, {"token_mint": token_mint})
+        return result.fetchone()._asdict()
 
     def to_dict(self):
         """Convert Token model to dictionary for Pydantic serialization"""
