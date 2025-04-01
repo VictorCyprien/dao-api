@@ -1,6 +1,7 @@
 from marshmallow import Schema, fields, validates_schema, ValidationError
 
 from api.models.user import User
+from helpers.schemas_file import OmitNoneField
 
 
 class UserSchema(Schema):
@@ -10,12 +11,12 @@ class UserSchema(Schema):
     )
     username = fields.String(metadata={"description": "Username of the user"})
     wallet_address = fields.String(metadata={"description": "Wallet address of the user"})
-    email = fields.String(metadata={"description": "Email of the user"})
-    member_name = fields.String(metadata={"description": "Display name of the user"})
-    profile_picture = fields.String(metadata={"description": "Profile picture of the user"})
-    discord_username = fields.String(metadata={"description": "Discord username of the user"})
-    twitter_username = fields.String(metadata={"description": "Twitter username of the user"})
-    telegram_username = fields.String(metadata={"description": "Telegram username of the user"})
+    email = OmitNoneField(metadata={"description": "Email of the user"})
+    member_name = OmitNoneField(metadata={"description": "Display name of the user"})
+    profile_picture = OmitNoneField(metadata={"description": "Profile picture of the user"})
+    discord_username = OmitNoneField(metadata={"description": "Discord username of the user"})
+    twitter_username = OmitNoneField(metadata={"description": "Twitter username of the user"})
+    telegram_username = OmitNoneField(metadata={"description": "Telegram username of the user"})
     last_login = fields.DateTime(metadata={"description": "Last login timestamp"})
     last_interaction = fields.DateTime(metadata={"description": "Last interaction timestamp"})
     email_verified = fields.Boolean(metadata={"description": "Whether the email is verified"})

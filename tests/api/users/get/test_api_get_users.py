@@ -17,9 +17,6 @@ def test_get_auth_user(client: Flask, victor: User, victor_logged_in: str):
         'is_active': True,
         'last_login': ANY,
         'last_interaction': ANY,
-        'member_name': None,
-        'telegram_username': None,
-        'twitter_username': None,
         'user_id': ANY,
         'username': 'Victor',
         'wallet_address': '0x1234567890'

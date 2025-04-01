@@ -24,9 +24,6 @@ def test_user_update(client: Flask, victor: User, victor_logged_in: str):
             'is_active': True,
             'last_interaction': ANY,
             'last_login': ANY,
-            'member_name': None,
-            'telegram_username': None,
-            'twitter_username': None,
             'user_id': ANY,
             'username': 'VicCrypto',
             'wallet_address': '0x1234567890'
@@ -53,9 +50,6 @@ def test_user_update_email(client: Flask, victor: User, victor_logged_in: str):
             'is_active': True,
             'last_interaction': ANY,
             'last_login': ANY,
-            'member_name': None,
-            'telegram_username': None,
-            'twitter_username': None,
             'user_id': ANY,
             'username': 'VicCrypto',
             'wallet_address': '0x1234567890'
@@ -97,9 +91,6 @@ def test_user_update_no_payload(client: Flask, victor: User, victor_logged_in: s
             'is_active': True,
             'last_interaction': ANY,
             'last_login': ANY,
-            'member_name': None,
-            'telegram_username': None,
-            'twitter_username': None,
             'user_id': ANY,
             'username': 'Victor',
             'wallet_address': '0x1234567890'

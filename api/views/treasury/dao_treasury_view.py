@@ -43,14 +43,21 @@ class DAOTreasuryView(DaoViewHandler):
         if not dao:
             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
+        # Check if DAO has a treasury wallet address
+        if not dao.treasury_address:
+            raise NotFound(ErrorHandler.DAO_NO_TREASURY)
+        
         # Get all tokens for the DAO
-        tokens = Token.get_by_dao_id(dao_id, db.session)
+        tokens = Token.get_by_wallet_address(dao.treasury_address, db.session)
         
         # Get recent transfers for the DAO - now directly from the DAO relationship
-        recent_transfers = Transfer.get_by_dao_id(dao_id, db.session)[:10]  # Limit to 10 most recent
+        #recent_transfers = Transfer.get_by_dao_id(dao_id, db.session)[:10]  # Limit to 10 most recent
         
         # Calculate the total value and daily change (simplified)
-        total_value = sum(token.amount * token.price for token in tokens)
+        # total_value = sum(token.amount * token.price for token in tokens)
+        
+        # TODO : Find a way to get the current price of tokens
+        total_value = 0
         
         # In a real implementation, you would calculate these from historical data
         daily_change = 111172.70  # Placeholder value
@@ -62,80 +69,79 @@ class DAOTreasuryView(DaoViewHandler):
             "daily_change": daily_change,
             "daily_change_percentage": daily_change_percentage,
             "tokens": tokens,
-            "recent_transfers": recent_transfers
+            "recent_transfers": []
         }
-        
-        logger.info(f"Generated treasury data for DAO {dao_id}")        
+              
         return treasury
 
 
-@treasury_blp.route("/daos/<string:dao_id>/update-percentages")
-class DAOTokensPercentagesView(DaoViewHandler):
-    @treasury_blp.doc(operationId='UpdateDAOTokenPercentages')
-    @treasury_blp.response(404, PagingError, description="DAO not found")
-    @treasury_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
-    @treasury_blp.response(400, PagingError, description="Bad Request - Error updating token percentages")
-    @treasury_blp.response(200, TreasuryUpdatePercentagesSchema, description="Token percentages updated successfully")
-    @jwt_required()
-    @cached_view(timeout=1800, make_key=make_put_treasury_key)
-    def put(self, dao_id: str):
-        """Update the percentages of tokens in the DAO's treasury without changing prices"""
-        db: SQLAlchemy = current_app.db
+# @treasury_blp.route("/daos/<string:dao_id>/update-percentages")
+# class DAOTokensPercentagesView(DaoViewHandler):
+#     @treasury_blp.doc(operationId='UpdateDAOTokenPercentages')
+#     @treasury_blp.response(404, PagingError, description="DAO not found")
+#     @treasury_blp.response(401, PagingError, description="Unauthorized - Invalid or missing token")
+#     @treasury_blp.response(400, PagingError, description="Bad Request - Error updating token percentages")
+#     @treasury_blp.response(200, TreasuryUpdatePercentagesSchema, description="Token percentages updated successfully")
+#     @jwt_required()
+#     @cached_view(timeout=1800, make_key=make_put_treasury_key)
+#     def put(self, dao_id: str):
+#         """Update the percentages of tokens in the DAO's treasury without changing prices"""
+#         db: SQLAlchemy = current_app.db
         
-        # Check if DAO exists
-        dao = DAO.get_by_id(dao_id, db.session)
-        if not dao:
-            raise NotFound(ErrorHandler.DAO_NOT_FOUND)
+#         # Check if DAO exists
+#         dao = DAO.get_by_id(dao_id, db.session)
+#         if not dao:
+#             raise NotFound(ErrorHandler.DAO_NOT_FOUND)
         
-        # Check if user has permission (must be a DAO admin)
-        auth_user = User.get_by_id(get_jwt_identity(), db.session)
-        if not auth_user:
-            raise NotFound(ErrorHandler.USER_NOT_FOUND)
+#         # Check if user has permission (must be a DAO admin)
+#         auth_user = User.get_by_id(get_jwt_identity(), db.session)
+#         if not auth_user:
+#             raise NotFound(ErrorHandler.USER_NOT_FOUND)
             
-        if auth_user not in dao.admins:
-            raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
+#         if auth_user not in dao.admins:
+#             raise Unauthorized(ErrorHandler.USER_NOT_ADMIN)
         
-        # Check if there are tokens to update
-        tokens = Token.get_by_dao_id(dao_id, db.session)
-        if not tokens:
-            return {
-                "action": "updated_percentages",
-                "message": "No tokens found in the treasury to update"
-            }
+#         # Check if there are tokens to update
+#         tokens = Token.get_by_dao_id(dao_id, db.session)
+#         if not tokens:
+#             return {
+#                 "action": "updated_percentages",
+#                 "message": "No tokens found in the treasury to update"
+#             }
             
-        # Update token percentages
-        success = self._update_token_percentages(dao_id, db)
-        if not success:
-            raise BadRequest("Failed to update token percentages")
+#         # Update token percentages
+#         success = self._update_token_percentages(dao_id, db)
+#         if not success:
+#             raise BadRequest("Failed to update token percentages")
         
-        # Get updated token data
-        tokens = Token.get_by_dao_id(dao_id, db.session)
+#         # Get updated token data
+#         tokens = Token.get_by_dao_id(dao_id, db.session)
         
-        # Get recent transfers
-        recent_transfers = Transfer.get_by_dao_id(dao_id, db.session)[:10]
+#         # Get recent transfers
+#         recent_transfers = Transfer.get_by_dao_id(dao_id, db.session)[:10]
         
-        # Calculate the total value
-        total_value = sum(token.amount * token.price for token in tokens)
+#         # Calculate the total value
+#         total_value = sum(token.amount * token.price for token in tokens)
         
-        # In a real implementation, you would calculate these from historical data
-        daily_change = 111172.70  # Placeholder value
-        daily_change_percentage = 0.42  # Placeholder value
+#         # In a real implementation, you would calculate these from historical data
+#         daily_change = 111172.70  # Placeholder value
+#         daily_change_percentage = 0.42  # Placeholder value
         
-        # Create the treasury response
-        treasury = {
-            "action": "updated_percentages",
-            "message": "Token percentages updated successfully",
-            "total_value": total_value,
-            "daily_change": daily_change,
-            "daily_change_percentage": daily_change_percentage,
-            "tokens": tokens,
-            "recent_transfers": recent_transfers
-        }
+#         # Create the treasury response
+#         treasury = {
+#             "action": "updated_percentages",
+#             "message": "Token percentages updated successfully",
+#             "total_value": total_value,
+#             "daily_change": daily_change,
+#             "daily_change_percentage": daily_change_percentage,
+#             "tokens": tokens,
+#             "recent_transfers": recent_transfers
+#         }
         
-        # Invalidate the GET cache for this DAO's treasury data since it's been updated
-        invalidate_view_cache(make_key=make_get_treasury_key, dao_id=dao_id)
-        invalidate_view_cache(make_key=make_token_key, dao_id=dao_id)
-        logger.info(f"Invalidated GET cache for DAO {dao_id} after updating token percentages")
+#         # Invalidate the GET cache for this DAO's treasury data since it's been updated
+#         invalidate_view_cache(make_key=make_get_treasury_key, dao_id=dao_id)
+#         invalidate_view_cache(make_key=make_token_key, dao_id=dao_id)
+#         logger.info(f"Invalidated GET cache for DAO {dao_id} after updating token percentages")
         
-        logger.info(f"Successfully updated token percentages for DAO {dao_id}")
-        return treasury
+#         logger.info(f"Successfully updated token percentages for DAO {dao_id}")
+#         return treasury

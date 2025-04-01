@@ -27,7 +27,8 @@ def test_get_dao(client: Flask, victor: User, victor_logged_in: str, dao: DAO):
                 'user_id': victor.user_id,
                 'username': victor.username,
             }
-        ]
+        ],
+        'treasury_address': dao.treasury_address
     }
 
 def test_get_dao_not_found(client: Flask, victor: User, victor_logged_in: str):

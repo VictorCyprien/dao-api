@@ -1721,71 +1721,6 @@
         }
       ]
     },
-    "/treasury/daos/{dao_id}/update-percentages": {
-      "put": {
-        "responses": {
-          "200": {
-            "description": "Token percentages updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TreasuryUpdatePercentages"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Error updating token percentages",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid or missing token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "DAO not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Update the percentages of tokens in the DAO's treasury without changing prices",
-        "tags": [
-          "treasury"
-        ],
-        "operationId": "UpdateDAOTokenPercentages"
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "dao_id",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      ]
-    },
     "/treasury/daos/{dao_id}/tokens": {
       "get": {
         "responses": {
@@ -1821,61 +1756,6 @@
           "treasury"
         ],
         "operationId": "GetDAOTokens"
-      },
-      "post": {
-        "responses": {
-          "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
-          },
-          "201": {
-            "description": "Token created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TokenSchemaResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "DAO not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagingError"
-                }
-              }
-            }
-          },
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TokenCreate"
-              }
-            }
-          }
-        },
-        "summary": "Create a new token for a specific DAO",
-        "tags": [
-          "treasury"
-        ],
-        "operationId": "CreateToken"
       },
       "parameters": [
         {
@@ -3843,27 +3723,21 @@
             "description": "Wallet address of the user"
           },
           "email": {
-            "type": "string",
             "description": "Email of the user"
           },
           "member_name": {
-            "type": "string",
             "description": "Display name of the user"
           },
           "profile_picture": {
-            "type": "string",
             "description": "Profile picture of the user"
           },
           "discord_username": {
-            "type": "string",
             "description": "Discord username of the user"
           },
           "twitter_username": {
-            "type": "string",
             "description": "Twitter username of the user"
           },
           "telegram_username": {
-            "type": "string",
             "description": "Telegram username of the user"
           },
           "last_login": {
@@ -3997,6 +3871,9 @@
           "banner_picture": {
             "type": "string"
           },
+          "treasury_address": {
+            "type": "string"
+          },
           "admins": {
             "readOnly": true,
             "type": "array",
@@ -4046,6 +3923,9 @@
             "type": "string"
           },
           "website": {
+            "type": "string"
+          },
+          "treasury": {
             "type": "string"
           },
           "profile": {
@@ -4108,6 +3988,9 @@
             "type": "string"
           },
           "website": {
+            "type": "string"
+          },
+          "treasury": {
             "type": "string"
           },
           "profile": {
@@ -4415,39 +4298,44 @@
             "type": "string",
             "readOnly": true
           },
-          "dao_id": {
-            "type": "string"
+          "wallet_address": {
+            "type": "string",
+            "readOnly": true
           },
-          "name": {
-            "type": "string"
+          "token_mint": {
+            "type": "string",
+            "readOnly": true
+          },
+          "balance": {
+            "type": "number",
+            "readOnly": true
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           },
           "symbol": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
-          "contract": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number"
+          "decimals": {
+            "type": "integer",
+            "readOnly": true
           },
           "price": {
-            "type": "number"
+            "type": "number",
+            "readOnly": true
           },
-          "percentage": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100
+          "price_change_percentage": {
+            "type": "number",
+            "readOnly": true
           },
-          "value": {
+          "photo_url": {
+            "type": "string",
             "readOnly": true
           }
-        },
-        "required": [
-          "contract",
-          "dao_id",
-          "name",
-          "symbol"
-        ]
+        }
       },
       "Transfer": {
         "type": "object",
@@ -4517,84 +4405,6 @@
             }
           }
         }
-      },
-      "TreasuryUpdatePercentages": {
-        "type": "object",
-        "properties": {
-          "total_value": {
-            "readOnly": true
-          },
-          "daily_change": {
-            "readOnly": true
-          },
-          "daily_change_percentage": {
-            "readOnly": true
-          },
-          "tokens": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Token"
-            }
-          },
-          "recent_transfers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Transfer"
-            }
-          },
-          "action": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "action",
-          "message"
-        ]
-      },
-      "TokenCreate": {
-        "type": "object",
-        "properties": {
-          "dao_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "contract": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "amount",
-          "contract",
-          "dao_id",
-          "name",
-          "symbol"
-        ]
-      },
-      "TokenSchemaResponse": {
-        "type": "object",
-        "properties": {
-          "action": {
-            "type": "string"
-          },
-          "token": {
-            "$ref": "#/components/schemas/Token"
-          }
-        },
-        "required": [
-          "action",
-          "token"
-        ]
       },
       "TransferCreate": {
         "type": "object",

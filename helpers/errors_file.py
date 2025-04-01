@@ -69,6 +69,7 @@ class ErrorHandler():
     DAO_NOT_ADMIN = "This user is not an admin of this DAO !"
     DAO_MEMBERSHIP_NOT_FOUND = "This DAO membership doesn't exist !"
     DAO_MEMBERSHIP_ALREADY_EXISTS = "This user is already a member of this DAO !"
+    DAO_NO_TREASURY = "This DAO doesn't have a treasury wallet address !"
     USER_NOT_ADMIN = "You are not an admin of this DAO !"
     USER_NOT_OWNER = "You are not the owner of this DAO !"
     USER_NOT_MEMBER = "This user is not a member of this DAO !"
@@ -90,3 +91,5 @@ class ErrorHandler():
     INVALID_TRANSFER_AMOUNT = "The transfer amount is invalid"
     DISCORD_CHANNEL_NOT_FOUND = "This Discord channel doesn't exist !"
     DISCORD_CHANNEL_ALREADY_LINKED = "This Discord channel is already linked to a POD !"
+    INVALID_WALLET_ADDRESS = "The provided wallet address is invalid"
+    

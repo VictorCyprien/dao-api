@@ -2,12 +2,20 @@ from typing import Dict
 
 from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 import requests
 from requests.exceptions import Timeout, RequestException
 
+import datetime
+import pytz
+
+import re
+
 from api.models import Token
 from api.config import config
+from api.models.dao import DAO
+from api.models.wallet_monitor import WalletMonitor
 
 from helpers.logging_file import Logger
 
@@ -15,112 +23,86 @@ from helpers.logging_file import Logger
 logger = Logger()
 
 class DaoViewHandler(MethodView):
-    def _fetch_wallet_data(self, wallet_address: str) -> Dict:
+    def _check_if_wallet_is_valid(self, wallet_address: str) -> bool:
         """
-        Fetch wallet data from the wallet API
+        Check if a wallet address is a valid Solana address
+        
+        Solana addresses:
+        - Are base58 encoded
+        - Are 32-44 characters long
+        - Should not contain invalid base58 characters
+        """
+        if wallet_address is None or wallet_address == "":
+            return False
+        
+        # Base58 alphabet: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
+        # Check length (typical Solana addresses are 32-44 chars)
+        if not (32 <= len(wallet_address) <= 44):
+            return False
+            
+        # Check if it only contains valid base58 characters
+        base58_pattern = re.compile(r'^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$')
+        if not base58_pattern.match(wallet_address):
+            return False
+            
+        return True
+
+
+    def _add_wallet_to_surveillance(self, dao: DAO, db: SQLAlchemy) -> bool:
+        """
+        Add a wallet address to the wallets_to_monitor table using the WalletMonitor model
         
         Args:
-            wallet_address: The wallet address to fetch data for
-            
-        Returns:
-            Dict containing wallet data from the API
-        """
-        api_host = config.WALLET_API_HOST
-        timeout = config.WALLET_API_TIMEOUT
-
-        # Format the URL according to the API docs
-        api_url = f"{api_host}/api/wallets/{wallet_address}"
-        headers = {
-            "Content-Type": "application/json",
-        }
-
-        try:    
-            response = requests.get(api_url, headers=headers, timeout=timeout)
-            response.raise_for_status()
-            
-            wallet_data = response.json()
-            logger.info(f"Successfully retrieved wallet data for {wallet_address}")
-            
-            # The API returns data in the format {wallet_address: data}
-            # Extract the actual data for easier processing
-            if wallet_address in wallet_data:
-                return wallet_data[wallet_address]
-            return wallet_data
-            
-        except Timeout as error:
-            logger.error(f"Timeout error fetching wallet data: {error}")
-            return {"error": f"Timeout error fetching wallet data: {str(error)}"}
-        
-        except RequestException as error:
-            logger.error(f"Error fetching wallet data: {error}")
-            return {"error": f"Failed to fetch wallet data: {str(error)}"}
-        
-            
-
-    def _add_tokens_to_treasury(self, wallet_data: Dict, dao_id: str, db: SQLAlchemy) -> int:
-        """
-        Process wallet data and add tokens to the DAO's treasury
-        
-        Args:
-            wallet_data: The wallet data from the API
-            dao_id: The ID of the DAO to add tokens to
+            dao: The DAO object that contains the treasury wallet address
             db: SQLAlchemy database instance
             
         Returns:
-            Number of tokens added to the treasury
+            True if the wallet was added successfully, False otherwise
         """
-        if "error" in wallet_data or not wallet_data.get("token_accounts"):
-            return 0
+        try:
+            # Check if wallet is already being monitored
+            existing = WalletMonitor.get_by_address(dao.treasury_address, db.session)
+            if existing:
+                logger.info(f"Wallet {dao.treasury_address} is already being monitored")
+                return True
+                
+            # Create and add the new wallet monitor entry
+            wallet_monitor = WalletMonitor.create(dao.treasury_address)
+            db.session.add(wallet_monitor)
             
-        token_accounts = wallet_data.get("token_accounts", {})
-        tokens_added = 0
-
-        # TODO : Get price of current token with other API (CoinGecko, CoinMarketCap, etc.)
-        default_price = config.WALLET_API_DEFAULT_PRICE
+            logger.info(f"Added treasury wallet {dao.treasury_address} to monitoring for DAO {dao.dao_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error adding wallet to monitoring: {e}")
+            return False
         
-        for token_address, token_data in token_accounts.items():
-            try:
-                # Extract token data
-                symbol = token_data.get("symbol", token_address[:8] + "...")
-                decimals = token_data.get("decimals", 9)
-                raw_balance = token_data.get("balance", 0)
-                
-                # Calculate decimal value (like the API does)
-                decimal_value = raw_balance / (10 ** decimals) if decimals > 0 else raw_balance
-                
-                # Create token input data
-                token_input = {
-                    "dao_id": dao_id,
-                    "name": f"{symbol} Token",
-                    "symbol": symbol,
-                    "contract": token_address,
-                    "amount": decimal_value,
-                    "price": default_price,
-                    "percentage": 0  # Will be calculated later
-                }
-                
-                # Create and add token
-                token = Token.create(token_input)
-                db.session.add(token)
-                tokens_added += 1
-                
-            except Exception as e:
-                logger.error(f"Error adding token {token_address} to treasury: {e}")
-                # Continue with other tokens even if one fails
-                continue
-                
-        # Commit the changes if tokens were added
-        if tokens_added > 0:
-            try:
-                db.session.commit()
-                logger.info(f"Added {tokens_added} tokens to DAO {dao_id} treasury")
-            except Exception as e:
-                db.session.rollback()
-                logger.error(f"Failed to commit token changes: {e}")
-                return 0
-                
-        return tokens_added
+    
+    def _delete_wallet_from_surveillance(self, dao: DAO, wallet_address: str, db: SQLAlchemy) -> bool:
+        """
+        Delete a wallet address from the wallets_to_monitor table using the WalletMonitor model
         
+        Args:
+            wallet_address: The address of the wallet to delete from the wallets_to_monitor table   
+            db: SQLAlchemy database instance
+            
+        Returns:
+            True if the wallet was deleted successfully, False otherwise
+        """
+        try:
+            # Get the wallet monitor entry to delete
+            wallet_monitor = WalletMonitor.get_by_address(wallet_address, db.session)
+            if not wallet_monitor:
+                logger.info(f"Wallet {wallet_address} not found in monitoring")
+                return True
+            
+            # Delete the wallet monitor entry   
+            db.session.delete(wallet_monitor)
+            logger.info(f"Deleted treasury wallet {wallet_address} from monitoring for DAO {dao.dao_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting wallet from monitoring: {e}")
+            return False
+    
 
     def _update_token_percentages(self, dao_id: str, db: SQLAlchemy) -> bool:
         """
