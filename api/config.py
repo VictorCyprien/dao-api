@@ -50,11 +50,6 @@ class Config:
         # PASSWORD CUSTOM SALT
         self.SECURITY_PASSWORD_SALT = env.str('SECURITY_PASSWORD_SALT', "672B2BB59D2E432E8F3FB10E23B8AECC")
 
-        # WALLET API CONFIGURATION
-        self.WALLET_API_HOST = env.str('WALLET_API_HOST', 'http://localhost:8080')
-        self.WALLET_API_TIMEOUT = env.int('WALLET_API_TIMEOUT', 5)
-        self.WALLET_API_DEFAULT_PRICE = env.float('WALLET_API_DEFAULT_PRICE', 1.0)  # Default price for tokens if not available
-
         # CACHE CONFIGURATION
         self.CACHE_TYPE = env.str('CACHE_TYPE', 'redis')
         self.CACHE_REDIS_HOST = env.str('CACHE_REDIS_HOST', self.REDIS_URI)
