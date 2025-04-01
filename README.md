@@ -84,17 +84,17 @@ make tests (with coverage)
 make testsx (without coverage)
 ```
 
-## Project structure
+## Project Structure
 
 ```bash
 .
 ├── .coveragerc
+├── .env.example
 ├── .gitignore
 ├── .scripts
 │   └── update_structure.sh
 ├── DAO-APP.excalidraw
 ├── README.md
-├── TODO
 ├── api
 │   ├── __init__.py
 │   ├── app.py
@@ -103,8 +103,14 @@ make testsx (without coverage)
 │   ├── models
 │   │   ├── __init__.py
 │   │   ├── dao.py
+│   │   ├── discord_channel.py
+│   │   ├── discord_message.py
 │   │   ├── pod.py
-│   │   └── user.py
+│   │   ├── proposal.py
+│   │   ├── social_connection.py
+│   │   ├── treasury.py
+│   │   ├── user.py
+│   │   └── wallet_monitor.py
 │   ├── schemas
 │   │   ├── __init__.py
 │   │   ├── auth_schemas.py
@@ -112,27 +118,43 @@ make testsx (without coverage)
 │   │   ├── communs_schemas.py
 │   │   ├── dao_schemas.py
 │   │   ├── data_schemas.py
+│   │   ├── discord_schemas.py
 │   │   ├── pod_schemas.py
+│   │   ├── proposal_schemas.py
+│   │   ├── pydantic_schemas.py
+│   │   ├── treasury_schemas.py
 │   │   └── users_schemas.py
-│   ├── utils.py
 │   └── views
-│       ├── __init__.py
 │       ├── auth
 │       │   ├── __init__.py
 │       │   ├── auth_blp.py
-│       │   ├── login_view.py
-│       │   └── logout_view.py
+│       │   ├── discord_oauth.py
+│       │   ├── logout_view.py
+│       │   ├── oauth_view_handler.py
+│       │   ├── social_connections_view.py
+│       │   ├── telegram_auth.py
+│       │   ├── twitter_oauth.py
+│       │   └── wallet_auth_view.py
 │       ├── daos
 │       │   ├── __init__.py
 │       │   ├── dao_membership_view.py
 │       │   ├── dao_pods_view.py
+│       │   ├── dao_view_handler.py
 │       │   ├── daos_blp.py
 │       │   ├── one_dao_view.py
+│       │   ├── pod_discord_feed_view.py
 │       │   └── root_daos_view.py
-│       ├── data
+│       ├── proposals
 │       │   ├── __init__.py
-│       │   ├── data_blp.py
-│       │   └── data_view.py
+│       │   ├── dao_proposals_view.py
+│       │   ├── pod_proposals_view.py
+│       │   └── proposals_blp.py
+│       ├── treasury
+│       │   ├── __init__.py
+│       │   ├── dao_treasury_view.py
+│       │   ├── token_view.py
+│       │   ├── transfer_view.py
+│       │   └── treasury_blp.py
 │       └── users
 │           ├── __init__.py
 │           ├── one_user_view.py
@@ -143,11 +165,14 @@ make testsx (without coverage)
 ├── demo.http
 ├── docker-compose.yml
 ├── helpers
+│   ├── build_cache_key.py
+│   ├── cache_decorator.py
 │   ├── errors_file.py
 │   ├── logging_file.py
+│   ├── minio_file.py
 │   ├── redis_file.py
-│   ├── smtp_file.py
-│   └── sqlite_file.py
+│   ├── schemas_file.py
+│   └── smtp_file.py
 ├── makefile
 ├── report.xml
 ├── requirements.txt
@@ -160,7 +185,8 @@ make testsx (without coverage)
 │   ├── api
 │   │   ├── auth
 │   │   │   ├── test_api_login.py
-│   │   │   └── test_api_logout.py
+│   │   │   ├── test_api_logout.py
+│   │   │   └── test_wallet_auth.py
 │   │   ├── daos
 │   │   │   ├── delete
 │   │   │   │   ├── test_delete_dao.py
@@ -176,8 +202,17 @@ make testsx (without coverage)
 │   │   │   └── put
 │   │   │       └── test_update_dao.py
 │   │   ├── data
-│   │   │   ├── test_api_get_items.py
-│   │   │   └── test_api_get_summary.py
+│   │   │   ├── _test_api_get_items.py
+│   │   │   └── _test_api_get_summary.py
+│   │   ├── discord
+│   │   │   ├── delete
+│   │   │   │   └── test_unlink_discord_channel.py
+│   │   │   ├── get
+│   │   │   │   ├── test_cache_behavior.py
+│   │   │   │   ├── test_get_discord_channels.py
+│   │   │   │   └── test_get_feed.py
+│   │   │   └── post
+│   │   │       └── test_link_discord_channel.py
 │   │   ├── pods
 │   │   │   ├── delete
 │   │   │   │   ├── test_delete_pod.py
@@ -191,6 +226,29 @@ make testsx (without coverage)
 │   │   │   └── put
 │   │   │       ├── test_update_pod.py
 │   │   │       └── test_update_pod_errors.py
+│   │   ├── proposals
+│   │   │   ├── delete
+│   │   │   │   ├── test_delete_dao_proposal.py
+│   │   │   │   └── test_delete_pod_proposals.py
+│   │   │   ├── get
+│   │   │   │   ├── test_get_dao_proposals.py
+│   │   │   │   ├── test_get_pod_proposals.py
+│   │   │   │   └── test_get_proposal_vote.py
+│   │   │   ├── post
+│   │   │   │   ├── test_create_dao_proposal.py
+│   │   │   │   └── test_create_pod_proposals.py
+│   │   │   └── put
+│   │   │       ├── test_update_dao_proposal.py
+│   │   │       └── test_update_pod_proposals.py
+│   │   ├── treasury
+│   │   │   ├── get
+│   │   │   │   ├── _test_get_dao_transfers.py
+│   │   │   │   ├── test_get_dao_tokens.py
+│   │   │   │   └── test_get_dao_treasury.py
+│   │   │   ├── post
+│   │   │   │   └── _test_create_transfer.py
+│   │   │   └── put
+│   │   │       └── _test_dao_treasury_view.py
 │   │   └── users
 │   │       ├── get
 │   │       │   └── test_api_get_users.py
@@ -208,6 +266,15 @@ make testsx (without coverage)
 │   │   ├── pods
 │   │   │   ├── test_create_pod_model.py
 │   │   │   └── test_update_pod_model.py
+│   │   ├── proposals
+│   │   │   ├── test_proposal_model.py
+│   │   │   ├── test_proposal_pod_model.py
+│   │   │   ├── test_proposal_relationships.py
+│   │   │   └── test_proposal_validations.py
+│   │   ├── treasury
+│   │   │   ├── _test_transfer_model.py
+│   │   │   ├── test_token_model.py
+│   │   │   └── test_wallet_monitor_model.py
 │   │   └── users
 │   │       ├── test_create_user.py
 │   │       ├── test_get_user.py
