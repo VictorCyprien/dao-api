@@ -57,9 +57,6 @@ The following environment variables can be set to configure the API:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | SERVICE_NAME | The name of the service | "" |
-| FLASK_ENV | Flask environment (dev, prod) | "dev" |
-| JWT_SECRET_KEY | Secret key for JWT tokens | None |
-| JWT_ACCESS_TOKEN_EXPIRES | Expiration time for JWT tokens in seconds | None |
 | CORS_ALLOWED_ORIGINS | CORS allowed origins | "*" |
 | POSTGRESQL_URI | PostgreSQL URI | "localhost" |
 | POSTGRESQL_USERNAME | PostgreSQL username | "root" |
@@ -67,7 +64,35 @@ The following environment variables can be set to configure the API:
 | POSTGRESQL_DB | PostgreSQL database name | "dao" |
 | REDIS_URI | Redis URI | "localhost" |
 | REDIS_PORT | Redis port | 6379 |
-
+| JWT_SECRET_KEY | Secret key for JWT tokens | None |
+| JWT_ACCESS_TOKEN_EXPIRES | Expiration time for JWT tokens in seconds | None |
+| DISCORD_CLIENT_ID | Discord OAuth client ID | "" |
+| DISCORD_CLIENT_SECRET | Discord OAuth client secret | "" |
+| DISCORD_REDIRECT_URI | Discord OAuth redirect URI | "http://localhost:5000/auth/discord/callback" |
+| TWITTER_CLIENT_ID | Twitter OAuth client ID | "" |
+| TWITTER_CLIENT_SECRET | Twitter OAuth client secret | "" |
+| TWITTER_REDIRECT_URI | Twitter OAuth redirect URI | "http://localhost:5000/auth/twitter/callback" |
+| TELEGRAM_BOT_TOKEN | Telegram bot token for authentication | "" |
+| OAUTH_ENCRYPTION_KEY | Fernet encryption key for OAuth tokens (auto-generated if not provided) | "" |
+| FRONTEND_URL | Frontend application URL for redirects | "http://localhost:5173" |
+| FLASK_ENV | Flask environment (dev, prod) | "dev" |
+| LOGGER_LEVEL | Logging level | "DEBUG" |
+| MINIO_ENDPOINT | MinIO endpoint | "localhost:9000" |
+| MINIO_ACCESS_KEY | MinIO access key | "minio" |
+| MINIO_SECRET_KEY | MinIO secret key | "minio123" |
+| MINIO_SECURE | Use HTTPS for MinIO | false |
+| MINIO_BUCKET_DAOS | MinIO bucket for DAOs | "daos" |
+| MINIO_BUCKET_USERS | MinIO bucket for users | "users" |
+| MINIO_REGION | MinIO region | "us-east-1" |
+| SMTP_SERVER | SMTP server address | "localhost" |
+| SMTP_PORT | SMTP server port | 1025 |
+| SMTP_USERNAME | SMTP username | "noreply@dao.io" |
+| SMTP_PASSWORD | SMTP password | "example" |
+| CACHE_TYPE | Cache type | "redis" |
+| CACHE_REDIS_HOST | Redis cache host | Value of REDIS_URI |
+| CACHE_REDIS_PORT | Redis cache port | Value of REDIS_PORT |
+| CACHE_DEFAULT_TIMEOUT | Default cache timeout in seconds | 300 |
+| CACHE_KEY_PREFIX | Cache key prefix | "dao_api_cache:" |
 
 ## API Documentation
 
