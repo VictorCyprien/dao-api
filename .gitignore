@@ -180,3 +180,5 @@ cov.xml
 report.xml
 oauth_docs.md
 Discord Schema.excalidraw
+db_mermaid.md
+dao-api.service
