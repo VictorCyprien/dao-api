@@ -3817,6 +3817,23 @@
         },
         "description": "New user information"
       },
+      "PodBasic": {
+        "type": "object",
+        "properties": {
+          "pod_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
       "UserBasic": {
         "type": "object",
         "properties": {
@@ -3825,6 +3842,38 @@
           },
           "username": {
             "type": "string"
+          },
+          "profile_picture": {
+            "type": "string"
+          },
+          "wallet_address": {
+            "type": "string"
+          },
+          "pods": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PodBasic"
+            }
+          },
+          "discord_username": {
+            "type": "string"
+          },
+          "twitter_username": {
+            "type": "string"
+          },
+          "telegram_username": {
+            "type": "string"
+          },
+          "last_interaction": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last interaction timestamp"
+          },
+          "last_login": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last login timestamp"
           }
         }
       },
