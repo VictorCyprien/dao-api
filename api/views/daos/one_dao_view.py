@@ -42,6 +42,12 @@ class OneDAOView(DaoViewHandler):
             dao.profile_picture = MinioHelper.get_cached_file_url(dao.profile_picture, config.MINIO_BUCKET_DAOS)
         if dao.banner_picture is not None:
             dao.banner_picture = MinioHelper.get_cached_file_url(dao.banner_picture, config.MINIO_BUCKET_DAOS)
+
+        # Update profile pictures for all users in one line
+        [setattr(user, 'profile_picture', MinioHelper.get_cached_file_url(user.profile_picture, config.MINIO_BUCKET_USERS)) for user in dao.members if user.profile_picture is not None]
+
+        # Set pods for each member
+        [setattr(user, "pods", user.get_dao_pods(dao_id)) for user in dao.members]
         
         return dao
     

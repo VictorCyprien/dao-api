@@ -297,6 +297,18 @@ class User(Base):
             logger.error(f"Solana signature verification failed: {str(e)}")
             return False
 
+    def get_dao_pods(self, dao_id: str):
+        """Filter user's pods to only include those from the specified DAO
+        
+        Args:
+            dao_id: The DAO ID to filter pods by
+            
+        Returns:
+            list: List of POD objects belonging to the specified DAO
+        """
+        if not self.member_pods:
+            return []
+        return [pod for pod in self.member_pods if pod.dao_id == dao_id]
 
     def to_dict(self):
         """Convert User model to dictionary for Pydantic serialization"""

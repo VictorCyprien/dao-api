@@ -1,16 +1,43 @@
 from marshmallow import Schema, fields, validate
 
-from helpers.schemas_file import OmitNoneField
+from api.models.user import User
 
+from helpers.schemas_file import OmitNoneField
 
 # String field that will be omitted if None
 class OmitNoneString(OmitNoneField, fields.String):
     pass
 
+
+class PodBasicSchema(Schema):
+    """Basic pod information for nested relationships"""
+    pod_id = fields.Str()
+    name = fields.Str()
+    description = fields.Str()
+    is_active = fields.Bool()
+
+
 class UserBasicSchema(Schema):
     """Basic user information for nested relationships"""
     user_id = fields.Str()
     username = fields.Str()
+    profile_picture = fields.Str()
+    wallet_address = fields.Str()
+    pods = fields.Nested(PodBasicSchema, many=True, dump_only=True)
+    discord_username = fields.Str()
+    twitter_username = fields.Str()
+    telegram_username = fields.Str()
+    last_interaction = fields.DateTime(metadata={"description": "Last interaction timestamp"})
+    last_login = fields.DateTime(metadata={"description": "Last login timestamp"})
+    
+    @staticmethod
+    def get_dao_pods(user: User, dao_id):
+        """Filter user's pods to only include those from the specified DAO"""
+        print(user.member_pods)
+        if not user.member_pods:
+            return []
+        return [pod for pod in user.member_pods if pod.dao_id == dao_id]
+
 
 class DAOSchema(Schema):
     """Schema for DAO model"""
@@ -34,6 +61,7 @@ class DAOSchema(Schema):
     # Relationship fields
     admins = fields.Nested(UserBasicSchema, many=True, dump_only=True)
     members = fields.Nested(UserBasicSchema, many=True, dump_only=True)
+
 
 class InputCreateDAOSchema(Schema):
     """Schema for creating a DAO"""
