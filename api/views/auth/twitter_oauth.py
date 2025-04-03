@@ -14,6 +14,7 @@ import secrets
 from api.models.user import User
 from api.models.social_connection import SocialConnection
 from .oauth_view_handler import OAuthViewHandler
+from helpers.redis_file import RedisToken
 
 from api.schemas.auth_schemas import (
     ConnectionResponseSchema,
@@ -60,9 +61,10 @@ class TwitterConnectView(OAuthViewHandler):
         # Format: "random_token:user_id"
         state = f"{state_token}:{user_id}"
         
-        # Store code verifier and state token in session
-        session[f'twitter_oauth_state_{user_id}'] = state_token
-        session[f'twitter_code_verifier_{user_id}'] = code_verifier
+        # Store code verifier and state token in Redis with 1 hour expiry
+        redis_token = RedisToken()
+        redis_token.set_token(f'twitter_oauth_state_{user_id}', state_token, 3600)
+        redis_token.set_token(f'twitter_code_verifier_{user_id}', code_verifier, 3600)
         
         # Define Twitter OAuth parameters
         params = {
@@ -115,19 +117,22 @@ class TwitterCallbackView(OAuthViewHandler):
             
         state_token, user_id = state_parts
         
-        # Verify state to prevent CSRF
-        session_state = session.get(f'twitter_oauth_state_{user_id}')
-        if not session_state or state_token != session_state:
+        # Initialize Redis token manager
+        redis_token = RedisToken()
+        
+        # Verify state using Redis
+        stored_state_token = redis_token.get_token(f'twitter_oauth_state_{user_id}')
+        if not stored_state_token or state_token != stored_state_token:
             return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=invalid_state")
         
-        # Get stored code verifier
-        code_verifier = session.get(f'twitter_code_verifier_{user_id}')
+        # Get stored code verifier from Redis
+        code_verifier = redis_token.get_token(f'twitter_code_verifier_{user_id}')
         if not code_verifier:
             return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=missing_verifier")
         
-        # Clear session data
-        session.pop(f'twitter_oauth_state_{user_id}', None)
-        session.pop(f'twitter_code_verifier_{user_id}', None)
+        # Clear Redis data
+        redis_token.delete_token(f'twitter_oauth_state_{user_id}')
+        redis_token.delete_token(f'twitter_code_verifier_{user_id}')
         
         # Exchange code for token
         token_response = self.exchange_twitter_token(code, code_verifier)
