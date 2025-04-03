@@ -11,6 +11,7 @@ from urllib.parse import urlencode
 from api.models.user import User
 from api.models.social_connection import SocialConnection
 from .oauth_view_handler import OAuthViewHandler
+from helpers.redis_file import RedisToken
 
 from api.schemas.auth_schemas import (
     ConnectionResponseSchema,
@@ -52,8 +53,9 @@ class DiscordConnectView(OAuthViewHandler):
         # Format: "random_token:user_id"
         state = f"{state_token}:{user_id}"
         
-        # Store only the token part in the session
-        session[f'discord_oauth_state_{user_id}'] = state_token
+        # Store token in Redis with 1 hour expiry
+        redis_token = RedisToken()
+        redis_token.set_token(f'discord_oauth_state_{user_id}', state_token, 3600)
         
         # Define Discord OAuth parameters
         params = {
@@ -105,13 +107,14 @@ class DiscordCallbackView(OAuthViewHandler):
             
         state_token, user_id = state_parts
         
-        # Verify state to prevent CSRF
-        session_state = session.get(f'discord_oauth_state_{user_id}')
-        if not session_state or state_token != session_state:
+        # Verify state using Redis instead of session
+        redis_token = RedisToken()
+        stored_state_token = redis_token.get_token(f'discord_oauth_state_{user_id}')
+        if not stored_state_token or state_token != stored_state_token:
             return redirect(f"{current_app.config['FRONTEND_URL']}/profile?error=invalid_state")
         
-        # Clear state from session
-        session.pop(f'discord_oauth_state_{user_id}', None)
+        # Clear state from Redis
+        redis_token.delete_token(f'discord_oauth_state_{user_id}')
         
         # Exchange code for token
         token_response = self.exchange_discord_token(code)
