@@ -22,9 +22,12 @@ from api.schemas.communs_schemas import PagingError
 from api.views.daos.daos_blp import blp as daos_blp
 from api.views.daos.dao_view_handler import DaoViewHandler
 
+from api.config import config
+
 from helpers.errors_file import ErrorHandler, NotFound, BadRequest
 from helpers.logging_file import Logger
-from helpers.minio_file import minio_manager
+from helpers.minio_file import MinioHelper
+
 
 
 logger = Logger()
@@ -37,6 +40,10 @@ class RootDAOsView(DaoViewHandler):
         """List all DAOs"""
         db: SQLAlchemy = current_app.db
         daos = DAO.get_all(db.session)
+
+        # Set profile pictures for all daos
+        [setattr(dao, "profile_picture", MinioHelper.get_cached_file_url(dao.profile_picture, config.MINIO_BUCKET_DAOS)) if dao.profile_picture is not None else None for dao in daos]
+
         return daos
 
 
